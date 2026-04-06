@@ -1,7 +1,6 @@
 namespace eratohoK.Semantics;
 
 using eratohoK.Core;
-using eratohoK.Data;
 
 /// <summary>
 /// CSV からセマンティックテキストを構築するファクトリー
@@ -9,12 +8,7 @@ using eratohoK.Data;
 /// </summary>
 public class SemanticTextFactory
 {
-    private readonly CsvDataReader _csvReader;
-    
-    public SemanticTextFactory(CsvDataReader csvReader)
-    {
-        _csvReader = csvReader;
-    }
+    public SemanticTextFactory() { }
     
     /// <summary>
     /// 口上 CSV からセマンティックテキストを生成
