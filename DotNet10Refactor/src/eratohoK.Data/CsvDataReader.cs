@@ -139,8 +139,8 @@ public class CsvDataReader : IDisposable
         var genderVal = soshitsuData.GetValueOrDefault("性別", 1);
         var gender = (genderVal >= 0 && genderVal <= 5) ? (Gender)genderVal : Gender.Female;
 
-        static bool GetBoolValue(Dictionary<string, int> d, string k, int def = 0)
-            => d.GetValueOrDefault(k, def) != 0;
+        static bool GetBoolValue(Dictionary<string, int> dictionary, string key, int def = 0)
+            => dictionary.GetValueOrDefault(key, def) != 0;
 
         var talent = new Talent(
             Gender: gender,

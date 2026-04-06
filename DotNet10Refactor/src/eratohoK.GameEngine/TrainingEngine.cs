@@ -8,6 +8,12 @@ using eratohoK.Core;
 /// </summary>
 public class TrainingEngine
 {
+    private const double MinResistanceFactor = 0.3;
+    private const double MaxResistance = 1000.0;
+    private const int MinLikeability = -100;
+    private const int MaxLikeability = 100;
+    private const double LikeabilityScaleDivisor = 200.0;
+
     private readonly List<TrainingActionDef> _actions;
     private readonly Random _rng = Random.Shared;
 
@@ -38,11 +44,11 @@ public class TrainingEngine
         int corruptionBase = 2 + _rng.Next(5);
 
         // Resistance reduces positive effects
-        double resistFactor = Math.Max(0.3, 1.0 - target.BaseStatus.Resistance / 1000.0);
+        double resistFactor = Math.Max(MinResistanceFactor, 1.0 - target.BaseStatus.Resistance / MaxResistance);
 
         // Trainer's likeability towards target boosts outcomes
         int like = trainer.GetLikeabilityTowards(target.Id);
-        double loveFactor = 1.0 + Math.Clamp(like, -100, 100) / 200.0;
+        double loveFactor = 1.0 + Math.Clamp(like, MinLikeability, MaxLikeability) / LikeabilityScaleDivisor;
 
         int pleasureChange = (int)(pleasureBase * resistFactor * loveFactor);
         int obedienceChange = (int)(obedienceBase * resistFactor * loveFactor);

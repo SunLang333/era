@@ -6,6 +6,11 @@ using eratohoK.GameEngine;
 
 class Program
 {
+    // After this many base-phase days the SLG (strategy) phase is triggered
+    // (matches the original eratohoK SHOP_TIME cycle of 3 actions per turn)
+    private const int SlgTriggerDay = 3;
+    private const int MaxDisplayedCharacters = 20;
+    private const int MaxDisplayedActions = 15;
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -101,7 +106,6 @@ class Program
         Console.WriteLine();
 
         int day = 1;
-        const int slgTriggerDay = 3;
 
         while (true)
         {
@@ -125,7 +129,7 @@ class Program
                     day++;
                     Console.WriteLine($"  休息しました。Day {day} になりました。");
                     Console.WriteLine();
-                    if (day > slgTriggerDay)
+                    if (day > SlgTriggerDay)
                     {
                         ShowSlgPhase(gameState, slgEngine);
                         day = 1;
@@ -163,7 +167,7 @@ class Program
 
         Console.WriteLine();
         Console.WriteLine("── アクションを選択 ──");
-        for (int i = 0; i < Math.Min(engine.AvailableActions.Count, 15); i++)
+        for (int i = 0; i < Math.Min(engine.AvailableActions.Count, MaxDisplayedActions); i++)
         {
             var a = engine.AvailableActions[i];
             Console.WriteLine($"  [{i}] {a.Name} ({a.TimeRequired}分)");
@@ -262,7 +266,7 @@ class Program
     {
         Console.WriteLine();
         Console.WriteLine(prompt);
-        int shown = Math.Min(characters.Count, 20);
+        int shown = Math.Min(characters.Count, MaxDisplayedCharacters);
         for (int i = 0; i < shown; i++)
         {
             var c = characters[i];

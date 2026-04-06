@@ -8,6 +8,9 @@ using eratohoK.Core;
 /// </summary>
 public class SlgEngine
 {
+    private const int GoldPerPopulation = 2;
+    private const int EconomyPerSoldier = 100;
+
     private readonly Dictionary<(int, int), int> _countryRelations = new();
     private readonly Random _rng = Random.Shared;
 
@@ -37,7 +40,7 @@ public class SlgEngine
             int goldGain = 0;
             foreach (var city in cityList.Where(c => c.CountryId == country.Id))
             {
-                int gain = city.Population * 2;
+                int gain = CalculateGoldGain(city);
                 city.Gold += gain;
                 goldGain += gain;
             }
@@ -45,7 +48,7 @@ public class SlgEngine
                 log.Add($"  [{country.Name}] 内政を実施。財政 +{goldGain}。");
 
             // ── Military action: recruit soldiers ──
-            int recruit = Math.Max(1, country.EconomyScale / 100);
+            int recruit = CalculateSoldierRecruitment(country);
             country.SoldierCount += recruit;
             log.Add($"  [{country.Name}] 兵士を徴兵。兵数 +{recruit} (合計: {country.SoldierCount})。");
 
@@ -80,13 +83,18 @@ public class SlgEngine
         int total = 0;
         foreach (var city in cities)
         {
-            int gain = city.Population * 2;
+            int gain = CalculateGoldGain(city);
             city.Gold += gain;
             total += gain;
         }
-        int soldiers = Math.Max(1, country.EconomyScale / 100);
+        int soldiers = CalculateSoldierRecruitment(country);
         country.SoldierCount += soldiers;
         return new CommandResult(true,
             $"内政を実施しました。財政 +{total}、兵士 +{soldiers}。");
     }
+
+    private static int CalculateGoldGain(City city) => city.Population * GoldPerPopulation;
+
+    private static int CalculateSoldierRecruitment(Country country) =>
+        Math.Max(1, country.EconomyScale / EconomyPerSoldier);
 }
