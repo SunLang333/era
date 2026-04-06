@@ -89,6 +89,16 @@ public class GameStateManager
     }
     
     /// <summary>
+    /// すべての勢力を取得
+    /// </summary>
+    public IReadOnlyList<Country> GetAllCountries() => _countries.AsReadOnly();
+
+    /// <summary>
+    /// すべての都市を取得
+    /// </summary>
+    public IReadOnlyList<City> GetAllCities() => _cities.AsReadOnly();
+
+    /// <summary>
     /// 指定した勢力に所属するキャラクターを取得
     /// </summary>
     public List<Character> GetCharactersByCountry(int countryId)

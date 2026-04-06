@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="33.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <ProjectReference Include="..\eratohoK.Core\eratohoK.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,174 +1,226 @@
 namespace eratohoK.Data;
 
-using CsvHelper;
-using CsvHelper.Configuration;
-using System.Globalization;
+using eratohoK.Core;
+using System.Text;
 
 /// <summary>
 /// CSV データリーダー
-/// 元の CSV フォーマットと互換性を持ちながら、
-/// 型安全なデータアクセスを提供する
+/// eratohoK 形式の CSV ファイルを読み込む
 /// </summary>
 public class CsvDataReader : IDisposable
 {
     private readonly string _csvDirectory;
-    private readonly Dictionary<string, List<IDictionary<string, string>>> _cache = new();
-    
+
     public CsvDataReader(string csvDirectory)
     {
         _csvDirectory = csvDirectory;
     }
-    
-    /// <summary>
-    /// CSV ファイルを読み込む
-    /// </summary>
-    /// <param name="fileName">ファイル名 (拡張子なし)</param>
-    /// <returns>行ごとのディクショナリリスト</returns>
-    public List<IDictionary<string, string>> ReadCsv(string fileName)
+
+    // ────────────────── Simple definition CSVs ──────────────────
+
+    private List<(int Id, string Name, string Comment)> ReadDefinitionCsv(string fileName)
     {
-        if (_cache.TryGetValue(fileName, out var cached))
-        {
-            return cached;
-        }
-        
         var filePath = Path.Combine(_csvDirectory, $"{fileName}.csv");
-        if (!File.Exists(filePath))
+        if (!File.Exists(filePath)) return new();
+
+        var results = new List<(int, string, string)>();
+        using var reader = new StreamReader(filePath, detectEncodingFromByteOrderMarks: true);
+        string? line;
+        while ((line = reader.ReadLine()) != null)
         {
-            throw new FileNotFoundException($"CSV file not found: {filePath}");
+            line = line.Trim();
+            if (string.IsNullOrEmpty(line) || line.StartsWith(';')) continue;
+            var parts = line.Split(',');
+            if (parts.Length < 2) continue;
+            if (!int.TryParse(parts[0].Trim(), out var id)) continue;
+            var name = parts[1].Trim();
+            var comment = parts.Length > 2 ? parts[2].Trim() : "";
+            results.Add((id, name, comment));
         }
-        
-        var records = new List<IDictionary<string, string>>();
-        
-        using var reader = new StreamReader(filePath);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-        
-        // ヘッダーを読み取る
-        var headers = new List<string>();
-        while (csv.Read())
-        {
-            if (csv.Parser.Record == null) continue;
-            
-            if (headers.Count == 0)
-            {
-                // 最初の行はヘッダー (ID, 名前，説明...)
-                for (int i = 0; i < csv.Parser.Record.Length; i++)
-                {
-                    headers.Add(csv.Parser.Record[i] ?? $"Column{i}");
-                }
-                continue;
-            }
-            
-            var record = new Dictionary<string, string>();
-            for (int i = 0; i < csv.Parser.Record.Length; i++)
-            {
-                var header = i < headers.Count ? headers[i] : $"Column{i}";
-                record[header] = csv.Parser.Record[i] ?? string.Empty;
-            }
-            records.Add(record);
-        }
-        
-        _cache[fileName] = records;
-        return records;
+        return results;
     }
-    
-    /// <summary>
-    /// Talent.csv を読み込んでパースする
-    /// </summary>
-    public List<TalentDefinition> ReadTalentDefinitions()
-    {
-        var records = ReadCsv("Talent");
-        var definitions = new List<TalentDefinition>();
-        
-        foreach (var record in records)
-        {
-            if (!record.ContainsKey("0") || string.IsNullOrEmpty(record["0"]))
-                continue;
-                
-            int id = int.Parse(record["0"]);
-            string name = record.ContainsKey("1") ? record["1"] : string.Empty;
-            string description = record.ContainsKey("2") ? record["2"] : string.Empty;
-            
-            definitions.Add(new TalentDefinition(id, name, description));
-        }
-        
-        return definitions;
-    }
-    
-    /// <summary>
-    /// Train.csv を読み込んでパースする
-    /// </summary>
+
     public List<TrainDefinition> ReadTrainDefinitions()
-    {
-        var records = ReadCsv("Train");
-        var definitions = new List<TrainDefinition>();
-        
-        foreach (var record in records)
-        {
-            if (!record.ContainsKey("0") || string.IsNullOrEmpty(record["0"]))
-                continue;
-                
-            int id = int.Parse(record["0"]);
-            string name = record.ContainsKey("1") ? record["1"] : string.Empty;
-            
-            definitions.Add(new TrainDefinition(id, name));
-        }
-        
-        return definitions;
-    }
-    
-    /// <summary>
-    /// キャラクター CSV ディレクトリを読み込む
-    /// </summary>
-    public List<CharacterCsvData> ReadCharacterCsvs()
+        => ReadDefinitionCsv("Train").Select(x => new TrainDefinition(x.Id, x.Name)).ToList();
+
+    public List<TalentDefinition> ReadTalentDefinitions()
+        => ReadDefinitionCsv("Talent").Select(x => new TalentDefinition(x.Id, x.Name, x.Comment)).ToList();
+
+    public List<AblDefinition> ReadAblDefinitions()
+        => ReadDefinitionCsv("Abl").Select(x => new AblDefinition(x.Id, x.Name)).ToList();
+
+    public List<BaseDefinition> ReadBaseDefinitions()
+        => ReadDefinitionCsv("Base").Select(x => new BaseDefinition(x.Id, x.Name)).ToList();
+
+    // ────────────────── Character CSVs ──────────────────
+
+    /// <summary>Chara/ サブディレクトリからすべてのキャラクターを読み込む</summary>
+    public List<Character> LoadAllCharacters()
     {
         var charaDir = Path.Combine(_csvDirectory, "Chara");
-        if (!Directory.Exists(charaDir))
+        if (!Directory.Exists(charaDir)) return new();
+
+        var characters = new List<Character>();
+        foreach (var file in Directory.GetFiles(charaDir, "*.csv").OrderBy(f => f))
         {
-            return new List<CharacterCsvData>();
+            var ch = ParseCharacterFile(file);
+            if (ch != null) characters.Add(ch);
         }
-        
-        var characters = new List<CharacterCsvData>();
-        foreach (var file in Directory.GetFiles(charaDir, "*.csv"))
-        {
-            var fileName = Path.GetFileNameWithoutExtension(file);
-            var records = ReadCsv($"Chara/{fileName}");
-            
-            if (records.Count > 0)
-            {
-                characters.Add(new CharacterCsvData(fileName, records));
-            }
-        }
-        
         return characters;
     }
-    
-    public void Dispose()
+
+    private Character? ParseCharacterFile(string filePath)
     {
-        _cache.Clear();
+        var data = new Dictionary<string, string>(StringComparer.Ordinal);
+        var cstrData = new Dictionary<int, string>();
+        var kisoData = new Dictionary<string, int>(StringComparer.Ordinal);
+        var soshitsuData = new Dictionary<string, int>(StringComparer.Ordinal);
+        var nouryokuData = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        using var reader = new StreamReader(filePath, detectEncodingFromByteOrderMarks: true);
+        string? line;
+        while ((line = reader.ReadLine()) != null)
+        {
+            line = line.Trim();
+            if (string.IsNullOrEmpty(line) || line.StartsWith(';')) continue;
+            var parts = line.Split(',');
+            if (parts.Length < 2) continue;
+
+            var key = parts[0].Trim();
+            switch (key)
+            {
+                case "番号":
+                case "名前":
+                case "呼び名":
+                    data[key] = parts[1].Trim();
+                    break;
+                case "CSTR":
+                    if (parts.Length >= 3 && int.TryParse(parts[1].Trim(), out var cstrIdx))
+                        cstrData[cstrIdx] = parts[2].Trim();
+                    break;
+                case "基礎":
+                    if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out var kisoVal))
+                        kisoData[parts[1].Trim()] = kisoVal;
+                    break;
+                case "素質":
+                    if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out var sosVal))
+                        soshitsuData[parts[1].Trim()] = sosVal;
+                    break;
+                case "能力":
+                    if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out var nouVal))
+                        nouryokuData[parts[1].Trim()] = nouVal;
+                    break;
+            }
+        }
+
+        if (!data.TryGetValue("番号", out var idStr) || !int.TryParse(idStr, out var id))
+            return null;
+
+        data.TryGetValue("名前", out var name);
+        data.TryGetValue("呼び名", out var nickname);
+
+        var baseStatus = new BaseStatus(
+            Physical: kisoData.GetValueOrDefault("体力", 100),
+            Mental: kisoData.GetValueOrDefault("気力", 100),
+            Resistance: soshitsuData.GetValueOrDefault("反抗心", 0),
+            Obedience: soshitsuData.GetValueOrDefault("従順", 0)
+        );
+
+        var ability = new Ability(
+            Fight: nouryokuData.GetValueOrDefault("武闘", 0),
+            Command: nouryokuData.GetValueOrDefault("防衛", 0),
+            Intelligence: nouryokuData.GetValueOrDefault("知略", 0),
+            Politics: nouryokuData.GetValueOrDefault("政治", 0),
+            Magic: nouryokuData.GetValueOrDefault("魔法", 0),
+            Talk: nouryokuData.GetValueOrDefault("話術", 0),
+            Heal: nouryokuData.GetValueOrDefault("治療", 0)
+        );
+
+        var genderVal = soshitsuData.GetValueOrDefault("性別", 1);
+        var gender = (genderVal >= 0 && genderVal <= 5) ? (Gender)genderVal : Gender.Female;
+
+        static bool GetBoolValue(Dictionary<string, int> d, string k, int def = 0)
+            => d.GetValueOrDefault(k, def) != 0;
+
+        var talent = new Talent(
+            Gender: gender,
+            IsVirgin: GetBoolValue(soshitsuData, "処女", 1),
+            IsMaleVirgin: GetBoolValue(soshitsuData, "童貞", 1),
+            IsKissInexperienced: GetBoolValue(soshitsuData, "キス未経験", 1),
+            IsAnalVirgin: GetBoolValue(soshitsuData, "アナル処女", 1),
+            IsCowardly: GetBoolValue(soshitsuData, "臆病"),
+            IsRebellious: GetBoolValue(soshitsuData, "反抗的"),
+            IsStoic: GetBoolValue(soshitsuData, "気丈"),
+            IsHonest: GetBoolValue(soshitsuData, "素直"),
+            IsQuiet: GetBoolValue(soshitsuData, "大人しい"),
+            IsProud: GetBoolValue(soshitsuData, "プライド高い"),
+            IsArrogant: GetBoolValue(soshitsuData, "生意気"),
+            IsLowPride: GetBoolValue(soshitsuData, "プライド低い"),
+            IsTsundere: GetBoolValue(soshitsuData, "ツンデレ"),
+            IsSelfControlled: GetBoolValue(soshitsuData, "自制心"),
+            IsIndifferent: GetBoolValue(soshitsuData, "無関心"),
+            IsEmotionless: GetBoolValue(soshitsuData, "感情乏しい"),
+            IsCurious: GetBoolValue(soshitsuData, "好奇心"),
+            IsConservative: GetBoolValue(soshitsuData, "保守的"),
+            IsOptimistic: GetBoolValue(soshitsuData, "楽観的"),
+            IsPessimistic: GetBoolValue(soshitsuData, "悲観的"),
+            IsNotCrossingLine: GetBoolValue(soshitsuData, "一線越えない"),
+            IsAttentionSeeker: GetBoolValue(soshitsuData, "目立ちたがり"),
+            HasChastityConcept: GetBoolValue(soshitsuData, "貞操観念"),
+            IsChastityIndifferent: GetBoolValue(soshitsuData, "貞操無頓着"),
+            IsSuppressed: GetBoolValue(soshitsuData, "抑圧"),
+            IsLiberated: GetBoolValue(soshitsuData, "解放"),
+            IsSolitary: GetBoolValue(soshitsuData, "孤高"),
+            IsShy: GetBoolValue(soshitsuData, "恥じらい"),
+            IsShameless: GetBoolValue(soshitsuData, "恥薄い"),
+            IsSlacker: GetBoolValue(soshitsuData, "サボり魔"),
+            IsWeakToPain: GetBoolValue(soshitsuData, "痛みに弱い"),
+            IsStrongToPain: GetBoolValue(soshitsuData, "痛みに強い"),
+            IsEasilyWet: GetBoolValue(soshitsuData, "濡れやすい"),
+            IsHardlyWet: GetBoolValue(soshitsuData, "濡れにくい"),
+            LearnsFast: GetBoolValue(soshitsuData, "習得早い"),
+            LearnsSlow: GetBoolValue(soshitsuData, "習得遅い"),
+            IsSkilledWithTongue: GetBoolValue(soshitsuData, "舌使い"),
+            HasUrinationQuirk: GetBoolValue(soshitsuData, "おもらし癖"),
+            MasturbatesEasily: GetBoolValue(soshitsuData, "自慰しやすい"),
+            IsInsensitiveToOdor: GetBoolValue(soshitsuData, "汚臭鈍感"),
+            IsSensitiveToOdor: GetBoolValue(soshitsuData, "汚臭敏感"),
+            IsDevoted: GetBoolValue(soshitsuData, "献身的"),
+            IgnoresDirt: GetBoolValue(soshitsuData, "汚れ無視")
+        );
+
+        cstrData.TryGetValue(0, out var familyName);
+        cstrData.TryGetValue(1, out var firstName);
+        var desc = string.Join(" ", new[] { familyName, firstName }.Where(s => !string.IsNullOrEmpty(s)));
+
+        return new Character
+        {
+            Id = id,
+            No = id,
+            Name = name ?? string.Empty,
+            Nickname = nickname ?? string.Empty,
+            Gender = gender,
+            BaseStatus = baseStatus,
+            Ability = ability,
+            Talent = talent,
+            Description = string.IsNullOrEmpty(desc) ? null : desc
+        };
     }
+
+    public void Dispose() { }
 }
 
-/// <summary>
-/// 素質定義
-/// </summary>
-public record TalentDefinition(
-    int Id,
-    string Name,
-    string Description
-);
+// ────────────────── Definition records ──────────────────
 
-/// <summary>
-/// 調教定義
-/// </summary>
-public record TrainDefinition(
-    int Id,
-    string Name
-);
+/// <summary>素質定義</summary>
+public record TalentDefinition(int Id, string Name, string Comment);
 
-/// <summary>
-/// キャラクター CSV データ
-/// </summary>
-public record CharacterCsvData(
-    string FileName,
-    List<IDictionary<string, string>> Records
-);
+/// <summary>調教定義</summary>
+public record TrainDefinition(int Id, string Name);
+
+/// <summary>能力定義</summary>
+public record AblDefinition(int Id, string Name);
+
+/// <summary>基礎能力定義</summary>
+public record BaseDefinition(int Id, string Name);
+
