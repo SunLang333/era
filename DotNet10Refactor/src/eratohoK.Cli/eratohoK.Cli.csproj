@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\eratohoK.Core\eratohoK.Core.csproj" />
+    <ProjectReference Include="..\eratohoK.Data\eratohoK.Data.csproj" />
+    <ProjectReference Include="..\eratohoK.GameEngine\eratohoK.GameEngine.csproj" />
+    <ProjectReference Include="..\eratohoK.Semantics\eratohoK.Semantics.csproj" />
+  </ItemGroup>
+
+</Project>

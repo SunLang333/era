@@ -1,11 +1,59 @@
-*.sav
-git-diff.bat
-*.dat
+```
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio Code
+.vscode/
+
+# Visual Studio
+*.user
+*.userosscache
+*.suo
+*.csproj.user
+*.vbproj.user
+*.fsproj.user
+*.userprefs
+
+# MSBuild
+*.VC.db
+*.VC.VC.opendb
+
+# NuGet
+packages/
+*.nupkg
+NuGet.Config
+
+# DotNet
+**/bin/
+**/obj/
+**/out/
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Logs
 *.log
-*.lnk
-watchlist.csv
-debug.config
-emuera.config
-_fixed.config
-.vscode
-macro.txt
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*~
+```
