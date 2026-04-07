@@ -28,6 +28,14 @@ class Program
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
+        if (args.Length > 0 && args[0] == "--extract-koujou")
+        {
+            var target = args.Length > 1 ? args[1] : "1";
+            eratohoK.Cli.ExtractionHelper.RunDiagnostic(target);
+            return;
+        }
+
         var csvDirectory = args.Length > 0 ? args[0] : "../CSV";
 
         // Pre-load shop items
@@ -545,7 +553,14 @@ class Program
         int bonusJoy = 0, bonusObed = 0;
         string effect = "";
         var rng = Random.Shared;
-        if (item.Id is >= 70 and <= 79)   // drugs / 媚薬 range
+        if (item.Id == 284) // 再生の秘薬
+        {
+            effect = "烙印を消去、処女を再生し、感度関係のABL／EXPを0にリセットしました。";
+            target.Talent = target.Talent with { IsVirgin = true, IsMaleVirgin = true, IsAnalVirgin = true };
+            target.Experience = new Experience(); // Exp reset
+            target.Ability = target.Ability with { SexualKnowledge = 0, Dominance = 0, Masochism = 0, Desire = 0 }; // Abl reset
+        }
+        else if (item.Id is >= 70 and <= 79)   // drugs / 媚薬 range
         {
             bonusJoy  = 50 + rng.Next(30);
             bonusObed = 20 + rng.Next(20);
@@ -1138,7 +1153,8 @@ class Program
         new(110, "鞭",         2000),
         new(71,  "媚薬",       20000),
         new(151, "清酒",        1000),
-        new(200, "ローター",    6000)
+        new(200, "ローター",    6000),
+        new(284, "再生の秘薬",  200000)
     ];
 }
 

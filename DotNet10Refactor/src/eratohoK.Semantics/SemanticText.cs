@@ -58,6 +58,17 @@ public enum SemanticCategoryType
 }
 
 /// <summary>
+/// セマンティック抽出の成熟度
+/// </summary>
+public enum SemanticExtractionStage
+{
+    Raw = 0,
+    Heuristic = 1,
+    ConditionAnnotated = 2,
+    Reviewed = 3
+}
+
+/// <summary>
 /// セマンティックテキストの基本実装
 /// </summary>
 public class SemanticText : ISemanticText
@@ -67,6 +78,56 @@ public class SemanticText : ISemanticText
     public string? Description { get; set; }
     
     public string SemanticCategory { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 元データのファイルパス
+    /// </summary>
+    public string? SourceFilePath { get; set; }
+
+    /// <summary>
+    /// 元データの開始行 (1-origin)
+    /// </summary>
+    public int? SourceLineStart { get; set; }
+
+    /// <summary>
+    /// 元データの終了行 (1-origin)
+    /// </summary>
+    public int? SourceLineEnd { get; set; }
+
+    /// <summary>
+    /// 元ファイル内のシンボル/ラベル名
+    /// </summary>
+    public string? SourceSymbol { get; set; }
+
+    /// <summary>
+    /// 抽出時に近傍から拾った未評価の条件スニペット
+    /// </summary>
+    public string? RawConditionSnippet { get; set; }
+
+    /// <summary>
+    /// 正規化/パース済みの条件オブジェクトのリスト
+    /// </summary>
+    public IReadOnlyList<KoujouNormalizedCondition> NormalizedConditions { get; set; } = Array.Empty<KoujouNormalizedCondition>();
+
+    /// <summary>
+    /// 抽出対象のキャラクター ID
+    /// </summary>
+    public int? CharacterId { get; set; }
+
+    /// <summary>
+    /// 抽出対象のキャラクター名
+    /// </summary>
+    public string? CharacterName { get; set; }
+
+    /// <summary>
+    /// 抽出ステージ
+    /// </summary>
+    public SemanticExtractionStage ExtractionStage { get; set; } = SemanticExtractionStage.Heuristic;
+
+    /// <summary>
+    /// 抽出結果の信頼度 (0-1)
+    /// </summary>
+    public double ExtractionConfidence { get; set; } = 0.5;
     
     public IDictionary<string, object?> Context { get; set; } = new Dictionary<string, object?>();
     

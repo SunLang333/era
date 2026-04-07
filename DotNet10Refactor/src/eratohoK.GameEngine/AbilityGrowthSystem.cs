@@ -39,6 +39,22 @@ public static class AbilityGrowthSystem
             msgs.Add($"{character.Name}【話術】Lv1 にアップ！");
         }
 
+        // Check for 恋慕 (IsInLove) based on Obedience and Joy
+        if (!character.IsInLove && character.BaseStatus.Obedience >= 500 && character.BaseStatus.Joy >= 300)
+        {
+            character.IsInLove = true;
+            msgs.Add(ReactionSystem.GetFirstTimeReaction("恋慕"));
+            msgs.Add($"{character.Name}はあなたに【恋慕】を抱いたようです。");
+        }
+
+        // Check for 恋人 (IsLover)
+        if (!character.IsLover && character.IsInLove && character.BaseStatus.Obedience >= 800 && character.BaseStatus.Joy >= 800)
+        {
+            character.IsLover = true;
+            msgs.Add(ReactionSystem.GetFirstTimeReaction("恋人"));
+            msgs.Add($"{character.Name}はあなたの【恋人】になりました。");
+        }
+
         return msgs;
     }
 }

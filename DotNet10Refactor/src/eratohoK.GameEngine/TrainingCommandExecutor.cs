@@ -94,6 +94,31 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
             _                          => target.Experience
         };
 
+        // Virginity and First Time checks
+        if (action.ActionType == TrainingActionType.Vaginal && target.Talent.IsVirgin)
+        {
+            var msg = ReactionSystem.GetFirstTimeReaction("処女喪失");
+            System.Console.WriteLine($"[{target.Name}] {msg}");
+            target.Talent = target.Talent with { IsVirgin = false };
+            statChanges["処女喪失"] = 1;
+        }
+
+        if (action.ActionType == TrainingActionType.Anal && target.Talent.IsAnalVirgin)
+        {
+            var msg = ReactionSystem.GetFirstTimeReaction("アナル初体験");
+            System.Console.WriteLine($"[{target.Name}] {msg}");
+            target.Talent = target.Talent with { IsAnalVirgin = false };
+            statChanges["アナル処女喪失"] = 1;
+        }
+        
+        if (action.ActionType == TrainingActionType.Oral && target.Talent.IsKissInexperienced)
+        {
+            var msg = ReactionSystem.GetFirstTimeReaction("初キス");
+            System.Console.WriteLine($"[{target.Name}] {msg}");
+            target.Talent = target.Talent with { IsKissInexperienced = false };
+            statChanges["初キス"] = 1;
+        }
+
         // Pregnancy check for Vaginal action
         if (action.ActionType == TrainingActionType.Vaginal && target.Gender == Gender.Female)
         {
