@@ -1,0 +1,39 @@
+# SYSTEM/CUSTOM_CHARA/CHARACTER_EDIT_BASE.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/CUSTOM_CHARA/CHARACTER_EDIT_BASE.ERB`
+
+类型: .ERB
+
+自动摘要: functions: CHARACTER_EDIT_INPUT_BASE; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿@CHARACTER_EDIT_UI_BASE(対象)
+#DIM 対象
+PRINTBUTTON "[  体力]", 0
+PRINTFORML  現在:{MAXBASE:対象:体力}
+PRINTBUTTON "[  気力]", 1
+PRINTFORML  現在:{MAXBASE:対象:気力}
+PRINTBUTTON "[精神力]", 2
+PRINTFORML  現在:{MAXBASE:対象:精神力}
+
+
+@CHARACTER_EDIT_INPUT_BASE(対象, 入力値)
+#DIM 対象
+#DIM 入力値
+
+SIF !INRANGE(入力値, 0, 2)
+	RETURN 0
+
+PRINTFORML 値を入力 現在値{MAXBASE:対象:入力値} 
+PRINTFORML %BASENAME:入力値%を編集中 0～5000)
+
+INPUT
+
+RESULT = LIMIT(RESULT, 0, 5000)
+
+MAXBASE:対象:入力値 = RESULT
+BASE:対象:入力値 = MAXBASE:対象:入力値
+
+```

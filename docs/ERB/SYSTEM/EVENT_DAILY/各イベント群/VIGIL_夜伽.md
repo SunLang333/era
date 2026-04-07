@@ -1,0 +1,212 @@
+# SYSTEM/EVENT_DAILY/各イベント群/VIGIL_夜伽.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/EVENT_DAILY/各イベント群/VIGIL_夜伽.ERB`
+
+类型: .ERB
+
+自动摘要: functions: EVENT_DAILY_VIGIL_RATE, EVENT_DAILY_VIGIL_DECISION, EVENT_DAILY_VIGIL_GENRE, EVENT_DAILY_VIGIL_SETTARGET, EVENT_DAILY_VIGIL; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@EVENT_DAILY_VIGIL_RATE()
+RETURN 150
+
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@EVENT_DAILY_VIGIL_DECISION()
+SIF !IS_FEMALE(MASTER)
+	RETURN 0
+RETURN DAY >= 10
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@EVENT_DAILY_VIGIL_GENRE()
+RETURN デイリー_ジャンル_エロ
+
+;---------------------
+;特定の条件を満たすキャラをランダムに選択する場合に利用
+;他の関数は必須だが、これだけはなくてもよい　というかパフォーマンスへ影響するので不要なら作ってはならない
+;対象が存在せずデイリーを開始できない場合は0を返すことでデイリーの発生をキャンセルする
+;---------------------
+@EVENT_DAILY_VIGIL_SETTARGET()
+
+SIF !IS_SP_COUNTRY(CFLAG:MASTER:所属)
+	RETURN 0
+
+;男で、主人公と同勢力で、捕虜でなく死亡もしていないキャラから対象をランダム選出(好感度と従属度が高いキャラの方が選ばれやすい)
+FOR LOCAL, 0, CHARANUM
+	IF IS_MALE(LOCAL) && CFLAG:LOCAL:所属 == CFLAG:MASTER:所属 && CFLAG:LOCAL:捕虜先 == 0 && CFLAG:LOCAL:行動不能状態 != 行動不能_子供
+		DAILY_TARGET:DAILY_TARGET_NUM = LOCAL
+		DAILY_TARGET_NUM ++
+	ENDIF
+NEXT
+
+SIF DAILY_TARGET_NUM < 1
+	RETURN 0
+
+RETURN 1
+
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@EVENT_DAILY_VIGIL()
+#DIM 対象
+
+対象 = DAILY_TARGET:(RAND:DAILY_TARGET_NUM)
+
+PRINTFORML %ANAME(対象)%から夜伽を要求された
+PRINTFORMW どうしよう？
+CALL ASK_YN("頷く", "断る")
+
+IF RESULT == 1 && !GETBIT(TALENT:MASTER:淫乱系, 素質_淫乱_淫乱) && !IS_FALLEN_TO_SP_COUNTRY(MASTER)
+	PRINTFORML 今日は疲れていてそんな気分ではない
+	PRINTFORMW 断ると%ANAME(対象)%は残念そうに肩をすくめて去って行った
+	RETURN 1
+ELSEIF RESULT == 1
+	PRINTFORML 疲れているので断ろうと思ったが、彼にされることを想像すると体が疼いて耐えられなかった
+	PRINTFORMW %ANAME(MASTER)%がもじもじとしながら小さく頷くと、%ANAME(対象)%はニヤリと笑い部屋で待っていると告げて去って行った
+ELSE
+	PRINTFORML もちろん相手をさせてもらう事にした
+	PRINTFORMW %ANAME(対象)%を見つめてウィンクしてみせると、彼はニヤリと笑い部屋で待っていると告げて去って行った
+ENDIF
+PRINTFORML
+PRINTFORML 深夜、スケスケの衣装に身を包んだ%ANAME(MASTER)%が枕を抱きながら静まった廊下を歩いている
+PRINTFORML 期待に胸を弾ませている%ANAME(MASTER)%の歩調は、本人も気づかぬうちに早足になっていた
+PRINTFORML 彼の部屋の前に着く頃には、息はすでに荒くなっており、秘所からはじわりと愛液が滲んでいた
+PRINTFORML 深呼吸をして落ち着いてから小さく扉を叩くと、すぐに扉が開かれ%ANAME(対象)%が現れた
+PRINTFORMW %ANAME(MASTER)%の火照った姿を確認した彼はニヤリと笑うと、その身体を抱き寄せて部屋の中へと招き入れた
+PRINTFORML 
+SELECTCASE RAND:30
+	CASE 0
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%の上に跨り、後ろ手で体を支えながら激しく腰を振っている
+		PRINTFORML 深々とペニスを咥えこんだ秘所からは%ANAME(MASTER)%が腰を上下する度に愛液が溢れ、卑猥な音を漏らしている
+		PRINTFORML その表情はすっかり蕩けきっており、与えられる快楽のままにだらしなく舌を垂らしながら喘いでいる
+		PRINTFORMW %ANAME(MASTER)%は%ANAME(対象)%の逞しいペニスに貫かれる悦びで一晩中ヨガり続けた
+	CASE 1
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に組み伏せられ、ペニスに貫かれながら貪る様に舌を絡め合っている
+		PRINTFORML 逞しいペニスで子宮をノックされる度に%ANAME(MASTER)%はの頭の中は弾ける様な快楽でいっぱいになる
+		PRINTFORML 雌の本能を刺激されて子宮が疼く%ANAME(MASTER)%は、身体全体で彼に奉仕を続け子種を待ちわびる
+		PRINTFORMW やがて待望の子種を注がれると、%ANAME(MASTER)%ははこの上ない幸福感に包まれながら嬌声と共に絶頂した
+	CASE 2
+		PRINTFORML パンパンと肌と肌の打ち合う音と共に、%ANAME(MASTER)%の嬌声がリズミカルに響いている
+		PRINTFORML 背後から%ANAME(対象)%に乱暴に犯されながら、%ANAME(MASTER)%はあへあへと雌犬の様にだらしなく乱れる
+		PRINTFORML 肉棒で膣壁をゴリゴリとえぐられると%ANAME(MASTER)%はゾクゾクと痙攣しながら声にならない声を上げる
+		PRINTFORMW 一晩中%ANAME(対象)%の逞しいペニスによって調教され続け、%ANAME(MASTER)%は幸せを感じながら何度も達した
+	CASE 3
+		PRINTFORML 仰向けに寝かされて%ANAME(対象)%のペニスをゆっくりとねじ込まれながら%ANAME(MASTER)%は喘ぐ
+		PRINTFORML 彼に焦らされる様にねっとりとした腰遣いで攻められ続け、%ANAME(MASTER)%はひたすら身悶える事しか出来ない
+		PRINTFORML 膣肉とペニスが擦れ合う度に、%ANAME(MASTER)%は頭が弾ける様な快楽で目を白黒させてヨガり狂う
+		PRINTFORMW その後もじっくりと仕込まれ続け、朝になる頃には%ANAME(MASTER)%は足腰が立たなくなっていた
+	CASE 4
+		PRINTFORML %ANAME(対象)%が彼女の突起をはじくと、%ANAME(MASTER)%は大きく背を反らしながら嬌声を上げた
+		PRINTFORML 彼の巧みな愛撫によって%ANAME(MASTER)%の身体はすっかり敏感になり、まんこはとろとろになっていた
+		PRINTFORML 今挿入されたらどうなってしまうのかと考える%ANAME(MASTER)%の目の前に、彼の逞しい肉棒がつき出される
+		PRINTFORMW するともはや我慢できない%ANAME(MASTER)%は秘所を割れ開き、目を♥にして浅ましいおねだりの言葉を吐いた
+	CASE 5
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に抱かれながら身体をくねらせ、悦びの声を上げている
+		PRINTFORML 荒々しい腰遣いで子宮を小突かれる度に、%ANAME(MASTER)%の頭の中は真っ白になり身を震わせる
+		PRINTFORML この逞しい雄を離すまいと、膣肉はきつく男根に絡みつく様に蠢き、より奥深くへいざなっていく
+		PRINTFORMW 彼が低く唸ると共に%ANAME(MASTER)%の中に大量の精を放つと、%ANAME(MASTER)%はメスの顔を晒しながら絶頂した
+	CASE 6
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%と恋人の様に両手を繋ぎながら夢中で腰を打ちつけ合っている
+		PRINTFORML パン！パン！パン！と肌が打ち合い、ペニスが膣内を擦り付ける度に%ANAME(MASTER)%はメスの顔になっていく
+		PRINTFORML 一突き毎に%ANAME(MASTER)%はたまらないといった風に腰をよじらせ、それがペニスを刺激して男の射精を促す
+		PRINTFORMW すっかり昂ぶった二人は一度や二度の絶頂では満足せず、一晩中たっぷりと愛しあった
+	CASE 7
+		PRINTFORML %ANAME(MASTER)%は何度目かの膣内射精を受けながら、一際大きな嬌声を上げて絶頂した
+		PRINTFORML 胎内にたっぷりと子種を吐き出されながら、%ANAME(MASTER)%は幸せそうにアヘ顔を晒して痙攣する
+		PRINTFORML 体勢を変える為に%ANAME(対象)%がいったんペニスを引き抜くと、結合部からどぽっと大量の精液が溢れ出た
+		PRINTFORMW 衰えを知らない彼の立派な肉棒に、%ANAME(MASTER)%は子宮が疼くのを感じながら再び体を開いて男を招いた
+	CASE 8
+		PRINTFORML %ANAME(MASTER)%は正常位の格好で%ANAME(対象)%に激しく犯されている
+		PRINTFORML 彼は一突き毎に%ANAME(MASTER)%に愛を囁き、まるで獣の様に激しく%ANAME(MASTER)%の膣内を蹂躙していく
+		PRINTFORML %ANAME(MASTER)%は彼の情熱的なストロークと愛の言葉に身も心も溶かされていき、肉欲に溺れてヨガり狂う
+		PRINTFORMW 子宮口と鈴口を密着したまま特濃の精を放たれながら、%ANAME(MASTER)%は気を失いそうになるほどの絶頂に達した
+	CASE 9
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に跨り、その長大なペニスを深々と咥えこみながら腰を振っている
+		PRINTFORML 腰を沈める度にペニスで子宮口を押しつぶされ、脳天まで痺れるような衝撃で%ANAME(MASTER)%は嬌声を上げる
+		PRINTFORML %ANAME(MASTER)%は本能的に子宮が降りて彼の子種を孕むことを望んでいること感じ、より激しく腰を振りだす
+		PRINTFORMW そして%ANAME(対象)%に子種をおねだりしながら熱心に奉仕をし、何度もご褒美の種付けをされて悦んだ
+	CASE 10
+		PRINTFORML ギシギシとベッドをきしませながら、%ANAME(MASTER)%が%ANAME(対象)%に跨り跳ねている
+		PRINTFORML %ANAME(MASTER)%はだらしない表情でずっぽりと男のペニスを咥えこみ、まるで娼婦のように体をくねらせる
+		PRINTFORML 不意に彼から突き上げられると、%ANAME(MASTER)%はビクンと身体を反らせて悦びの声を上げる
+		PRINTFORMW %ANAME(MASTER)%は震えながら%ANAME(対象)%を見つめて、その精を受けるべく更に腰の動きを早めていった
+	CASE 11
+		PRINTFORML たっぷりと%ANAME(対象)%にいじめられた%ANAME(MASTER)%は、息も絶え絶えでベッドに横たわっている
+		PRINTFORML 散々膣出しされて熱の籠る下腹部を%ANAME(MASTER)%は愛おしそうに撫でながら、ぶるっと身震いする
+		PRINTFORML 休憩もそこそに%ANAME(対象)%が再び圧し掛かってくると、%ANAME(MASTER)%は一瞬頬を染めながらも身体を開いた
+		PRINTFORMW 恋人のような甘いセックスを一晩中続け、%ANAME(MASTER)%は快楽と共にたっぷりと種を仕込まれた
+	CASE 12
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に体を支えられながら犯され、ひたすらヨガり狂っている
+		PRINTFORML 彼の絶倫ぶりに%ANAME(MASTER)%はもはや壊れた人形の様に、惚けた表情でただ身体を振るわせ喘ぎ続けている
+		PRINTFORML %ANAME(対象)%が身震いしながら膣内射精を行うと、%ANAME(MASTER)%はあまりの快楽と熱に蕩ける様な声を上げた
+		PRINTFORMW 夜が白む頃には彼の腕に抱かれながら、うっとりとしている%ANAME(MASTER)%の姿があった
+	CASE 13
+		PRINTFORML %ANAME(対象)%に跨り深々とペニスを飲み込みながら、%ANAME(MASTER)%は彼とキスをしている
+		PRINTFORML 奥深くで繋がりながら貪る様に舌を絡ませあっていると、溶け合うような感覚で頭が惚けてくる
+		PRINTFORML 幸福に包まれ膣をきゅっと締めると、ペニスが自らの中で跳ねるのを感じ、%ANAME(MASTER)%はえへっと笑う
+		PRINTFORMW %ANAME(MASTER)%は上体を起こすと愛しい彼と見つめ合いながら、奉仕する様にゆっくりと腰を振り出した
+	CASE 14
+		PRINTFORML %ANAME(MASTER)%は四つん這いの格好をさせられながら、乱暴にペニスで貫かれている
+		PRINTFORML %ANAME(対象)%が激しく腰を振り子宮を小突く度に、%ANAME(MASTER)%は身体を跳ねさせ色っぽい喘ぎ声を上げる
+		PRINTFORML またカリ首でグリグリと天井をこすりあげられると、%ANAME(MASTER)%は今度はブルブルと震え身悶えた
+		PRINTFORMW まるで玩具の様に好き勝手に犯されながらも、%ANAME(MASTER)%は悦びを感じてひたすらにヨガり狂い続けた
+	CASE 15
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に首輪を嵌められて、立ちバックの姿勢で激しい抽送を受けている
+		PRINTFORML 彼はペットを躾けるかの様にピストンに合わせて尻肉を叩き、その度に%ANAME(MASTER)%は身を震わせ喘ぐ
+		PRINTFORML 子宮口をとんとんと叩かれながら口内射精を予告されると、%ANAME(MASTER)%は犬の様に鳴いて種をねだった
+		PRINTFORMW 夜通し調教されたっぷりとマーキングされた%ANAME(MASTER)%は、別れる際に首をさすって名残惜しそうにしていた
+	CASE 16
+		PRINTFORML %ANAME(MASTER)%は%ANAME(対象)%に背後から抱え上げられながらペニスで激しく突き上げられている
+		PRINTFORML 子宮を押しつぶされるような激しいピストンに、%ANAME(MASTER)%はつま先を丸めながらひぃひぃ喘ぐ
+		PRINTFORML 不意にドチュン！と脳天まで響く様な強烈な突きを喰らい、思わず%ANAME(MASTER)%は大きく体を跳ねさせ絶頂する
+		PRINTFORMW 震える膣肉に彼も我慢できずにそのまま胎内へ射精すると、%ANAME(MASTER)%は熱を感じながら連続絶頂に達した
+	CASE 17
+		PRINTFORML %ANAME(対象)%は優しく%ANAME(MASTER)%を押し倒すと、全身にキスをしながら優しく愛撫をしてきた
+		PRINTFORML うなじ、鎖骨、背筋、乳房、内股等々全身の性感帯を這うような巧みな愛撫に%ANAME(MASTER)%は身悶えして喘ぐ
+		PRINTFORML やがて我慢できなくなった%ANAME(MASTER)%はとろとろになったまんこを割れ開き、彼のペニスをおねだりした
+		PRINTFORMW 愛撫と同様のゆっくりながらも優しく蕩ける様なセックスに、%ANAME(MASTER)%は時間を忘れて何度も気をやった
+	CASE 18
+		PRINTFORML ベッドに押し倒されペニスをねじ込まれながら、%ANAME(MASTER)%は嬉しそうな表情で喘いでいる
+		PRINTFORML 彼の情熱的なセックスに一突き毎に快楽の波が押し寄せ、雌の本能のままに身を震わせ悦びの声を上げる
+		PRINTFORML %ANAME(対象)%の首に手を回しながら物欲しそうに舌を出すと、彼もむしゃぶりつく様に舌を絡ませてきた
+		PRINTFORMW 頭が溶けそうな濃厚なセックスに夢中になってお互いを貪り、疲れ果てる頃には子宮が彼の精液で満たされていた
+	CASE 19
+		PRINTFORML %ANAME(MASTER)%はベッドに横たわり、%ANAME(対象)%にされるがままにひたすら犯されている
+		PRINTFORML 膣穴を逞しい肉柱でいっぱいに圧迫され、%ANAME(MASTER)%は悦びのあまりにだらしなく舌を垂らしてアヘ顔を晒す
+		PRINTFORML 彼が限界を訴えると%ANAME(MASTER)%は膣をきつくしめ、白濁を子宮に放たれながら全身を震わせアクメに達した
+		PRINTFORMW 彼の精液を絞り終えても%ANAME(MASTER)%はペニスを咥えたまま離さず、淫靡な表情で身をくねらせ次を誘った
+	CASE 20
+		PRINTFORML 部屋に入るなり彼は%ANAME(MASTER)%に押し倒しペニスをねじ込んできた
+		PRINTFORML 驚きながらも%ANAME(MASTER)%も抵抗せずに彼を受け入れると、彼のピストンに合わせて腰を振りだす
+		PRINTFORML 甘えるように%ANAME(MASTER)%の胸に抱きつき必死で腰を振る彼に、母性本能を刺激さて%ANAME(MASTER)%は身震いする
+		PRINTFORMW 彼が満足するまで夜通し甘えさせてやり、その精を子宮に受けながら、%ANAME(MASTER)%自身も何度もアクメに達した
+	CASE 21
+		PRINTFORML %ANAME(MASTER)%は胡坐をかいた%ANAME(対象)%のペニスに跨り根元までペニスを咥えこむ
+		PRINTFORML 彼に抱き寄せられ吐息がかかる距離で見つめあいながら、お互いに揺するように軽く腰を振り始める
+		PRINTFORML 密着したまま、舌を絡ませたりお互いの身体にキスをしあいながら、ゆったりとしたセックスを楽しむ
+		PRINTFORMW やがて二人は共に限界に達すると、恋人の様にお互いの名を呼びながら心地よい絶頂を味わった
+	CASE 22
+		PRINTFORML %ANAME(対象)%の巨大なペニスで膣内を埋め尽くされ%ANAME(MASTER)%はブルブルと痙攣している
+		PRINTFORML 肉棒が膣内を出入りする度に膣壁全体をこすりあげられ、%ANAME(MASTER)%は圧倒的な快楽に襲われ絶頂してしまう
+		PRINTFORML 数度のピストンで%ANAME(MASTER)%の身体はすっかり彼のペニスの虜になり、無意識に彼のペニスを締め上げていく
+		PRINTFORMW あまりの具合の良さに彼もすぐに限界を迎え大量の精液を放つと、%ANAME(MASTER)%はあられもない声を上げて達した
+	CASE 23
+		PRINTFORML 媚薬を飲まされた%ANAME(MASTER)%は全身から湧き上がる情欲に我慢できず彼に縋り付いておねだりをする
+		PRINTFORML 彼はそんな%ANAME(MASTER)%を見やりながらベッドに寝転び、ペニスをそそり立たせて奉仕しろと命じてくる
+```

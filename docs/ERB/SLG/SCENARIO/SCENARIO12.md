@@ -1,0 +1,212 @@
+# SLG/SCENARIO/SCENARIO12.ERB — 自动生成文档
+
+源文件: `ERB/SLG/SCENARIO/SCENARIO12.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SCENARIO_NAME_12, IS_COUNTRY_PLAYABLE_12, SCENARIO_INTRO_12, SCENARIO_PLACEMENT_12, SCENARIO_EVENT_12; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;-------------------------------------------------
+;シナリオ12
+;悪の栄えた試し無し
+;-------------------------------------------------
+@SCENARIO_NAME_12
+RESULTS = 悪の栄えた試し無し
+RETURN
+
+@IS_COUNTRY_PLAYABLE_12(ARG:0)
+SIF IS_SP_COUNTRY(ARG:0)
+	RETURN
+RETURN 1
+
+@SCENARIO_INTRO_12
+PRINTFORML
+PRINTFORMW 幻想郷は分裂した！
+PRINTFORMW 熾烈なる勢力争いに乗じて　ワルい奴らが現れ暴虐の限りを尽くした
+PRINTFORMW 長きに渡る戦いにより疲弊した幻想少女たちは撤退を　余儀なくされ　多くの都市を奪われてしまった
+PRINTFORMW 今こそ団結の時！力を合わせてにっくきアイツらをやっつけろ♥
+PRINTFORMW 
+PRINTFORMW ◇ちゅうい◇
+PRINTFORMW 女の子に乱暴する特殊勢力が必ず出現します
+PRINTFORMW 
+PRINTL
+
+;ランダムキャラは選択に委ねる
+FLAG:4 = 0
+
+@SCENARIO_PLACEMENT_12
+#DIM 友好
+;勢力設定
+COUNTRY_BOSS:0 = 0
+COUNTRY_COLOR:0 = GETDEFCOLOR()
+
+;団結すると言ったな。あれは嘘だ
+友好 = 500
+
+CALL SP_COUNTRY_SETTING(1, 0)
+
+;--------霊夢;--------
+COUNTRY_BOSS:1 = GET_ID(NAME_TO_CHARA("霊夢"))
+COUNTRY_COLOR:1 = 0x757575
+COUNTRY_AI_TYPE:1 = AI_外交
+
+CITY_OWNER:GET_CITYNUMBER("博麗神社") = 1
+CITY_OWNER:GET_CITYNUMBER("博麗大結界") = 1
+;CITY_OWNER:GET_CITYNUMBER("ミズナラの木") = 1
+CITY_OWNER:GET_CITYNUMBER("裏手の池") = 1
+;神社オールスター
+CFLAG:(NAME_TO_CHARA("霊夢")):1 = 1
+CFLAG:(NAME_TO_CHARA("萃香")):1 = 1
+CFLAG:(NAME_TO_CHARA("華扇")):1 = 1
+CFLAG:(NAME_TO_CHARA("針妙丸")):1 = 1
+CFLAG:(NAME_TO_CHARA("魅魔")):1 = 1
+CFLAG:(NAME_TO_CHARA("あうん")):1 = 1
+CFLAG:(NAME_TO_CHARA("る～こと")):1 = 1
+CFLAG:(NAME_TO_CHARA("カナ")):1 = 1
+CFLAG:(NAME_TO_CHARA("エレン")):1 = 1
+CFLAG:(NAME_TO_CHARA("サニーミルク")):1 = 1
+CFLAG:(NAME_TO_CHARA("ルナチャイルド")):1 = 1
+CFLAG:(NAME_TO_CHARA("スターサファイア")):1 = 1
+CFLAG:(NAME_TO_CHARA("クラウンピース")):1 = 1
+;宇佐見！
+CFLAG:(NAME_TO_CHARA("菫子")):1 = 1
+CFLAG:(NAME_TO_CHARA("蓮子")):1 = 1
+CFLAG:(NAME_TO_CHARA("マエリベリー")):1 = 1
+
+;--------スカーレットフェアリーズ--------
+COUNTRY_BOSS:2 = GET_ID(NAME_TO_CHARA("レミリア"))
+COUNTRY_COLOR:2 = 0xFF0000
+COUNTRY_AI_TYPE:2 = AI_好戦
+
+CITY_OWNER:GET_CITYNUMBER("霧の湖") = 2
+CITY_OWNER:GET_CITYNUMBER("廃洋館") = 2
+CITY_OWNER:GET_CITYNUMBER("紅魔館") = 2
+;紅魔館組
+CFLAG:(NAME_TO_CHARA("レミリア")):1 = 2
+CFLAG:(NAME_TO_CHARA("美鈴")):1 = 2
+CFLAG:(NAME_TO_CHARA("咲夜")):1 = 2
+CFLAG:(NAME_TO_CHARA("小悪魔")):1 = 2
+CFLAG:(NAME_TO_CHARA("パチュリー")):1 = 2
+CFLAG:(NAME_TO_CHARA("フランドール")):1 = 2
+;すばらしいなかまたち
+CFLAG:(NAME_TO_CHARA("大妖精")):1 = 2
+CFLAG:(NAME_TO_CHARA("チルノ")):1 = 2
+CFLAG:(NAME_TO_CHARA("エタニティラルバ")):1 = 2
+CFLAG:(NAME_TO_CHARA("ルーミア")):1 = 2
+CFLAG:(NAME_TO_CHARA("リグル")):1 = 2
+CFLAG:(NAME_TO_CHARA("ミスティア")):1 = 2
+CFLAG:(NAME_TO_CHARA("リリーホワイト")):1 = 2
+CFLAG:(NAME_TO_CHARA("リリーブラック")):1 = 2
+CFLAG:(NAME_TO_CHARA("レティ")):1 = 2
+
+;--------魔理沙--------
+COUNTRY_BOSS:3 = GET_ID(NAME_TO_CHARA("魔理沙"))
+COUNTRY_COLOR:3 = 0xE1D200
+CITY_OWNER:GET_CITYNUMBER("マーガトロイド邸") = 3
+CITY_OWNER:GET_CITYNUMBER("霧雨魔法店") = 3
+CITY_OWNER:GET_CITYNUMBER("魔法の森南部") = 3
+;アリスと人形たち　あと朱鷺子
+CFLAG:(NAME_TO_CHARA("霖之助")):1 = 3
+CFLAG:(NAME_TO_CHARA("魔理沙")):1 = 3
+CFLAG:(NAME_TO_CHARA("アリス")):1 = 3
+CFLAG:(NAME_TO_CHARA("上海人形")):1 = 3
+CFLAG:(NAME_TO_CHARA("蓬莱人形")):1 = 3
+CFLAG:(NAME_TO_CHARA("大江戸人形")):1 = 3
+CFLAG:(NAME_TO_CHARA("ゴリアテ人形")):1 = 3
+CFLAG:(NAME_TO_CHARA("朱鷺子")):1 = 3
+
+;--------ひとざとをまもるよ--------
+COUNTRY_BOSS:4 = GET_ID(NAME_TO_CHARA("白蓮"))
+COUNTRY_COLOR:4 = 0xDF01D7
+COUNTRY_AI_TYPE:4 = AI_外交
+
+CITY_OWNER:GET_CITYNUMBER("命蓮寺") = 4
+CITY_OWNER:GET_CITYNUMBER("墓地") = 4
+CITY_OWNER:GET_CITYNUMBER("人里住宅街") = 4
+;響子と小傘含む寺
+CFLAG:(NAME_TO_CHARA("響子")):1 = 4
+CFLAG:(NAME_TO_CHARA("ナズーリン")):1 = 4
+CFLAG:(NAME_TO_CHARA("小傘")):1 = 4
+CFLAG:(NAME_TO_CHARA("一輪")):1 = 4
+CFLAG:(NAME_TO_CHARA("雲山")):1 = 4
+CFLAG:(NAME_TO_CHARA("水蜜")):1 = 4
+CFLAG:(NAME_TO_CHARA("星")):1 = 4
+CFLAG:(NAME_TO_CHARA("白蓮")):1 = 4
+CFLAG:(NAME_TO_CHARA("マミゾウ")):1 = 4
+;慧音と妹紅とあきゅこす
+CFLAG:(NAME_TO_CHARA("慧音")):1 = 4
+CFLAG:(NAME_TO_CHARA("妹紅")):1 = 4
+CFLAG:(NAME_TO_CHARA("阿求")):1 = 4
+CFLAG:(NAME_TO_CHARA("小鈴")):1 = 4
+
+;--------ゆかゆゆ--------
+COUNTRY_BOSS:5 = GET_ID(NAME_TO_CHARA("紫"))
+COUNTRY_COLOR:5 = 0x792B90
+COUNTRY_AI_TYPE:5 = AI_内政
+
+CITY_OWNER:GET_CITYNUMBER("八雲屋敷") = 5
+CITY_OWNER:GET_CITYNUMBER("マヨヒガ") = 5
+CITY_OWNER:GET_CITYNUMBER("七千階段") = 5
+;八雲家
+CFLAG:(NAME_TO_CHARA("紫")):1 = 5
+CFLAG:(NAME_TO_CHARA("藍")):1 = 5
+CFLAG:(NAME_TO_CHARA("橙")):1 = 5
+CFLAG:(NAME_TO_CHARA("妖忌")):1 = 5
+CFLAG:(NAME_TO_CHARA("幽々子")):1 = 5
+CFLAG:(NAME_TO_CHARA("リリカ")):1 = 5
+CFLAG:(NAME_TO_CHARA("メルラン")):1 = 5
+CFLAG:(NAME_TO_CHARA("ルナサ")):1 = 5
+CFLAG:(NAME_TO_CHARA("妖夢")):1 = 5
+CFLAG:(NAME_TO_CHARA("半霊")):1 = 5
+
+;--------月……--------
+COUNTRY_BOSS:6 = GET_ID(NAME_TO_CHARA("永琳"))
+COUNTRY_COLOR:6 = 0x778CFF
+COUNTRY_AI_TYPE:6 = AI_防衛
+
+CITY_OWNER:GET_CITYNUMBER("永遠亭") = 6
+CITY_OWNER:GET_CITYNUMBER("素兎の集落") = 6
+CITY_OWNER:GET_CITYNUMBER("迷いの竹林西部") = 6
+
+;永遠亭組
+CFLAG:(NAME_TO_CHARA("永琳")):1 = 6
+CFLAG:(NAME_TO_CHARA("てゐ")):1 = 6
+CFLAG:(NAME_TO_CHARA("鈴仙")):1 = 6
+CFLAG:(NAME_TO_CHARA("輝夜")):1 = 6
+
+;--------新地獄連合--------
+COUNTRY_BOSS:7 = GET_ID(NAME_TO_CHARA("四季映姫"))
+COUNTRY_COLOR:7 = 0x088A08
+CITY_OWNER:GET_CITYNUMBER("三途の川") = 7
+CITY_OWNER:GET_CITYNUMBER("中有の道") = 7
+CITY_OWNER:GET_CITYNUMBER("渡し舟処") = 7
+
+CFLAG:(NAME_TO_CHARA("純狐")):1 = 7
+CFLAG:(NAME_TO_CHARA("ヘカーティア")):1 = 7
+;ヅカ組
+CFLAG:(NAME_TO_CHARA("四季映姫")):1 = 7
+CFLAG:(NAME_TO_CHARA("メディスン")):1 = 7
+CFLAG:(NAME_TO_CHARA("幽香")):1 = 7
+CFLAG:(NAME_TO_CHARA("小町")):1 = 7
+
+;--------妖怪の山連合--------
+COUNTRY_BOSS:8 = GET_ID(NAME_TO_CHARA("神奈子"))
+COUNTRY_COLOR:8 = 0x79FF4B
+COUNTRY_AI_TYPE:8 = AI_好戦
+
+CITY_OWNER:GET_CITYNUMBER("未踏の渓谷") = 8
+CITY_OWNER:GET_CITYNUMBER("九天の滝") = 8
+;CITY_OWNER:GET_CITYNUMBER("妖怪の山山頂") = 8
+;CITY_OWNER:GET_CITYNUMBER("風神の湖") = 8
+CITY_OWNER:GET_CITYNUMBER("大蝦蟇の池") = 8
+;やまんちゅ
+CFLAG:(NAME_TO_CHARA("静葉")):1 = 8
+CFLAG:(NAME_TO_CHARA("穣子")):1 = 8
+CFLAG:(NAME_TO_CHARA("雛")):1 = 8
+CFLAG:(NAME_TO_CHARA("にとり")):1 = 8
+CFLAG:(NAME_TO_CHARA("椛")):1 = 8
+CFLAG:(NAME_TO_CHARA("文")):1 = 8
+```

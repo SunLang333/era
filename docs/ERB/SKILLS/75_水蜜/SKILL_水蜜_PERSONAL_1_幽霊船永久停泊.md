@@ -1,0 +1,105 @@
+# SKILLS/75_水蜜/SKILL_水蜜_PERSONAL_1_幽霊船永久停泊.ERB — 自动生成文档
+
+源文件: `ERB/SKILLS/75_水蜜/SKILL_水蜜_PERSONAL_1_幽霊船永久停泊.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SKILL_75_PERSONAL_1_EXIST, SKILL_75_PERSONAL_1_NAME, SKILL_75_PERSONAL_1_LEVEL, SKILL_75_PERSONAL_1_SETTARGET, SKILL_75_PERSONAL_1_CAN_INVOKE, SKILL_75_PERSONAL_1_INVOKE, SKILL_75_PERSONAL_1_EXPLANATION, SKILL_75_PERSONAL_1_NO_LEARN_INIT, SKILL_75_PERSONAL_1_CANT_LEARN_FROM_SHOP, SKILL_75_PERSONAL_1_CANT_TELL, SKILL_75_PERSONAL_1_RATE; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;-----------------------------------
+;基本値計算に先んじて処理するもの
+;-----------------------------------
+@SKILL_75_PERSONAL_1_EXIST
+RETURN 1
+
+@SKILL_75_PERSONAL_1_NAME
+RESULTS = 幽霊船永久停泊
+
+;レベルは1-5まで
+@SKILL_75_PERSONAL_1_LEVEL
+RETURN 5
+
+;対象選択
+@SKILL_75_PERSONAL_1_SETTARGET(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+SIF BATTLE_COMMANDER_NUM:対象側 == 0
+	RETURN 0
+COMBAT_SKILL_TARGET = RAND:(BATTLE_COMMANDER_NUM:対象側)
+SIF BATTLE_SUMMONED_CHARA:発動側:COMBAT_SKILL_TARGET
+	RETURN 0
+
+RETURN 1
+
+;発動判定
+@SKILL_75_PERSONAL_1_CAN_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+RETURN 1
+
+;効果をここに記述
+@SKILL_75_PERSONAL_1_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+PRINTFORML %ANAME(BATTLE_COMMANDER:対象側:COMBAT_SKILL_TARGET)%は幽霊船に飲み込まれた！
+PRINTFORML 部隊から強制離脱！
+
+CALL FORCE_FREE(BATTLE_COMMANDER:対象側:COMBAT_SKILL_TARGET)
+CALL BATTLE_COMMANDER_WITHDRAWAL(対象側, COMBAT_SKILL_TARGET)
+
+RETURN 1
+
+;
+@SKILL_75_PERSONAL_1_EXPLANATION
+RESULTS = 敵一人を部隊から離脱させる。
+
+@SKILL_75_PERSONAL_1_NO_LEARN_INIT
+@SKILL_75_PERSONAL_1_CANT_LEARN_FROM_SHOP
+@SKILL_75_PERSONAL_1_CANT_TELL
+
+
+
+
+@SKILL_75_PERSONAL_1_RATE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+RETURN 125
+```

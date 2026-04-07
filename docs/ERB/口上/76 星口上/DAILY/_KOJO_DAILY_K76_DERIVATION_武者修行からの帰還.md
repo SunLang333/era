@@ -1,0 +1,58 @@
+# 口上/76 星口上/DAILY/_KOJO_DAILY_K76_DERIVATION_武者修行からの帰還.ERB — 自动生成文档
+
+源文件: `ERB/口上/76 星口上/DAILY/_KOJO_DAILY_K76_DERIVATION_武者修行からの帰還.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT_DISABLE, KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT_DECISION, KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;対応するデイリーのDISABLEを返す。設定しない場合、イベントは発生しない。
+;---------------------
+@KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT_DISABLE(対象)
+#DIM 対象
+RETURN KOJO_DAILY_GET_DISABLE_CONFIG(対象, "KNIGHT_ERRANT")
+
+
+;---------------------
+;発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT_DECISION(対象)
+#DIM 対象
+
+SIF KDVAR:対象:星_武者修行 != 1
+	RETURN 0
+
+KDVAR:対象:星_武者修行残りターン --
+
+SIF KDVAR:対象:星_武者修行残りターン
+	RETURN 0
+
+RETURN 1
+
+
+;---------------------
+;本体
+;---------------------
+@KOJO_DAILY_K76_DERIVATION_KNIGHT_ERRANT(対象)
+#DIM 対象
+PRINTFORMW %ANAME(対象)%が武者修行から戻ってきた……
+PRINTFORMW 立ち居振る舞いから、以前とは別人のように強くなっているのがわかる
+PRINTFORMW 修行は確かに、%PRONOUN(対象)%の血肉となったようだ……
+PRINTFORMW 「%ANAME(MASTER)%、貴重な機会をくれて、ありがとうございます」
+PRINTFORMW 「ご迷惑をおかけしたぶん、役立ってみせます。どうぞ私を、存分に使ってください」
+CALL COLOR_PRINTW(@"%ANAME(対象)%の武闘と防衛と知略が10ずつ上昇しました", カラー_注意)
+CALL COLOR_PRINTW(@"%ANAME(対象)%がスキル「正義の威光」を使用可能になりました", カラー_注意)
+ABL:対象:武闘 += 10
+ABL:対象:防衛 += 10
+ABL:対象:知略 += 10
+CALL CHANGE_COUNTRY(対象, CFLAG:MASTER:所属)
+CALL SKILL_LEARN_BY_NAME(対象, スキル_ジャンル_PERSONAL, NO:対象, "正義の威光")
+
+RETURN 1
+
+```

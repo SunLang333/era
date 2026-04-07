@@ -1,0 +1,212 @@
+# TRAIN/COMF/COMF11_フェラチオ.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/COMF/COMF11_フェラチオ.ERB`
+
+类型: .ERB
+
+自动摘要: functions: COM_NAME11, COM_ABLE11, COM11_RATE_M, COM11, COM_IS_EQUIP11, COM_EQUIP11, EQUIP_MESSAGE11, COM_TEXT_BEFORE_EQUIP11, COM_TEXT_RELEASE_EQUIP11, COM_ORDER_PLAYER11, COM_TEXT_BEFORE11, COM_TEXT_LAST11, COM_AVAILABLE_WHEN11, COM_PREFERENCE_PLAYER_11, COM_PREFERENCE_TARGET_11, COM_STACK_SPERM_MTAR_TO_MPLY_11; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;フェラチオ
+
+;-------------------------------------------------
+;コマンド名称
+;-------------------------------------------------
+@COM_NAME11
+;挿入中
+FOR LOCAL, 0, MTAR_NUM
+	IF GROUPMATCH(IS_INSERT_SINGLE(MTAR:LOCAL, "Ｐ"), 1, 3)
+		LOCALS:1 = お掃除
+		BREAK
+	ELSEIF IS_INSERT_SINGLE(MTAR:LOCAL, "Ｐ") == 2
+		LOCALS:1 = Ａお掃除
+		BREAK
+	ELSE
+		LOCALS:1 = 
+	ENDIF
+NEXT
+
+IF MTAR_NUM > 3
+	LOCALS:0 = %LOCALS:1%輪フェラ
+ELSEIF MTAR_NUM == 3
+	LOCALS:0 = %LOCALS:1%三本フェラ
+ELSEIF MTAR_NUM == 2
+	LOCALS:0 = %LOCALS:1%二本フェラ
+ELSEIF MPLY_NUM == 3 && MTAR_NUM == 1
+	LOCALS:0 = Ｔ%LOCALS:1%フェラ
+ELSEIF MPLY_NUM == 2 && MTAR_NUM == 1
+	LOCALS:0 = Ｗ%LOCALS:1%フェラ
+ELSE
+	;プレイヤーからターゲットに顔面騎乗中 or ターゲットからプレイヤーにクンニ中
+	IF IS_RIDE(MPLY:0, MTAR:0) || SEARCH_EQUIP(2, MTAR:0, MPLY:0) >= 0
+		LOCALS:0 = シックスナイン
+	;ターゲットからプレイヤーにフェラ中
+	ELSEIF SEARCH_EQUIP(11, MTAR:0, MPLY:0) >= 0
+		LOCALS:0 = 相互フェラ
+	ELSE
+		LOCALS:0 = %LOCALS:1%フェラ
+	ENDIF
+ENDIF
+LOCAL:1 = 0
+FOR LOCAL, 0, MTAR_NUM
+	IF HAS_PENIS(MTAR:LOCAL)
+		LOCAL:1 = 1
+	ENDIF
+NEXT
+SIF !LOCAL:1
+	LOCALS:0 = ペニバン%LOCALS:0%
+
+RESULTS:0 = %LOCALS:0%する
+RESULTS:1 = %LOCALS:0%させられる
+RESULTS:2 = %LOCALS:0%させる
+RESULTS:3 = %LOCALS:0%される
+RESULTS:4 = %LOCALS:0%させる
+RESULTS:5 = %LOCALS:0%見せつけ
+
+;-------------------------------------------------
+;選択可否判定
+;-------------------------------------------------
+@COM_ABLE11
+;共通部分
+CALL COM_ABLE_COMMON(11)
+SIF RESULT == 0
+	RETURN 0
+;プレイヤーは最大で3人まで
+SIF MPLY_NUM <= 0 || MPLY_NUM > 3
+	RETURN 0
+;ターゲットが必要
+SIF MTAR_NUM <= 0
+	RETURN 0
+
+FOR LOCAL:0, 0, MTAR_NUM
+	;penis or strapon
+	SIF !HAS_PENIS(MTAR:(LOCAL:0)) && !IS_EQUIP_PLAYER((MTAR:(LOCAL:0)), 50)
+		RETURN 0
+NEXT
+
+FOR LOCAL:0, 0, MPLY_NUM
+	FOR LOCAL:1, 0, MTAR_NUM
+		SIF !CAN_LICK_GROIN(MPLY:(LOCAL:0), MTAR:(LOCAL:1))
+			RETURN 0
+		SIF !P_STACKABLE(MPLY:(LOCAL:0), MTAR:(LOCAL:1), 11)
+			RETURN 0
+		;If a player is riding a target or getting cunnilingus/bj/rimjob from them already, then it's a 69, and can only be 1-on-1
+		SIF (MPLY_NUM > 1 || MTAR_NUM > 1) && (IS_RIDE(MPLY:LOCAL, MTAR:(LOCAL:1)) || SEARCH_EQUIP(2, MTAR:(LOCAL:1), MPLY:LOCAL) >= 0 || SEARCH_EQUIP(11, MTAR:(LOCAL:1), MPLY:LOCAL) >= 0 || SEARCH_EQUIP(8, MTAR:(LOCAL:1), MPLY:LOCAL) >= 0)
+			RETURN 0
+	NEXT
+NEXT
+
+RETURN 1
+
+;-------------------------------------------------
+;快Ｍソースの倍率を取得する関数 ARG:0=PLAYERのキャラ番号
+;-------------------------------------------------
+@COM11_RATE_M(ARG:0)
+#FUNCTION
+LOCAL:5 = 1000
+SELECTCASE ABL:(ARG:0):奉仕
+	CASE 0
+		TIMES LOCAL:5, 0.00
+		;TIMES SOURCE:(LOCAL:2):不潔, 4.00
+	CASE 1
+		TIMES LOCAL:5, 0.10
+		;TIMES SOURCE:(LOCAL:2):不潔, 2.50
+	CASE 2
+		TIMES LOCAL:5, 0.30
+		;TIMES SOURCE:(LOCAL:2):不潔, 1.50
+	CASE 3
+		TIMES LOCAL:5, 0.80
+		;TIMES SOURCE:(LOCAL:2):不潔, 1.00
+	CASE 4
+		TIMES LOCAL:5, 1.00
+		;TIMES SOURCE:(LOCAL:2):不潔, 0.50
+	CASEELSE
+		LOCAL:5 = LOCAL:5 * (100 + (ABL:(ARG:0):奉仕 - 5) * 3) / 100
+		;TIMES SOURCE:(LOCAL:2):不潔, 0.10
+ENDSELECT
+
+SELECTCASE ABL:(ARG:0):性技
+	CASE 0
+		TIMES LOCAL:5, 1.00
+	CASE 1
+		TIMES LOCAL:5, 1.10
+	CASE 2
+		TIMES LOCAL:5, 1.20
+	CASE 3
+		TIMES LOCAL:5, 1.30
+	CASE 4
+		TIMES LOCAL:5, 1.40
+	CASEELSE
+		LOCAL:5 = LOCAL:5 * ((ABL:(ARG:0):性技 - 5) * 2 + 150) / 100
+ENDSELECT
+
+RETURNF LOCAL:5
+
+;-------------------------------------------------
+;メイン処理
+;-------------------------------------------------
+@COM11
+;実行判定
+CALL COM_ORDER_COMMON
+SIF RESULT == 0
+	RETURN 0
+
+TFLAG:16 = 0
+;挿入中
+FOR LOCAL, 0, MTAR_NUM
+	IF IS_INSERT_SINGLE(MTAR:LOCAL, "Ｐ")
+		TFLAG:16 = IS_INSERT_SINGLE(MTAR:LOCAL, "Ｐ")
+		BREAK
+	ENDIF
+NEXT
+
+
+;●人数補正の設定
+LOCAL:10 = 100
+
+SELECTCASE MPLY_NUM
+	CASE 2
+		TIMES LOCAL:10, 0.75
+	CASE 3
+		TIMES LOCAL:10, 0.60
+ENDSELECT
+
+SELECTCASE MTAR_NUM
+	CASE 2
+		TIMES LOCAL:10, 0.75
+ENDSELECT
+
+;●全プレイヤーについて判定
+FOR LOCAL:0, 0, MPLY_NUM
+	LOCAL:2 = MPLY:(LOCAL:0)
+
+	DOWNBASE:(LOCAL:2):体力 += 120
+
+	EXP:(LOCAL:2):性技経験値 += MAX(MTAR_NUM / 2 + 1, 1)
+	EXP:(LOCAL:2):口淫経験 += 1
+
+	SOURCE:(LOCAL:2):奉仕 = SERVE_HOUSHI(LOCAL:2, 400)
+	SOURCE:(LOCAL:2):接触 = 50
+	SOURCE:(LOCAL:2):快Ｍ = 600 * COM11_RATE_M(LOCAL:2) / 1000
+	SOURCE:(LOCAL:2):性行動 = 300
+
+	;主導権に応じた優越・受動のソース追加
+	CALL ADD_SOURCE_INITIATIVE_U(LOCAL:2, 150, 120)
+
+	;奉仕経験値を得られるコマンドのフラグ
+	TCVAR:(LOCAL:2):4 = 1
+
+	;全ターゲットに与える快感系ソースを計算
+	FOR LOCAL:1, 0, MTAR_NUM
+		LOCAL:3 = MTAR:(LOCAL:1)
+		LOCAL:4 = SENSE_HOUSHI_P(LOCAL:2, LOCAL:3, 1500) * LOCAL:10 / 100
+		IF TALENT:(LOCAL:2):舌使い
+			TIMES LOCAL:4, 1.50
+		ENDIF
+		SOURCE:(LOCAL:3):快Ｐ += LOCAL:4
+
+	NEXT
+	IF MTAR_NUM == 1
+```

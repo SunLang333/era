@@ -1,0 +1,82 @@
+# 口上/38 穣子口上/DAILY/_KOJO_DAILY_K38_豊穣祭.ERB — 自动生成文档
+
+源文件: `ERB/口上/38 穣子口上/DAILY/_KOJO_DAILY_K38_豊穣祭.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K38_FESTIVAL_RATE, KOJO_DAILY_K38_FESTIVAL_DECISION, KOJO_DAILY_K38_FESTIVAL_GENRE, KOJO_DAILY_K38_FESTIVAL_SETTARGET, KOJO_DAILY_K38_FESTIVAL; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@KOJO_DAILY_K38_FESTIVAL_RATE(対象)
+#DIM 対象
+RETURN 30
+
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K38_FESTIVAL_DECISION(対象)
+#DIM 対象
+#DIM 静葉
+
+静葉 = NAME_TO_CHARA("静葉")
+
+SIF CFLAG:対象:所属 != CFLAG:静葉:所属
+	RETURN 0
+
+RETURN CHECK_KOJO_DAILY_HAPPEN(対象, -1, 0, -1) && CHECK_KOJO_DAILY_HAPPEN(静葉, -1, 0, -1)
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@KOJO_DAILY_K38_FESTIVAL_GENRE(対象)
+#DIM 対象
+RETURN デイリー_ジャンル_その他
+
+;---------------------
+;特定の条件を満たすキャラをランダムに選択する場合に利用
+;他の関数は必須だが、これだけはなくてもよい　というかパフォーマンスへ影響するので不要なら作ってはならない
+;対象が存在せずデイリーを開始できない場合は0を返すことでデイリーの発生をキャンセルする
+;---------------------
+@KOJO_DAILY_K38_FESTIVAL_SETTARGET(対象)
+#DIM 対象
+CALL DAILY_EVENT_RAND_CITYSELECT(1)
+SIF RESULT == -1
+	RETURN 0
+DAILY_TARGET:0 = RESULT
+RETURN 1
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@KOJO_DAILY_K38_FESTIVAL(対象)
+#DIM 対象
+#DIM 静葉
+#DIM 対象都市
+
+静葉 = NAME_TO_CHARA("静葉")
+対象都市 = DAILY_TARGET:0
+
+PRINTFORMW %ANAME(対象)%と%ANAME(静葉)%は%CITY_NAME:対象都市%で行われた豊穣祭に参加したようだ……
+PRINTFORMW 彼女たちのおかげで、%CITY_NAME:対象都市%に豊作が訪れた！
+IF 対象都市 > 0
+	LOCAL:1 = RAND(5000, 15000)
+	CALL MODIFY_CITY_ECONOMY(対象都市, RAND(10000, 30000))
+	RESETCOLOR
+ENDIF
+
+RETURN 1
+
+
+```

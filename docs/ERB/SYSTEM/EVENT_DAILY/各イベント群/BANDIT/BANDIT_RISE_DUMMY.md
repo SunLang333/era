@@ -1,0 +1,20 @@
+# SYSTEM/EVENT_DAILY/各イベント群/BANDIT/BANDIT_RISE_DUMMY.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/EVENT_DAILY/各イベント群/BANDIT/BANDIT_RISE_DUMMY.ERB`
+
+类型: .ERB
+
+自动摘要: functions: EVENT_DAILY_BANDIT_RISE_RATE, EVENT_DAILY_BANDIT_RISE_GENRE
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;中身ハードコードしてるのでこれはダミー
+;---------------------
+@EVENT_DAILY_BANDIT_RISE_RATE()
+RETURN 0
+
+@EVENT_DAILY_BANDIT_RISE_GENRE()
+RETURN デイリー_ジャンル_特殊勢力
+```

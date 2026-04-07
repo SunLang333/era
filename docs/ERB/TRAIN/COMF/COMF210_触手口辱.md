@@ -1,0 +1,212 @@
+# TRAIN/COMF/COMF210_触手口辱.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/COMF/COMF210_触手口辱.ERB`
+
+类型: .ERB
+
+自动摘要: functions: COM_NAME210, COM_ABLE210, COM210, COM_IS_EQUIP210, COM_EQUIP210, EQUIP_MESSAGE210, COM_TEXT_BEFORE_EQUIP210, COM_TEXT_RELEASE_EQUIP210, COM_ORDER_PLAYER210, COM_TEXT_BEFORE210, COM_AVAILABLE_WHEN210, COM_PREFERENCE_PLAYER_210, COM_PREFERENCE_TARGET_210; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;触手口辱
+
+;-------------------------------------------------
+;コマンド名称
+;-------------------------------------------------
+@COM_NAME210
+LOCALS:0 = 触手口辱
+
+RESULTS:0 = %LOCALS:0%する
+RESULTS:1 = %LOCALS:0%させられる
+RESULTS:2 = %LOCALS:0%させる
+RESULTS:3 = %LOCALS:0%される
+RESULTS:4 = %LOCALS:0%させる
+RESULTS:5 = %LOCALS:0%見せつけ
+
+;-------------------------------------------------
+;選択可否判定
+;-------------------------------------------------
+@COM_ABLE210
+;共通部分
+CALL COM_ABLE_COMMON(210)
+SIF RESULT == 0
+	RETURN 0
+;プレイヤーは最大で1人まで
+SIF MPLY_NUM <= 0 || MPLY_NUM > 1
+	RETURN 0
+;ターゲットは1人以上
+SIF MTAR_NUM <= 0
+	RETURN 0
+;プレイヤーが行動不能なら不可
+SIF !IS_PLAYABLE(MPLY:0) && !FLAG:RECHECKING
+	RETURN 0
+;プレイヤーが触手召喚中でないなら不可
+SIF !IS_EQUIP_PLAYER(MPLY:0, 200)
+	RETURN 0
+FOR LOCAL:0, 0, MTAR_NUM
+	SIF IS_M_HOLD(MTAR:(LOCAL:0))
+		RETURN 0
+NEXT
+RETURN 1
+
+;-------------------------------------------------
+;メイン処理
+;-------------------------------------------------
+@COM210
+;実行判定
+CALL COM_ORDER_COMMON
+SIF RESULT == 0
+	RETURN 0
+
+;●プレイヤーについて処理
+EXP:(MPLY:0):妖術経験値 += 1
+EXP:(MPLY:0):触手経験値 += 1
+
+SOURCE:(MPLY:0):嗜虐 = 500
+SOURCE:(MPLY:0):逸脱 = 200
+SOURCE:(MPLY:0):触手 = 30
+
+;主導権に応じた優越・屈従のソース追加
+CALL ADD_SOURCE_INITIATIVE_U(MPLY:0, 180, 50)
+
+;●全てのターゲットについて処理
+FOR LOCAL:0, 0, MTAR_NUM
+	LOCAL:2 = MTAR:(LOCAL:0)
+
+	EXP:(LOCAL:2):緊縛経験 += 1
+	EXP:(LOCAL:2):触手経験値 += 1
+
+	SOURCE:(LOCAL:2):快Ｍ = SENSE_HOUSHI(MPLY:0, LOCAL:2, 1000 + ABL:(MPLY:0):妖術 * 8) + (GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 500)
+	SOURCE:(LOCAL:2):苦痛 = 150 + MIN(ABL:(MPLY:0):妖術, 90) / 2
+	SOURCE:(LOCAL:2):触手 = 500  + (GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 250)
+	SOURCE:(LOCAL:2):逸脱 = 500  + (GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 250)
+
+	;主導権に応じた優越・屈従のソース追加
+	CALL ADD_SOURCE_INITIATIVE_U(LOCAL:2, 0, 180)
+
+	IF GETBIT(TALENT:(MPLY:0):淫乱系, 素質_淫乱_サド)
+		TIMES SOURCE:(LOCAL:2):苦痛, 1.50
+	ENDIF
+NEXT
+
+;主導度変化基準値
+TFLAG:49 = 2
+
+;倒錯度変化基準値
+TFLAG:50 = 7
+
+;レズ・ＢＬ経験基準値
+TFLAG:51 = 0
+
+RETURN 1
+
+;-------------------------------------------------
+;継続コマンドかどうかを設定
+;-------------------------------------------------
+@COM_IS_EQUIP210
+;継続コマンドかつフィルタリング不可
+RETURN 2
+
+;-------------------------------------------------
+;継続状態の処理
+;-------------------------------------------------
+@COM_EQUIP210(ARG:0)
+LOCAL:2 = MEQUIP_PLAYER:(ARG:0):0
+
+SOURCE:(LOCAL:2):性行動 += 30
+
+;全てのターゲットについて処理
+FOR LOCAL:0, 0, MEQUIP_TARGET_NUM:(ARG:0)
+	LOCAL:3 = MEQUIP_TARGET:(ARG:0):(LOCAL:0)
+
+	;ソースを退避
+	CALL PUTOUT_SOURCE(LOCAL:3)
+
+	EXP:(LOCAL:3):緊縛経験 += 1
+	EXP:(LOCAL:3):触手経験値 += 1
+
+	SOURCE:(LOCAL:3):快Ｍ += SENSE_HOUSHI(LOCAL:2, LOCAL:3, 800 + ABL:(LOCAL:2):妖術 * 6) + (GETBIT(TALENT:(LOCAL:3):淫乱系, 素質_淫乱_苗床) * 400)
+	SOURCE:(LOCAL:3):苦痛 += 80
+	SOURCE:(LOCAL:3):触手 += 250 + (GETBIT(TALENT:(LOCAL:3):淫乱系, 素質_淫乱_苗床) * 125)
+	SOURCE:(LOCAL:3):逸脱 += 150 - (GETBIT(TALENT:(LOCAL:3):淫乱系, 素質_淫乱_苗床) * 75)
+	SOURCE:(LOCAL:3):性行動 += 60 + (GETBIT(TALENT:(LOCAL:3):淫乱系, 素質_淫乱_苗床) * 30)
+
+	;倒錯度変化
+	TCVAR:(LOCAL:3):50 += 4
+
+	;退避したソースを加算
+	CALL SUM_SOURCE(LOCAL:3)
+NEXT
+
+;-------------------------------------------------
+;継続中の表示
+;-------------------------------------------------
+@EQUIP_MESSAGE210(ARG:0)
+RESULTS = %EQUIP_TARGET_ANAME(ARG:0)%の口に%EQUIP_PLAYER_ANAME(ARG:0)%の触手を挿入中
+
+;-------------------------------------------------
+;継続中の地の文(前文)
+;-------------------------------------------------
+@COM_TEXT_BEFORE_EQUIP210(ARG:0)
+PRINTFORM %EQUIP_PLAYER_ANAME(ARG:0)%の操る触手
+	SELECTCASE RAND:8
+	CASE 0
+		PRINTFORML が%EQUIP_TARGET_ANAME(ARG:0)%の口を強引に犯している…
+	CASE 1
+		PRINTFORML が%EQUIP_TARGET_ANAME(ARG:0)%の喉奥を激しく突いている…
+	CASE 2
+		PRINTFORML が%EQUIP_TARGET_ANAME(ARG:0)%の喉奥へ深く入り込み、粘液を擦り付けている…
+	CASE 3
+		PRINTFORML は%EQUIP_TARGET_ANAME(ARG:0)%の呼吸のリズムを支配している…
+	CASE 4
+		PRINTFORML は%EQUIP_TARGET_ANAME(ARG:0)%の口内で触手を波打たせている…
+	CASE 5
+		PRINTFORML が%EQUIP_TARGET_ANAME(ARG:0)%の口内で舌を絡めとっている…
+	CASE 6
+		PRINTFORML は%EQUIP_TARGET_ANAME(ARG:0)%の口から一度離れ、間で出来た糸で遊んだ後また突き入れた…
+	CASE 7
+		PRINTFORML が%EQUIP_TARGET_ANAME(ARG:0)%の口内で、上顎を何度も舐め回している…
+	ENDSELECT
+
+;-------------------------------------------------
+;継続を解除したときの地の文
+;-------------------------------------------------
+@COM_TEXT_RELEASE_EQUIP210(ARG:0)
+PRINTFORMW %EQUIP_TARGET_ANAME(ARG:0)%の口から触手を引き抜いた
+
+;-------------------------------------------------
+;固有の実行判定
+;-------------------------------------------------
+@COM_ORDER_PLAYER210(ARG:0)
+;実行値の設定
+TCVAR:(ARG:0):25 = 125
+
+;共通部分
+CALL COM_ORDER(ARG:0)
+
+CALL COM_ORDER_ELEMENT(ARG:0, @"欲望Lv{ABL:(ARG:0):欲望}", ABL:(ARG:0):欲望 * 1)
+CALL COM_ORDER_ELEMENT(ARG:0, @"触手Lv{ABL:(ARG:0):触手}", ABL:(ARG:0):触手 * 5)
+CALL COM_ORDER_ELEMENT(ARG:0, @"サドLv{ABL:(ARG:0):サド}", ABL:(ARG:0):サド * 1)
+
+LOCAL:0 = GET_PALAMLV(PALAM:(ARG:0):欲情)
+CALL COM_ORDER_ELEMENT(ARG:0, @"欲情Lv{LOCAL:0}", MIN(LOCAL:0 * 1, 10))
+
+IF TALENT:(ARG:0):大人しい
+	CALL COM_ORDER_ELEMENT(ARG:0, "大人しい", -3)
+ENDIF
+IF TALENT:(ARG:0):恥じらい
+	CALL COM_ORDER_ELEMENT(ARG:0, "恥じらい", -2)
+ENDIF
+IF TALENT:(ARG:0):献身的
+	CALL COM_ORDER_ELEMENT(ARG:0, "献身的", 3)
+ENDIF
+IF TALENT:(ARG:0):Ｓ気質
+	CALL COM_ORDER_ELEMENT(ARG:0, "Ｓ気質", 6)
+ENDIF
+
+IF GETBIT(TALENT:(ARG:0):淫乱系, 素質_淫乱_サド)
+	CALL COM_ORDER_ELEMENT(ARG:0, "サド", 40)
+ELSE
+	IF ABL:(ARG:0):主導度Ｕ >= 500
+```

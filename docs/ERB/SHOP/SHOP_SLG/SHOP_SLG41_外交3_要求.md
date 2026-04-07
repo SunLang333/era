@@ -1,0 +1,212 @@
+# SHOP/SHOP_SLG/SHOP_SLG41_外交3_要求.ERB — 自动生成文档
+
+源文件: `ERB/SHOP/SHOP_SLG/SHOP_SLG41_外交3_要求.ERB`
+
+类型: .ERB
+
+自动摘要: functions: DIPLOMACY_REQUEST_COMMON, DIPLOMACY_REQUEST_PRIZE, DIPLOMACY_REQUEST_DRUG_USE, DIPLOMACY_REQUEST_HYPNOSIS_USE, DIPLOMACY_REQUEST_DRUG, DIPLOMACY_REQUEST_GOHOUBI, DIPLOMACY_REQUEST_HYPNOSIS, CHECK_DIPLOMACY_TRAIN_FLAG, ROUND_MAX, DIPLOMACY_REQUEST_CHECK; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;外交で相手に要求をした場合の処理
+;(ただし「降伏勧告」は DIPLOMACY_EACH.ERB)
+
+;-------------------------------------------------
+;要求時の共通処理
+;ARG:0は対象、ARG:1は判定の難易度
+;ARG:2に1を渡すと、服従系素質を持つキャラに対して判定をスキップ
+;要求が通った場合1、通らなかった場合0、処理をキャンセルした場合は-1を返す
+;-------------------------------------------------
+@DIPLOMACY_REQUEST_COMMON(ARG:0, ARG:1, ARG:2 = 0)
+LOCAL:4 = GET_COUNTRY_BOSS(CFLAG:MASTER:所属)
+LOCAL:5 = GET_COUNTRY_BOSS(ARG:0)
+
+;●武力による脅しが通るかどうかを判定
+LOCAL:10 = 0
+
+;勢力同士の隣接関係マップを作成
+CALL TMP_CREATE_COUNTRY_NEIBORING_MAP
+
+CALL TMP_CREATE_SUM_ECONOMY_MAP
+CALL TMP_CREATE_SUM_SOLDIER_MAP
+CALL TMP_CREATE_POLITICS_POWER_MAP
+
+LOCAL:6 = TMP_SUM_ECONOMY:(CFLAG:MASTER:所属)
+LOCAL:7 = TMP_SUM_ECONOMY:(ARG:0)
+
+LOCAL:8 = 0
+FOR LOCAL:0, 1, MAX_COUNTRY
+	SIF TMP_COUNTRY_IS_NEIBORING:(CFLAG:MASTER:所属):(LOCAL:0)
+		LOCAL:8 += TMP_SUM_ECONOMY:(LOCAL:0)
+NEXT
+
+;※条件は降伏勧告より緩和、引数で要求内容辺り参照して変化できるようにしたいなぁ
+LOCAL:10 = DIPLOMACY_REQUEST_CHECK(CFLAG:MASTER:所属, ARG:0, ARG:1, 1)
+
+;既に要求を飲んだことがあり、前回と同様の方法が通用する場合
+IF (LOCAL:10 && CFLAG:(LOCAL:5):外交要求成功フラグ == 1) || ((CFLAG:(LOCAL:5):外交要求成功フラグ == 2 && (TALENT:(LOCAL:5):烙印 || TALENT:(LOCAL:5):服従 || TALENT:(LOCAL:5):隷属 || (GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_マゾ) && TALENT:(LOCAL:5):恋慕)))) || (CFLAG:(LOCAL:5):外交要求成功フラグ == 3 && GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_薬物中毒))
+	IF (CFLAG:(LOCAL:5):外交要求成功フラグ == 2) || (TALENT:(LOCAL:5):烙印 || TALENT:(LOCAL:5):服従 || TALENT:(LOCAL:5):隷属 || (GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_マゾ) && TALENT:(LOCAL:5):恋慕))
+		PRINTFORMW %ANAME(LOCAL:5)%は困ったように瞳を彷徨わせながらも、媚びるような声で%ANAME(MASTER)%の要求を受け入れた
+		CALL DIPLOMACY_REQUEST_GOHOUBI(ARG:0)
+	ELSEIF CFLAG:(LOCAL:5):外交要求成功フラグ == 3 && GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_薬物中毒)
+		PRINTFORMW %ANAME(LOCAL:5)%は虚ろな瞳で、従うから薬をくれるよう%ANAME(MASTER)%に訴えてきた
+		CALL DIPLOMACY_REQUEST_DRUG(ARG:0)
+	ELSEIF CFLAG:(LOCAL:5):外交要求成功フラグ == 4 && GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_傀儡)
+		PRINTFORMW %ANAME(MASTER)%が指を鳴らすと、%ANAME(LOCAL:5)%は虚ろな瞳になり、その言葉に頷いた
+		CALL DIPLOMACY_REQUEST_HYPNOSIS(ARG:0)
+	ELSEIF TALENT:(LOCAL:5):反抗的 || TALENT:(LOCAL:5):生意気 || TALENT:(LOCAL:5):プライド高い
+		PRINTFORMW %ANAME(LOCAL:5)%は%ANAME(MASTER)%を恨めしそうに睨みながら、怒気の篭った声で要求を受け入れた
+	ELSE
+		PRINTFORMW %ANAME(LOCAL:5)%は悲痛な表情を浮かべると、疲れたような声で%ANAME(MASTER)%の要求を受け入れた
+	ENDIF
+	RETURN 1
+	DIPLOMACY_HATE:(CFLAG:MASTER:所属) += 2
+
+ELSEIF ARG:2 && (TALENT:(LOCAL:5):烙印 || TALENT:(LOCAL:5):服従 || TALENT:(LOCAL:5):隷属 || (GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_マゾ) && TALENT:(LOCAL:5):恋慕))
+	IF TALENT:(LOCAL:5):烙印
+		PRINTFORMW 既に%ANAME(MASTER)%に烙印を刻み付けられ所有物となった%ANAME(LOCAL:5)%は、断ることも出来ず頷いた
+		PRINTFORMW ……心なしか嬉しそうに見える
+		CFLAG:(LOCAL:5):外交要求成功フラグ = 2
+		CALL DIPLOMACY_REQUEST_GOHOUBI(ARG:0)
+	ELSE
+		PRINTFORMW 既に%ANAME(MASTER)%に陶酔しきった%ANAME(LOCAL:5)%は、目を逸らしながらも頷いた
+		PRINTFORMW ……心なしか嬉しそうに見える
+		CFLAG:(LOCAL:5):外交要求成功フラグ = 2
+		CALL DIPLOMACY_REQUEST_GOHOUBI(ARG:0)
+	ENDIF
+	DIPLOMACY_HATE:(CFLAG:MASTER:所属) += 2
+	RETURN 1
+
+;要求を飲んだことがない or 前回の方法が通用しない場合
+ELSE
+	IF ARG:2 && TALENT:(LOCAL:5):恋慕
+		PRINTFORML %ANAME(LOCAL:5)%は一瞬迷うように瞳を彷徨わせたが、
+		PRINTFORMW すぐに我に返ったように首を振って、そんなこと出来るわけがないと断った
+	ELSEIF TALENT:(LOCAL:5):反抗的 || TALENT:(LOCAL:5):生意気 || TALENT:(LOCAL:5):プライド高い
+		PRINTFORMW ……だが、%ANAME(LOCAL:5)%は何の冗談かと笑い飛ばした
+	ELSE
+		PRINTFORMW ……だが、%ANAME(LOCAL:5)%はそんなこと出来るわけがないと強い口調で断った
+	ENDIF
+	LOCAL:11 = 0
+	LOCAL:12 = 0
+	PRINTFORML [0] 国力を背景に脅す
+	IF TALENT:(LOCAL:5):烙印 || TALENT:(LOCAL:5):服従 || TALENT:(LOCAL:5):隷属 || (GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_マゾ) && TALENT:(LOCAL:5):恋慕)
+		PRINTFORML [1] 快楽で言うことを聞かせる
+		LOCAL:11 = 1
+	ENDIF
+	IF GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_薬物中毒)
+		PRINTFORML [2] 薬物で言うことを聞かせる
+		LOCAL:12 = 1
+	ENDIF
+	IF GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_傀儡)
+		PRINTFORML [3] 催眠術をかける
+		LOCAL:13 = 1
+	ENDIF
+	PRINTFORML [4] 諦める…
+
+	$INPUT_LOOP
+	INPUT
+	;武力で脅す
+	IF RESULT == 0
+		IF DIPLOMACY_REQUEST_CHECK(CFLAG:MASTER:所属, ARG:0, ARG:1)
+			PRINTFORMW %ANAME(MASTER)%は露骨に両国の国力の差をチラつかせながら交渉した
+			IF TALENT:(LOCAL:5):反抗的 || TALENT:(LOCAL:5):生意気 || TALENT:(LOCAL:5):プライド高い
+				PRINTFORMW %ANAME(LOCAL:5)%は%ANAME(MASTER)%の言葉に明らかに苛立っているが、勢力の力量の圧倒的な差を前に反論できずにいる
+				PRINTFORMW ……やがて、%ANAME(LOCAL:5)%は怒りを押し殺した声で、要求に従うことを約束した
+			ELSE
+				PRINTFORMW %ANAME(LOCAL:5)%は%ANAME(MASTER)%の脅しも同然の言葉の前に、苦しげな表情で押し黙っている
+				PRINTFORMW ……やがて、%ANAME(LOCAL:5)%は諦めたようにして、%ANAME(MASTER)%の要求に従うことを約束した
+			ENDIF
+
+			;関係悪化
+			CALL CHANGE_RELATION_C_TO_C(ARG:0, CFLAG:MASTER:所属, -100, 150)
+
+			;性的な要求なら周囲からの評判も悪化
+			IF ARG:2
+				FOR LOCAL:0, 1, MAX_COUNTRY
+					SIF IS_COUNTRY(LOCAL:0) && LOCAL:0 != CFLAG:MASTER:所属
+						CALL CHANGE_RELATION_C_TO_C(LOCAL:0, CFLAG:MASTER:所属, -100, 50)
+				NEXT
+			ENDIF
+
+			CFLAG:(LOCAL:5):外交要求成功フラグ = 1
+			DIPLOMACY_HATE:(CFLAG:MASTER:所属) += 4
+			RETURN 1
+
+		ELSE
+			IF TALENT:(LOCAL:5):反抗的 || TALENT:(LOCAL:5):生意気 || TALENT:(LOCAL:5):プライド高い
+				PRINTFORMW %ANAME(MASTER)%は両国の武力の差を熱心に語りかけたが、%ANAME(LOCAL:5)%は聞く耳を持たなかった…
+			ELSE
+				PRINTFORMW %ANAME(MASTER)%は両国の武力の差を熱心に語りかけたが、%ANAME(LOCAL:5)%に冷静に反論され話が進まなかった…
+			ENDIF
+
+			RETURN 0
+		ENDIF
+
+	;快楽で言うことを聞かせる
+	ELSEIF RESULT == 1 && LOCAL:11
+		;口上の表示
+		PRINTFORMW %ANAME(MASTER)%は%ANAME(LOCAL:5)%に人払いをするように求めた
+		PRINTFORMW ………………
+		PRINTFORML %ANAME(MASTER)%は%ANAME(LOCAL:5)%の体を焦らすような手付きで愛撫しながら、
+		PRINTFORMW 要求を飲んだらご褒美にたっぷり虐めてやると%ANAME(LOCAL:5)%の耳元で囁いた
+		PRINTL 
+
+		;●実行値の計算
+		CVARSET TCVAR, 24, -10000
+		CVARSET TCVAR, 25, 10000
+
+		;実行値の設定
+		TCVAR:(LOCAL:5):25 = 110
+
+		LOCAL:2 = 0
+		IF CFLAG:(LOCAL:5):4 < 1500
+			LOCAL:2 = MAX(CFLAG:(LOCAL:5):4 / 100, 0)
+		ELSE
+			LOCAL:2 = MIN((CFLAG:(LOCAL:5):4 - 1500) / 500 + 15, 200)
+		ENDIF
+		CALL COM_ORDER_ELEMENT(LOCAL:5, "従属度", LOCAL:2)
+
+		LOCAL:2 = 0
+		IF CFLAG:(LOCAL:5):3 < 1500
+			LOCAL:2 = MAX(CFLAG:(LOCAL:5):3 / 100, 0)
+		ELSE
+			LOCAL:2 = MIN((CFLAG:(LOCAL:5):3 - 1500) / 500 + 15, 200)
+		ENDIF
+		CALL COM_ORDER_ELEMENT(LOCAL:5, "依存度", LOCAL:2)
+
+		IF TALENT:(LOCAL:5):隷属
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "隷属", 50)
+		ELSEIF TALENT:(LOCAL:5):服従
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "服従", 25)
+		ENDIF
+
+		SIF TALENT:(LOCAL:5):烙印
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "烙印", 15)
+
+		IF TALENT:(LOCAL:5):親愛
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "親愛", 20)
+		ELSEIF TALENT:(LOCAL:5):恋慕
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "恋慕", 10)
+		ENDIF
+
+		SIF GETBIT(TALENT:(LOCAL:5):淫乱系, 素質_淫乱_マゾ)
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "マゾ", 20)
+
+		CALL COM_ORDER_ELEMENT(LOCAL:5, "欲望", ABL:(LOCAL:5):欲望 * 2)
+
+		SIF TALENT:(LOCAL:5):臆病
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "臆病", 8)
+		SIF TALENT:(LOCAL:5):反抗的
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "反抗的", -5)
+		SIF TALENT:(LOCAL:5):気丈
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "気丈", -10)
+		SIF TALENT:(LOCAL:5):素直
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "素直", 5)
+		SIF TALENT:(LOCAL:5):プライド高い
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "プライド高い", -15)
+		SIF TALENT:(LOCAL:5):生意気
+			CALL COM_ORDER_ELEMENT(LOCAL:5, "生意気", -5)
+		SIF TALENT:(LOCAL:5):プライド低い
+```

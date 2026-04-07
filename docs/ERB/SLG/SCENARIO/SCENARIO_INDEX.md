@@ -1,0 +1,16 @@
+# SLG/SCENARIO/SCENARIO_INDEX.ERB — 自动生成文档
+
+源文件: `ERB/SLG/SCENARIO/SCENARIO_INDEX.ERB`
+
+类型: .ERB
+
+自动摘要: —
+
+前 200 行源码片段:
+
+```text
+﻿@CREATE_SCENARIO_INDEX
+VARSET SCENARIO_SELECT, -1
+SCENARIO_ID    '= "1", "3", "7", "11", "12", "13", "14", "15", "16", "19", "20", "21"
+SCENARIO_SELECT =   1,3,7,11,12,13,14,15, 16, 19,20,21 ;99は戻るで使うので禁止
+```

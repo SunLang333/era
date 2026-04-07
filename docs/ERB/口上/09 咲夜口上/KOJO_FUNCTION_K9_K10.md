@@ -1,0 +1,212 @@
+# 口上/09 咲夜口上/KOJO_FUNCTION_K9_K10.ERB — 自动生成文档
+
+源文件: `ERB/口上/09 咲夜口上/KOJO_FUNCTION_K9_K10.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_ASK, SMALLSCRIPT, KOJO_HAIR_NAME; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;─────────────────────────────────────── 
+;●口上用の選択肢表示用関数
+;　選択肢0～5に選択肢を入力。0番～5番まで1～6個の選択肢を作れる
+;　結果は呼び出し後に分岐させて処理するためRESULTに返す
+;　選択肢のない数字を入力したら選択肢に戻される
+;─────────────────────────────────────── 
+@KOJO_ASK(選択肢:0, 選択肢:1, 選択肢:2, 選択肢:3, 選択肢:4, 選択肢:5)
+#DIMS 選択肢, 6
+#DIM SAVE_REDRAW
+#DIM SAVE_COLOR
+#DIM SAVE_LINE
+
+;REDRAW状態を保存
+CURRENTREDRAW
+SAVE_REDRAW = RESULT
+REDRAW 0
+
+;現在の文字色を保存
+GETCOLOR
+SAVE_COLOR = RESULT
+RESETCOLOR
+
+;質問文の下に空行
+PRINTL 
+
+;現在行を保存（質問文の下の空行は残す）
+SAVE_LINE = LINECOUNT
+
+;選択肢表示（文字列が空でなければ）
+FOR SAVE_REDRAW, 0, 6
+	IF 選択肢:(SAVE_REDRAW) != ""
+		PRINTBUTTON @"{SAVE_REDRAW, 2, RIGHT}[%選択肢:(SAVE_REDRAW)%]", SAVE_REDRAW
+		PRINTL 
+	ENDIF
+NEXT
+
+$INPUT_LOOP
+;初期値0
+INPUT 0
+
+;指定外
+IF RESULT < 0 || RESULT > 5
+	;入力値の表示をクリア
+	CLEARLINE 1
+	GOTO INPUT_LOOP
+;指定内
+ELSE
+	;選択肢と入力値の表示をクリアして選択結果のみ表示する
+	;入力クリック直後の入力値表示代わりなのでWAITしない
+	CLEARLINE LINECOUNT - SAVE_LINE
+	SETCOLOR カラー_選択不可
+	PRINTFORML ➡%選択肢:(RESULT)%
+ENDIF
+
+PRINTL 
+
+;REDRAW状態と文字色を戻す
+REDRAW SAVE_REDRAW
+SETCOLOR SAVE_COLOR
+
+RETURN RESULT
+
+
+;─────────────────────────────────────── 
+;●小書き文字をつける
+;　使い方：PRINTFORML 「%ANAME(MASTER)%%SMALLSCRIPT(CSTR:MASTER:6)%」
+;　結果　：「あなたぁ」（主人公があなたのとき）
+;　覚書　：フリガナを保存した変数を参照して最後の一文字に合うように「ぁぃぅぇぉ」をつける
+;　甘え声にしたいときに使う目的
+;　現在は主人公のCSTR:6（名フリガナ）が存在しない可能性が高い
+;　東方キャラならCSTR:6が存在する可能性が高い
+;　呼称や淫語を入力する追加イベントの結果として使っている
+;　STRFINDUの指定に正規表現使えたら短く書けそうだけどうまくいかなかった
+;　ベタ書きのほうが処理は早そうな気もするからいいかな？
+;─────────────────────────────────────── 
+@SMALLSCRIPT(ARGS:0)
+#FUNCTIONS
+#DIM STR_INDEX
+#DIMS STR_SMALL
+
+STR_INDEX = 0
+STR_SMALL '= ""
+
+STRLENSU ARGS:0
+STR_INDEX = RESULT:0 - 1
+
+STRFINDU ARGS:0, "あ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "か", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "さ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "た", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "な", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "は", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ま", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "や", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ら", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "わ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "が", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ざ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "だ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ば", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ぱ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ぁ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "ア", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "カ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+STRFINDU ARGS:0, "サ", STR_INDEX
+SIF RESULT:0 >= 1
+	STR_SMALL '= "ぁ"
+SIF STR_SMALL != ""
+	RETURNF STR_SMALL
+
+```

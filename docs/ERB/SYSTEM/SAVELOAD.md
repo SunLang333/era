@@ -1,0 +1,212 @@
+# SYSTEM/SAVELOAD.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/SAVELOAD.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SAVE_GAME, LOAD_GAME, CREATE_SAVEDATA_NAME_STR, SYSTEM_AUTOSAVE, QUICK_SAVE, QUICK_LOAD, EVENTLOAD, PASS_SETTING, PASS_RANDOM_CHARA, SELECT_CHARA_LIST_SHOW_LOGIC_PASS_RANDOM_CHARA, CONFIG_SAVE_EXCEPT_SLG, CONFIG_SAVE_SLG, CONFIG_LOAD_EXCEPT_SLG, CONFIG_LOAD_SLG, CONFIG_SAVE_DAILY, CONFIG_LOAD_DAILY; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;-------------------------------------------------
+;データのセーブ
+;-------------------------------------------------
+@SAVE_GAME()
+#DIM FIRST_LINE
+#DIM CONST 最大ページ数 = 10
+#DIM CONST セーブ数 = 20
+#DIM 現在ページ数
+#DIM ロード可能, 200
+#DIMS セーブ名, 200
+#DIM ページ復元済み
+
+IF !ページ復元済み
+	現在ページ数 = SAVELOAD_LASTPAGE
+	ページ復元済み = 1
+ENDIF
+
+IF 現在ページ数 <= 0
+	現在ページ数 = 1
+ELSEIF 現在ページ数 > 最大ページ数
+	現在ページ数 = 最大ページ数
+ENDIF
+
+FOR LOCAL, 0, VARSIZE("ロード可能")
+	CHKDATA LOCAL
+	;CHKDATAは読めるデータのとき0を返す　どうかしてるぜ
+	ロード可能:LOCAL = (RESULT == 0)
+	IF RESULT != 1
+		セーブ名:LOCAL = %RESULTS%
+	ELSE
+		セーブ名:LOCAL = ----
+	ENDIF
+NEXT
+
+FIRST_LINE = LINECOUNT
+
+$SHOW_LOOP
+
+CALL SINGLE_DRAWLINE
+FOR LOCAL, (現在ページ数 - 1) * セーブ数, 現在ページ数 * セーブ数
+	IF ロード可能:LOCAL
+		RESETCOLOR
+	ELSE
+		SETCOLOR カラー_選択不可
+	ENDIF
+	PRINTFORML [{LOCAL, 3, LEFT}] %セーブ名:LOCAL%
+NEXT
+RESETCOLOR
+
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[前のページ]", 9997
+PRINTFORM  Page{現在ページ数}/{最大ページ数} 
+PRINTBUTTON "[次のページ]", 9998
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[戻る]", 9999
+
+
+INPUT
+
+;セーブ
+IF INRANGE(RESULT, 0, VARSIZE("ロード可能") - 1)
+	LOCAL = RESULT
+	IF ロード可能:LOCAL
+		CALL COLOR_PRINTL(@"{LOCAL}番にはロード可能なセーブデータがあります　上書きしますか？", カラー_注意)
+		CALL ASK_YN
+		IF RESULT == 1
+			CLEARLINE LINECOUNT - FIRST_LINE
+			GOTO SHOW_LOOP
+		ENDIF
+	ENDIF
+	DUMPRAND
+	CALL CREATE_SAVEDATA_NAME_STR()
+	SAVEDATA LOCAL, RESULTS
+	PRINTFORML セーブしました
+	RETURN 1
+ELSEIF RESULT == 9997
+	現在ページ数 = ROUND_DECREMENT(現在ページ数, 1, 最大ページ数)
+	SAVELOAD_LASTPAGE = 現在ページ数
+	SAVEGLOBAL
+ELSEIF RESULT == 9998
+	現在ページ数 = ROUND_INCREMENT(現在ページ数, 1, 最大ページ数)
+	SAVELOAD_LASTPAGE = 現在ページ数
+	SAVEGLOBAL
+ELSEIF RESULT == 9999
+	RETURN 0
+ENDIF
+
+CLEARLINE LINECOUNT - FIRST_LINE
+GOTO SHOW_LOOP
+
+;-------------------------------------------------
+;データのロード
+;-------------------------------------------------
+@LOAD_GAME()
+#DIM FIRST_LINE
+#DIM CONST 最大ページ数 = 10
+#DIM CONST セーブ数 = 20
+#DIM 現在ページ数
+#DIM ロード可能, 200
+#DIMS セーブ名, 200
+#DIM オートセーブロード可能, AUTOSAVE_DOMAIN_NUM
+#DIMS オートセーブ名, AUTOSAVE_DOMAIN_NUM
+#DIM クイックセーブロード可能
+#DIMS クイックセーブ名
+#DIM ページ復元済み
+LOADGLOBAL
+
+IF !ページ復元済み
+	現在ページ数 = SAVELOAD_LASTPAGE
+	ページ復元済み = 1
+ENDIF
+
+IF 現在ページ数 <= 0
+	現在ページ数 = 1
+ELSEIF 現在ページ数 > 最大ページ数
+	現在ページ数 = 最大ページ数
+ENDIF
+
+FOR LOCAL, 0, VARSIZE("ロード可能")
+	CHKDATA LOCAL
+	;CHKDATAは読めるデータのとき0を返す　どうかしてるぜ
+	ロード可能:LOCAL = (RESULT == 0)
+	IF RESULT != 1
+		セーブ名:LOCAL = %RESULTS%
+	ELSE
+		セーブ名:LOCAL = ----
+	ENDIF
+NEXT
+
+FOR LOCAL, 0, AUTOSAVE_DOMAIN_NUM
+	CHKDATA 1000 + LOCAL
+	オートセーブロード可能:LOCAL = (RESULT == 0)
+	IF RESULT != 1
+		オートセーブ名:LOCAL = %RESULTS%
+	ELSE
+		オートセーブ名:LOCAL = ----
+	ENDIF
+NEXT
+
+CHKDATA 9999
+クイックセーブロード可能 = (RESULT == 0)
+IF RESULT != 1
+	クイックセーブ名 = %RESULTS%
+ELSE
+	クイックセーブ名 = ----
+ENDIF
+
+FIRST_LINE = LINECOUNT
+
+$SHOW_LOOP
+
+CALL SINGLE_DRAWLINE
+FOR LOCAL, (現在ページ数 - 1) * セーブ数, 現在ページ数 * セーブ数
+	IF ロード可能:LOCAL
+		RESETCOLOR
+	ELSE
+		SETCOLOR カラー_選択不可
+	ENDIF
+	CALL PRINTBUTTON_EXL(@"[{LOCAL, 3, LEFT}] %セーブ名:LOCAL%", LOCAL, ロード可能:LOCAL)
+NEXT
+RESETCOLOR
+
+CALL COLOR_LINE
+LOCAL = ROUND_DECREMENT(AUTOSAVE_DOMAIN, 0, AUTOSAVE_DOMAIN_NUM - 1)
+LOCAL:1 = LOCAL
+DO
+	IF オートセーブロード可能:LOCAL
+		RESETCOLOR
+	ELSE
+		SETCOLOR カラー_選択不可
+	ENDIF
+	PRINTFORM [{1000 + LOCAL}] %オートセーブ名:LOCAL%
+	IF LOCAL == ROUND_DECREMENT(AUTOSAVE_DOMAIN, 0, AUTOSAVE_DOMAIN_NUM - 1)
+		CALL COLOR_PRINTL("  最新", カラー_注意)
+	ELSE
+		PRINTL
+	ENDIF
+	RESETCOLOR
+	LOCAL = ROUND_DECREMENT(LOCAL, 0, AUTOSAVE_DOMAIN_NUM - 1)
+LOOP LOCAL != LOCAL:1
+
+CALL COLOR_LINE
+SIF !クイックセーブロード可能
+	SETCOLOR カラー_選択不可
+CALL PRINTBUTTON_EXL(@"[9999] %クイックセーブ名%", 9999, クイックセーブロード可能)
+RESETCOLOR
+
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[前のページ]", 10000
+PRINTFORM  Page{現在ページ数}/{最大ページ数} 
+PRINTBUTTON "[次のページ]", 10001
+PRINTL
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[戻る]", 10002
+
+INPUT
+
+;ロード
+IF INRANGE(RESULT, 0, VARSIZE("ロード可能") - 1)
+```

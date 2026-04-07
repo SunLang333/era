@@ -1,0 +1,212 @@
+# R_CHARA/CHILD.ERB — 自动生成文档
+
+源文件: `ERB/R_CHARA/CHILD.ERB`
+
+类型: .ERB
+
+自动摘要: functions: CREATE_CHILD, CHILD_SETTING, CHILD_TALENT_OPPOSE, CHILD_TALENT_SINGLE, CHILD_SKILL_SETTING, CHILD_TAG_SETTING; definition/data
+
+前 200 行源码片段:
+
+```text
+﻿;子供の誕生関連の処理
+
+;-------------------------
+;ARG:0を母親として子供を生成する
+;-------------------------
+@CREATE_CHILD(ARG:0)
+;ターゲットを退避
+LOCAL:0 = TARGET
+
+SIF !CAN_ADD_CHILD()
+	RETURN -1
+
+;キャラを追加
+ADDVOIDCHARA
+
+;作成したキャラをターゲットにする
+TARGET = CHARANUM - 1
+
+;NOの設定
+NO = FLAG:子供カウント + MIN_NO_CHILD
+FLAG:子供カウント ++
+
+;父親・母親のIDを設定
+CFLAG:母親 = GET_ID(ARG:0)
+CFLAG:父親 = CFLAG:(ARG:0):子の父親
+
+;素質と能力の決定
+CALL CHILD_SETTING
+
+;初期設定(※素質決定後に行う)
+CALL INIT_NEWCHARA(TARGET)
+
+CALL RANDOM_CHARA_SKILL_SETTING
+CALL CHILD_SKILL_SETTING
+CALL RANDOM_CHARA_CLOTH_SETTING()
+CALL CHILD_TAG_SETTING()
+;ターゲットの再設定
+TARGET = LOCAL:0
+RETURN CHARANUM - 1
+
+;-------------------------
+;子供が生誕時の処理
+;-------------------------
+@CHILD_SETTING
+#DIM EAR
+#DIM TAIL
+
+;両親の取得
+LOCAL:5 = ID_TO_CHARA(CFLAG:父親)
+LOCAL:6 = ID_TO_CHARA(CFLAG:母親)
+
+;固定の素質を付与
+TALENT:童貞 = 1
+TALENT:処女 = 1
+TALENT:キス未経験 = 1
+TALENT:アナル処女 = 1
+TALENT:幼児 = 1
+TALENT:体格 = 体格_子供
+
+;設定された男性率に応じて性別を設定
+IF RAND:100 < CONFIG:4
+	IF RAND:30 == 0
+		TALENT:性別 = 4
+	ELSEIF RAND:30 == 0
+		TALENT:性別 = 3
+	ELSE
+		TALENT:性別 = 0
+	ENDIF
+ELSE
+	IF RAND:20 == 0
+		TALENT:性別 = 2
+	ELSE
+		TALENT:性別 = 1
+	ENDIF
+	CALL SET_BUSTSIZE(TARGET, -2)
+ENDIF
+
+;■BASE値の決定
+IF (LOCAL:5 >= 0 && RAND:2) || LOCAL:6 < 0
+	MAXBASE:体力 = MAXBASE:(LOCAL:5):体力 + (RAND:5 - 2) * 100
+ELSE
+	MAXBASE:体力 = MAXBASE:(LOCAL:6):体力 + (RAND:5 - 2) * 100
+ENDIF
+MAXBASE:体力 = LIMIT(MAXBASE:体力, 1200, 2500)
+
+IF (LOCAL:5 >= 0 && RAND:2) || LOCAL:6 < 0
+	MAXBASE:気力 = MAXBASE:(LOCAL:5):気力 + (RAND:5 - 2) * 100
+ELSE
+	MAXBASE:気力 = MAXBASE:(LOCAL:6):気力 + (RAND:5 - 2) * 100
+ENDIF
+MAXBASE:気力 = LIMIT(MAXBASE:気力, 1000, 2200)
+
+BASE:体力 = MAXBASE:体力
+BASE:気力 = MAXBASE:気力
+
+;精神力は仮設定
+MAXBASE:精神力 = 500
+BASE:精神力 = MAXBASE:精神力
+
+;■戦闘系能力と成長型の設定
+LOCAL:7 = RAND:5
+IF LOCAL:5 >= 0 && LOCAL:7 < 2
+	LOCAL:8 = LOCAL:5
+ELSEIF LOCAL:6 >= 0 && LOCAL:7 < 4
+	LOCAL:8 = LOCAL:6
+ELSE
+	LOCAL:8 = -1
+ENDIF
+
+IF LOCAL:8 >= 0
+	TALENT:成長型 = TALENT:(LOCAL:8):成長型
+
+	ABL:武闘 = RAND:8 + 1 + ABL:(LOCAL:8):武闘 / 10
+	ABL:防衛 = RAND:8 + 1 + ABL:(LOCAL:8):防衛 / 10
+	ABL:知略 = RAND:8 + 1 + ABL:(LOCAL:8):知略 / 10
+	ABL:政治 = RAND:8 + 1 + ABL:(LOCAL:8):政治 / 10
+	ABL:歌唱 = RAND:21
+	ABL:料理 = MAX(RAND:11 - 5, 0)
+ELSE
+	TALENT:成長型 = RAND:9
+
+	ABL:武闘 = RAND:12 + 1
+	ABL:防衛 = RAND:12 + 1
+	ABL:知略 = RAND:12 + 1
+	ABL:政治 = RAND:12 + 1
+	ABL:歌唱 = RAND:21
+	ABL:料理 = MAX(RAND:11 - 5, 0)
+ENDIF
+
+;■素質の決定
+;臆病、気丈
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 10, 12, 12, 12
+;反抗的、素直
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 11, 13, 20, 20
+;大人しい
+CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 14, 7
+;プライド高い、プライド低い
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 15, 17, 12, 3
+;生意気(素直を持つなら確率低下)
+IF TALENT:素直
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 16, 3
+ELSE
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 16, 12
+ENDIF
+;ツンデレ(反抗的を持つキャラは高確率・素直と同居しない・遺伝によらず完全ランダム)
+IF TALENT:反抗的
+	CALL RCHARA_TALENT_SINGLE, 18, 23
+ELSEIF !TALENT:素直
+	CALL RCHARA_TALENT_SINGLE, 18, 5
+ENDIF
+;快感に素直、快感の否定
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 70, 71, 9, 5
+;自制心(快感に素直と同居しない)
+IF !TALENT:快感に素直
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 20, 7
+ENDIF
+;好奇心、保守的
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 23, 24, 13, 6
+;楽観的、悲観的
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 25, 26, 11, 7
+;一線越えない
+CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 27, 6
+;目立ちたがり
+CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 28, 9
+;貞操観念、貞操無頓着
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 30, 31, 10, 6
+;抑圧(一部素質と同居しない)
+IF !TALENT:生意気 && !TALENT:好奇心 && !TALENT:楽観的 && !TALENT:目立ちたがり && !TALENT:快感に素直
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 32, 6
+ENDIF
+;孤高(素直を持たないキャラ限定)
+IF !TALENT:素直
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 34, 6
+ENDIF
+;恥じらい、恥薄い(目立ちたがりを持つなら確率変動)
+IF TALENT:目立ちたがり
+	CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 35, 36, 3, 13
+ELSE
+	CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 35, 36, 13, 7
+ENDIF
+;無関心(一部素質と同居しない)
+IF !TALENT:好奇心 && !TALENT:目立ちたがり
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 21, 7
+ENDIF
+;感情乏しい(一部素質と同居しない)
+IF !TALENT:臆病 && !TALENT:生意気 && !TALENT:好奇心 && !TALENT:目立ちたがり && !TALENT:恥じらい
+	CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 22, 8
+ENDIF
+;解放(同居しない素質多数)
+IF !TALENT:臆病 && !TALENT:ツンデレ && !TALENT:自制心 && !TALENT:感情乏しい && !TALENT:保守的 && !TALENT:悲観的
+	IF !TALENT:一線越えない && !TALENT:貞操観念 && !TALENT:抑圧 && !TALENT:孤高 && !TALENT:恥じらい && !TALENT:快感の否定
+		CALL CHILD_TALENT_SINGLE, LOCAL:5, LOCAL:6, 33, 12
+	ENDIF
+ENDIF
+;痛みに強い、痛みに弱い
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 41, 40, 5, 4
+;濡れやすい、濡れにくい
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 42, 43, 8, 5
+;習得早い、習得遅い
+CALL CHILD_TALENT_OPPOSE, LOCAL:5, LOCAL:6, 50, 51, 5, 4
+```

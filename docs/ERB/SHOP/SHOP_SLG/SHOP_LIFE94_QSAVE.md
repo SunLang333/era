@@ -1,0 +1,13 @@
+# SHOP/SHOP_SLG/SHOP_LIFE94_QSAVE.ERB — 自动生成文档
+
+源文件: `ERB/SHOP/SHOP_SLG/SHOP_LIFE94_QSAVE.ERB`
+
+类型: .ERB
+
+自动摘要: —
+
+前 200 行源码片段:
+
+```text
+﻿;使用中のボタン番号を忘れないようにするためのダミーファイル
+```

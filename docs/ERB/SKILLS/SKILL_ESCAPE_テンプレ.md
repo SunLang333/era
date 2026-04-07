@@ -1,0 +1,87 @@
+# SKILLS/SKILL_ESCAPE_テンプレ.ERB — 自动生成文档
+
+源文件: `ERB/SKILLS/SKILL_ESCAPE_テンプレ.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SKILL_XX_ESCAPE_YY_EXIST, SKILL_XX_ESCAPE_YY_NAME, SKILL_XX_ESCAPE_YY_LEVEL, SKILL_XX_ESCAPE_YY_RATE, SKILL_XX_ESCAPE_YY_SETTARGET, SKILL_XX_ESCAPE_YY_CAN_INVOKE, SKILL_XX_ESCAPE_YY_INVOKE, SKILL_XX_ESCAPE_YY_EXPLANATION; assigns RESULTS
+
+前 200 行源码片段:
+
+```text
+﻿;-----------------------------------
+;基本値計算に先んじて処理するもの
+;-----------------------------------
+@SKILL_XX_ESCAPE_YY_EXIST
+RETURN 1
+
+@SKILL_XX_ESCAPE_YY_NAME
+RESULTS = 
+
+;レベルは1-5まで
+@SKILL_XX_ESCAPE_YY_LEVEL
+RETURN 
+
+;千分率
+@SKILL_XX_ESCAPE_YY_RATE
+RETURN 0
+
+
+;対象選択
+@SKILL_XX_ESCAPE_YY_SETTARGET(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+SIF BATTLE_COMMANDER_NUM:対象側 == 0
+	RETURN 0
+COMBAT_SKILL_TARGET = RAND:(BATTLE_COMMANDER_NUM:対象側)
+RETURN 1
+
+;発動判定
+@SKILL_XX_ESCAPE_YY_CAN_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+RETURN
+
+;発動テキストをオーバライドしたいときに。
+;「誰それのスキル発動！　○○した！」の「○○した！」の部分を実装したい場合は、
+;これじゃなくてINVOKEで書けばいいです。
+;@SKILL_XX_ESCAPE_YY_INVOKE_TEXT(発動者, スキル, ジャンル)
+;#DIM 発動者
+;#DIM スキル
+;#DIMS ジャンル
+
+;効果をここに記述
+@SKILL_XX_ESCAPE_YY_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+
+@SKILL_XX_ESCAPE_YY_EXPLANATION
+RESULTS = 
+```

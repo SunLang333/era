@@ -1,0 +1,212 @@
+# 口上/134 ドレミー口上/DAILY/_KOJO_DAILY_K134_デートバトル！.ERB — 自动生成文档
+
+源文件: `ERB/口上/134 ドレミー口上/DAILY/_KOJO_DAILY_K134_デートバトル！.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K134_DATING_BATTLE_RATE, KOJO_DAILY_K134_DATING_BATTLE_DECISION, KOJO_DAILY_K134_DATING_BATTLE_GENRE, KOJO_DAILY_K134_DATING_BATTLE; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@KOJO_DAILY_K134_DATING_BATTLE_RATE(対象)
+#DIM 対象
+
+RETURN 1000
+
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K134_DATING_BATTLE_DECISION(対象)
+#DIM 対象
+
+SIF !TALENT:対象:恋慕
+	RETURN 0
+
+SIF KDVAR:対象:ドレミー_デートバトル！ == -1
+	RETURN 0
+
+
+;ネトラレミー中は起きない(ないと思うけど)
+SIF KDVAR:対象:ドレミー_ネトラレミー > 0
+	RETURN 0
+
+RETURN CHECK_KOJO_DAILY_HAPPEN(対象, 1, 0, 1)
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@KOJO_DAILY_K134_DATING_BATTLE_GENRE(対象)
+#DIM 対象
+RETURN デイリー_ジャンル_その他
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@KOJO_DAILY_K134_DATING_BATTLE(対象)
+#DIM 対象
+
+SELECTCASE KDVAR:対象:ドレミー_デートバトル！
+	CASE 0
+		PRINTFORML
+		PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+		PRINTFORMW 許可を出すと%ANAME(対象)%が部屋に入ってきた
+		PRINTFORMW 仕事を続けながら要件を聞くと%ANAME(対象)%は恐る恐る口を開いた
+		PRINTFORMW 「…その…ですね…」
+		PRINTFORMW 「あの…ですね」
+		PRINTFORMW 妙にそわそわしつつ本題を言い出せないでいる様子である
+		PRINTFORMW 仕方なく仕事を進める手を止め、来客用の椅子に移った…
+		PRINTFORML 
+		PRINTFORMW 「ちっ、近くに美味しい料理のお店が出来たらしいのだけど」
+		PRINTFORMW 「明日…いっしょに……どうですか……？」
+		PRINTFORMW どうやらデートのお誘いのようだ
+		PRINTFORMW どうする？
+		PRINTFORML 
+		CALL ASK_YN("誘いに乗る", "誘いを断る")
+		IF RESULT == 1
+			PRINTFORML 「そうですか……」
+			PRINTFORML 残念ながら今は忙しい
+			PRINTFORMW %ANAME(MASTER)%はやんわりと%ANAME(対象)%の誘いを断った……
+		;断ると以後発生しなくなる
+			KDVAR:対象:ドレミー_デートバトル！ = -1
+		ELSE
+			PRINTFORML 「でっ、ではまた今夜……(やった！)」
+			PRINTFORMW そう言って%ANAME(対象)%は%ANAME(MASTER)%の部屋から去っていった
+			PRINTFORMW ……
+			PRINTFORMW 外から歓喜の声が聞こえた…
+			KDVAR:対象:ドレミー_デートバトル！ = 1
+		ENDIF
+	CASE 1
+		PRINTFORML 
+		PRINTFORMW 今日は%ANAME(対象)%とのデートだ
+		PRINTFORMW 「お待たせ%ANAME(MASTER)%」
+		PRINTFORMW 待ち合わせの場所で暫く待っていると%ANAME(対象)%がやって来た
+		PRINTFORML %ANAME(対象)%はいつもの帽子ではなくグレーのハットをかぶり、Ｉラインの白いフリルのワンピースに黒いベストを羽織っていた
+		PRINTFORMW ネックレスが胸元のワンポイントになっていて、持っているバッグはベストに合わせて黒く、茶色いウェスタンブーツを履いていた
+		PRINTFORMW 「(私が夢の世界で事前に調べた所、デートには"デートポイント"なるものが存在するらしい)」
+		PRINTFORMW 「(ステップ１、デートポイントを集めるのよ私っ)」
+		PRINTFORML 
+		PRINTFORML デートスタート！！
+		PRINTFORMW 
+		PRINTFORML 
+		SETCOLOR カラー_シアン
+		PRINTFORML 天気：晴れ　　　　　曜日：木曜　　　　　BGM：永遠の春夢
+		RESETCOLOR
+		PRINTFORMW 
+		SETCOLOR カラー_オレンジ
+		PRINTFORML Emotion [_,.．-ｰ''"´`ｰ-､_ _,.．-ｰ''"´`ｰ-､_ _,.．-]
+		RESETCOLOR
+		PRINTFORMW 
+		SETCOLOR カラー_ピンク
+		PRINTFORML Love    [♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥♥--------------------]
+		RESETCOLOR
+		PRINTFORMW 
+		SETCOLOR カラー_パ青
+		PRINTFORML Date    [------------------------------------------]
+		RESETCOLOR
+		PRINTFORMW 
+		PRINTFORML 「(なるほど…これが私のデートポイントね…)」
+		PRINTFORMW 「(次はステップ２…これは確か…『素敵なファッションを披露しよう』ね……えっ？！)」
+		PRINTFORML %ANAME(対象)%は%ANAME(MASTER)%の服装をチェックし始めた…
+		PRINTFORML 「…%ANAME(MASTER)%の服装、普段と違うけど…もしかして」
+		PRINTFORML 「%ANAME(MASTER)%は今日のデート……気合入れてるのかしら？」
+		PRINTFORMW 
+		CALL ASK_YN("はい", "いいえ")
+		IF RESULT == 0
+			PRINTFORMW ！！！！！！！！！！！！！
+			PRINTFORMW 「(やっぱり、%ANAME(MASTER)%はデートのプロって事なのねっ)」
+			PRINTFORML 「ふふんっ、そうなんだ～。　へぇ～」
+			PRINTFORMW 驚いたことを隠すように軽口を叩く%ANAME(対象)%
+		ELSE
+			PRINTFORMW ！！！！！！！！！！！！！
+			PRINTFORML 「(なんてことなの！　%ANAME(MASTER)%の服装はいつも高水準ということ！？)」
+			PRINTFORMW 「(%ANAME(MASTER)%がこんなにお洒落だなんて知らなかったわ…っ)」
+			PRINTFORML 「ふふんっ、そうなんだ～。　へぇ～」
+			PRINTFORMW 驚いたことを隠すように軽口を叩く%ANAME(対象)%
+		ENDIF 
+		PRINTFORML
+		SETCOLOR カラー_パ青
+		PRINTFORML Date    [■■■■■--------------------------------]
+		RESETCOLOR
+		PRINTFORML
+		PRINTFORMW 「(これはなかなかのデートパワーね……でも私も負けられないわ)」
+		PRINTFORML 「ところで%ANAME(MASTER)%、私の恰好はどう？　お好き？」
+		PRINTFORMW %ANAME(対象)%はスカートの袖を掴みくるんっと回った
+		PRINTFORML 
+		CALL ASK_YN("好きだ", "嫌いだ")
+		IF RESULT == 0
+			PRINTFORMW 「ふふっ、ありがと♪(やったっ！)」
+			PRINTFORMW 「それじゃあ一緒に行きましょ？」
+			PRINTFORMW %ANAME(対象)%は緊張を抑える為に%ANAME(MASTER)%の腕に抱き着き歩き始めた…
+		ELSE
+			PRINTFORMW 「そうですか…(そんな…)」
+			PRINTFORMW 「(んんっ？　そういえば今日行くお店の向かい側は服屋だったわね…)」
+			PRINTFORMW 「(まさか…！！！)」
+			PRINTFORMW 「(服屋で%ANAME(MASTER)%が私の服をチョイスし直して『お前をオレ色に染めてやる』って事！？)」
+			PRINTFORMW 「(とんでもないデートパワーね…流石ね%ANAME(MASTER)%)」
+			PRINTFORMW 「それじゃあ後で%ANAME(MASTER)%に服を買って貰おうかしら？」
+			PRINTFORMW %ANAME(対象)%は緊張を抑える為に%ANAME(MASTER)%の腕に抱き着き歩き始めた…
+		ENDIF
+		PRINTFORML 
+		SETCOLOR カラー_パ青
+		PRINTFORML Date    [■■■■■■■■■■----------------------]
+		RESETCOLOR
+		PRINTFORML
+		PRINTFORMW 「そうそう、ここのお店」
+		PRINTFORMW %ANAME(MASTER)%達は街を楽しんだ後、本来の目的だった料理店へやってきた
+		PRINTFORMW ……………
+		PRINTFORMW ……
+		PRINTFORMW 「ふふっ？　おいしいでしょ？」
+		PRINTFORMW %ANAME(対象)%とコース料理を楽しんでいると、%ANAME(MASTER)%の苦手な料理が運ばれてきた
+		PRINTFORMW 「おやおや、次はこれですね…」
+		PRINTFORML %ANAME(対象)%はどうやら%ANAME(MASTER)%が苦手な料理と気付いていないようだが……
+		PRINTFORML 
+		CALL ASK_YN("我慢して食べる", "苦手なので食べない")
+		IF RESULT == 0
+			PRINTFORML %ANAME(MASTER)%は我慢して一口食べてみた…
+			PRINTFORMW 反射的に渋い顔になってしまった…
+			PRINTFORML 「(……？　%ANAME(MASTER)%ったらどうかしてのか…ああぁ！)」
+			PRINTFORML 「(この料理は確か%ANAME(MASTER)%の苦手だった筈……！)」
+			PRINTFORMW 「(それなのに…私に気を遣わせない為に我慢して食べてるのね……ここは私が助けなきゃ)」
+			PRINTFORML 「ねっ、ねぇ%ANAME(MASTER)%。　がっつくようなんだけど…その料理って私の大好物なのよねぇ～」
+			PRINTFORMW 「だからちょっと多めに貰っても良いかしら？　なんなら全部貰っても良いんだけどハハハ」
+			PRINTFORMW %ANAME(MASTER)%は料理をすべて%ANAME(対象)%に食べさせた…
+			PRINTFORML 「(ふぅ…少し焦りましたが、どうやら私達って結構デキるわね♪)」
+		ELSE
+			PRINTFORMW %ANAME(MASTER)%はこの料理が苦手であると%ANAME(対象)%にキッパリ告げた
+			PRINTFORMW 「そうだったの…それはごめんなさい…(やってしまった…彼の好みを忘れてしまうなんて…)」
+			PRINTFORML 「(…いや違う、これは我慢しないで正直に自分の気持ちを伝えたって事じゃない！)」
+			PRINTFORMW 「(つまり今後もお互いの気持ちは包み隠さず伝えようって事なのね！)」
+			PRINTFORML 「ふふっ…」
+			PRINTFORMW %ANAME(対象)%は%ANAME(MASTER)%の苦手料理を一人で全部食べたが普段よりもおいしく感じたようだ
+			PRINTFORMW 「(ふぅ…少し焦りましたが、どうやら私達ってイイ感じじゃない♪)」
+		ENDIF
+		PRINTFORML 
+		SETCOLOR カラー_パ青
+		PRINTFORML Date    [■■■■■■■■■■■■■■■------------]
+		RESETCOLOR
+		PRINTFORMW 
+		PRINTFORML ひとしきりに料理を楽しんだのち%ANAME(MASTER)%達は夜の公園で休んでいた…
+		PRINTFORMW ガス灯の暖かな光が%ANAME(MASTER)%達の座るベンチを照らし出している
+		PRINTFORMW 「ふふっ…風が気持ち良い夜ですね」
+		PRINTFORMW %ANAME(対象)%は%ANAME(MASTER)%の肩に沿って隣に座っている
+		PRINTFORMW 「……ねぇ%ANAME(MASTER)%、プレゼントがあるの」
+		PRINTFORMW そう言って%ANAME(対象)%は自身のバックから"何か"を取り出した
+		PRINTFORML
+		PRINTFORML ドロドロと絶えず黒い液体が滴るドッジボール程のサイズの球体
+		PRINTFORMW 半透明な"ソレ"の内側には魚や植物、生物の目のようなものが蠢いている……
+		PRINTFORMW 恐る恐る謎の物体の正体を訪ねる%ANAME(MASTER)%
+		PRINTFORMW 「ふふっ、これは"胎児の夢"です」
+		PRINTFORMW 「しかもこの夢はただの夢じゃありません、この夢はもはや芸術！」
+		PRINTFORMW 「ありとあらゆる夢の粋を集め熟成した極上の夢…」
+```

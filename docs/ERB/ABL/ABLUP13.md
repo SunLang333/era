@@ -1,0 +1,52 @@
+# ABL/ABLUP13.ERB — 自动生成文档
+
+源文件: `ERB/ABL/ABLUP13.ERB`
+
+类型: .ERB
+
+自动摘要: functions: ABLUP_EXPNAME13, CALC_ABLUP_EXP13; assigns RESULTS
+
+前 200 行源码片段:
+
+```text
+﻿;能力上昇 性技
+
+;-------------------------------------------------
+;能力上昇に必要な経験を設定
+;-------------------------------------------------
+@ABLUP_EXPNAME13
+RESULTS = 性技経験値
+
+;-------------------------------------------------
+;能力上昇に必要な経験量を返す関数
+;-------------------------------------------------
+@CALC_ABLUP_EXP13(ARG:0)
+SELECTCASE ABL:(ARG:0):性技
+	CASE 0
+		LOCAL:0 = 3
+	CASE 1
+		LOCAL:0 = 10
+	CASE 2
+		LOCAL:0 = 20
+	CASE 3
+		LOCAL:0 = 40
+	CASE 4
+		LOCAL:0 = 80
+	CASEELSE
+		LOCAL:0 = 160 + 80 * (ABL:(ARG:0):性技 - 5)
+ENDSELECT
+
+IF ARG:0 == MASTER
+	TIMES LOCAL:0, 5.00
+ENDIF
+
+;素質による補正
+IF TALENT:(ARG:0):習得早い
+	TIMES LOCAL:0, 0.80
+ENDIF
+IF TALENT:(ARG:0):習得遅い
+	TIMES LOCAL:0, 1.20
+ENDIF
+
+RETURN MAX(LOCAL:0, 1)
+```

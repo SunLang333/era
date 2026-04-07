@@ -1,0 +1,86 @@
+# SKILLS/129_レイラ/SKILL_レイラ_TROOP_2_スローサウンド.ERB — 自动生成文档
+
+源文件: `ERB/SKILLS/129_レイラ/SKILL_レイラ_TROOP_2_スローサウンド.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SKILL_129_TROOP_2_EXIST, SKILL_129_TROOP_2_NAME, SKILL_129_TROOP_2_LEVEL, SKILL_129_TROOP_2_SETTARGET, SKILL_129_TROOP_2_CAN_INVOKE, SKILL_129_TROOP_2_INVOKE, SKILL_129_TROOP_2_EXPLANATION, SKILL_129_TROOP_2_RATE; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;-----------------------------------
+;基本値計算に先んじて処理するもの
+;-----------------------------------
+@SKILL_129_TROOP_2_EXIST
+RETURN 1
+
+@SKILL_129_TROOP_2_NAME
+RESULTS = スローサウンド
+
+;レベルは1-5まで
+@SKILL_129_TROOP_2_LEVEL
+RETURN 3
+
+;対象選択
+@SKILL_129_TROOP_2_SETTARGET(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+;自部隊対象
+RETURN 1
+
+;発動判定
+@SKILL_129_TROOP_2_CAN_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+RETURN 1
+
+;効果をここに記述
+@SKILL_129_TROOP_2_INVOKE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+対象側 = !発動側
+PRINTFORML 敵部隊の知略が低下！
+TIMES BATTLE_INT:対象側, 0.93
+
+@SKILL_129_TROOP_2_EXPLANATION
+RESULTS = 敵部隊の知略を低下させる。
+
+@SKILL_129_TROOP_2_RATE(発動者, 発動番号, 発動側, 発動勢力, 発動部隊, 対象勢力, 対象部隊)
+#DIM 発動者
+#DIM 発動番号
+#DIM スキル
+#DIMS ジャンル
+#DIM 発動側
+#DIM 発動勢力
+#DIM 発動部隊
+#DIM 対象側
+#DIM 対象勢力
+#DIM 対象部隊
+RETURN 100
+```

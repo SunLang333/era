@@ -1,0 +1,212 @@
+# TRAIN/PREGNANT/PREGNANT_RECORD.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/PREGNANT/PREGNANT_RECORD.ERB`
+
+类型: .ERB
+
+自动摘要: functions: REFRESH_PREGNANT_RECORD, SHOW_PREGNANT_RECORD, SHOW_CHILDREN, SHOW_SIBLING, IS_FATHER, IS_MOTHER, HAS_SAME_FATHER, HAS_SAME_MOTHER, IS_PURE_BROTHER, SHOW_WOMB_SPERM, SUM_WOMB_SPERM_AMOUNT, CUT_WOMB_SPERM_AMOUNT, SHOW_ANUS_SPERM, SUM_ANUS_SPERM_AMOUNT, SHOW_STOMACH_SPERM, SUM_STOMACH_SPERM_AMOUNT; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;妊娠した子供の父親を記録する
+
+;---------------------------------------------------------
+;母親のキャラ番号と父親のIDを受け取り、母親の妊娠記録を更新する
+;P_TIMESは回数 通常は1
+;---------------------------------------------------------
+@REFRESH_PREGNANT_RECORD(MOTHER, FATHER_ID, P_TIMES = 1)
+#DIM MOTHER
+#DIM FATHER_ID
+#DIM P_TIMES
+
+IF P_TIMES <= 0
+	RETURN
+ENDIF
+
+;既に同一のIDが記録されているか調べる
+FOR LOCAL:0, 0, PREGNANT_RECORD_MAX
+	IF PREGNANT_RECORD_FATHER:MOTHER:(LOCAL:0) == FATHER_ID
+		;同一のIDが見つかった場合、その父親による妊娠回数をP_TIMES分増やして終了
+		PREGNANT_RECORD_TIMES:MOTHER:(LOCAL:0) += P_TIMES
+		RETURN
+	ENDIF
+NEXT
+
+;既存の記録が見つからなかった場合、空いている場所に新たに記録
+FOR LOCAL:0, 0, PREGNANT_RECORD_MAX
+	IF PREGNANT_RECORD_FATHER:MOTHER:(LOCAL:0) == 0
+		PREGNANT_RECORD_FATHER:MOTHER:(LOCAL:0) = FATHER_ID
+		PREGNANT_RECORD_TIMES:MOTHER:(LOCAL:0) = P_TIMES
+		RETURN
+	ENDIF
+NEXT
+
+;---------------------------------------------------------
+; ARG:0番のキャラの妊娠記録を一括表示する
+;---------------------------------------------------------
+@SHOW_PREGNANT_RECORD(ARG:0)
+#DIM 表示回数
+#DIM その他
+VARSET 表示回数
+VARSET その他
+VARSET LOCAL, 0
+CALL SINGLE_DRAWLINE
+PRINTFORML ○%ANAME(ARG:0)%の妊娠記録○
+
+;FOR LOCAL:0, 0, PREGNANT_RECORD_MAX
+;	LOCAL:1 = PREGNANT_RECORD_FATHER:(ARG:0):(LOCAL:0)
+;	LOCAL:2 = PREGNANT_RECORD_TIMES:(ARG:0):(LOCAL:0)
+;	;父親が不明または既に削除されている場合
+;	IF LOCAL:1 == 0 || (LOCAL:1 > 0 && ID_TO_CHARA(LOCAL:1) == -1)
+;		IF LOCAL:2 > 0
+;			;「その他」の項目に回数を加算する
+;			その他 += LOCAL:2
+;		ENDIF
+;	ENDIF
+;NEXT
+
+LOCAL:500 = 0
+
+FOR LOCAL, 0, PREGNANT_RECORD_MAX
+	LOCAL:1 = PREGNANT_RECORD_FATHER:(ARG:0):(LOCAL:0)
+	LOCAL:2 = PREGNANT_RECORD_TIMES:(ARG:0):(LOCAL:0)
+	LOCAL:499 += PREGNANT_RECORD_TIMES:(ARG:0):(LOCAL:0)
+	IF LOCAL:2 > 0
+		LOCAL:3 = 1
+		;父親が不明または既に削除されている場合、その他扱いなのでCONTINUE
+		;SIF LOCAL:1 == 0 || (LOCAL:1 > 0 && ID_TO_CHARA(LOCAL:1) == -1)
+		;	CONTINUE
+		IF LOCAL:500 >= 1
+			IF LOCAL:500 % 4 == 0
+				PRINTL 
+			ELSE
+				PRINT     
+			ENDIF
+		ENDIF
+		LOCAL:500 ++
+		;父親がキャラの場合
+		SIF ID_TO_CHARA(LOCAL:1) >= 0
+			PRINTFORM %SNAME(ID_TO_CHARA(LOCAL:1)), 18, LEFT%{LOCAL:2, 4, RIGHT}
+		;父親が特殊精液の場合
+		SIF ID_TO_CHARA(LOCAL:1) < 0 && GET_SPERM_NAME(LOCAL:1) != ""
+			PRINTFORM %GET_SPERM_NAME(LOCAL:1), 18, LEFT%{LOCAL:2, 4, RIGHT}
+	ENDIF
+NEXT
+
+;表示件数ゼロなら無しと表示しておく
+IF !LOCAL:3
+	PRINTFORML なし
+ELSE
+	PRINTFORML \n合計: {LOCAL:499}
+ENDIF
+
+CALL COLOR_LINE
+PRINTFORML ○%ANAME(ARG:0)%の種付け記録○
+VARSET LOCAL, 0
+FOR LOCAL, 0, CHARANUM
+	FOR LOCAL:1, 0, PREGNANT_RECORD_MAX
+		IF PREGNANT_RECORD_FATHER:(LOCAL:0):(LOCAL:1) == GET_ID(ARG:0)
+			IF LOCAL:500 >= 1
+				IF LOCAL:500 % 4 == 0
+					PRINTL 
+				ELSE
+					PRINT     
+				ENDIF
+			ENDIF
+			LOCAL:500 ++
+			LOCAL:499 += PREGNANT_RECORD_TIMES:(LOCAL:0):(LOCAL:1)
+			LOCAL:2 = PREGNANT_RECORD_TIMES:(LOCAL:0):(LOCAL:1)
+			PRINTFORM %SNAME(LOCAL:0), 18, LEFT%{LOCAL:2, 4, LEFT}
+			LOCAL:3 ++
+			BREAK
+		ENDIF
+	NEXT
+NEXT
+
+
+;表示件数ゼロなら無しと表示しておく
+IF !LOCAL:3
+	PRINTFORML なし
+ELSE
+	PRINTFORML \n合計: {LOCAL:499}
+ENDIF
+
+CALL SHOW_CHILDREN(ARG:0)
+
+CALL SHOW_SIBLING(ARG:0)
+
+CALL SHOW_STOMACH_SPERM(ARG:0)
+CALL SHOW_WOMB_SPERM(ARG:0)
+CALL SHOW_ANUS_SPERM(ARG:0)
+
+;---------------------------------------------------------
+; ARG:0番のキャラの子供を一括表示する
+;---------------------------------------------------------
+@SHOW_CHILDREN(ARG:0)
+#DIM 表示回数
+#DIM 親種別
+#DIM 親ID
+#DIM ARG0_ID
+
+ARG0_ID = GET_ID(ARG:0)
+
+FOR 親種別, 0, 2
+	CALL COLOR_LINE
+	表示回数 = 0
+	SELECTCASE 親種別
+		CASE 0
+			PRINTFORML ○%ANAME(ARG:0)%を父親に持つ子供○
+		CASE 1
+			PRINTFORML ○%ANAME(ARG:0)%を母親に持つ子供○
+	ENDSELECT
+	FOR LOCAL, 0, CHARANUM
+		SELECTCASE 親種別
+			CASE 0
+				親ID = CFLAG:(LOCAL:0):父親
+			CASE 1
+				親ID = CFLAG:(LOCAL:0):母親
+		ENDSELECT
+		IF 親ID == ARG0_ID
+			IF 表示回数 >= 1
+				IF 表示回数 % 4 == 0
+					PRINTL 
+				ELSE
+					PRINT     
+				ENDIF
+			ENDIF
+			表示回数 ++
+			PRINTFORM %SNAME(LOCAL:0), 18, LEFT%
+		ENDIF
+	NEXT
+
+
+	;表示件数ゼロなら無しと表示しておく
+	IF !表示回数
+		PRINTFORML %"なし", 18, LEFT%
+	ELSE
+		PRINTFORML \n合計: {表示回数}
+	ENDIF
+NEXT
+
+;---------------------------------------------------------
+; 対象のきょうだいを表示する
+;---------------------------------------------------------
+@SHOW_SIBLING(対象)
+#DIM 対象
+#DIM 父ID
+#DIM 母ID
+#DIM 相手父ID
+#DIM 相手母ID
+#DIM 表示回数
+#DIM 表示種別
+
+父ID = CFLAG:対象:父親
+母ID = CFLAG:対象:母親
+
+IF ALLSAMES(0, 父ID, 母ID)
+	CALL COLOR_LINE
+	PRINTFORML 〇%ANAME(対象)%の兄弟・姉妹〇
+	PRINTFORML 両親ともに不明のため、わからない
+	RETURN
+```

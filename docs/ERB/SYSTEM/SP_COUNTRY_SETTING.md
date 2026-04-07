@@ -1,0 +1,212 @@
+# SYSTEM/SP_COUNTRY_SETTING.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/SP_COUNTRY_SETTING.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SP_COUNTRY_START_SETTING, SP_COUNTRY_START_SETTING_SELECT_CITY, SP_COUNTRY_START_INIT, PRINT_EACH_SP_COUNTRY_SETTING; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿@SP_COUNTRY_SETTING(強制出現 = 0, 出現設定 = 1)
+#DIM 強制出現
+#DIM 出現設定
+#DIM FIRST_LINE
+#DIM 勢力定数
+#DIM 選択肢
+
+SIF 強制出現
+	VARSET SP_COUNTRY_RANK, 1
+
+CALL SINGLE_DRAWLINE
+PRINTL 特殊勢力（捕えた女の子にスケベなことをする勢力）について設定します
+PRINTL ※初回プレイ時は強さ0（出現しない）にすることをおすすめします
+PRINTL ※「強さ3」・「途中から出現」で相応の手応えです
+PRINTL ※性別設定は、ターンエンド時の捕虜調教描写は非対応です
+CALL SINGLE_DRAWLINE
+
+FIRST_LINE = LINECOUNT
+
+$SHOW_LOOP
+
+FOR LOCAL, 0, MAX_SP_COUNTRY
+	SIF GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:LOCAL) == -1
+		CALL PRINT_EACH_SP_COUNTRY_SETTING(LOCAL, 強制出現, 出現設定)
+NEXT
+
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "[完了]", 9999
+
+INPUT
+
+SELECTCASE RESULT
+	CASE 0 TO 999
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10
+		SIF !INRANGE(勢力定数, 0, MAX_SP_COUNTRY - 1) || 勢力定数 == 特殊勢力_ダミー || !INRANGE(選択肢, 0, 5)
+			GOTO SKIPPED
+		SP_COUNTRY_RANK:勢力定数 = 選択肢
+	CASE 1000 TO 1999
+		RESULT = RESULT - 1000
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10
+		SIF !INRANGE(勢力定数, 0, MAX_SP_COUNTRY - 1) || 勢力定数 == 特殊勢力_ダミー || !INRANGE(選択肢, 0, 3)
+			GOTO SKIPPED
+		SP_COUNTRY_BOSSNAME:勢力定数 = 選択肢
+		IF 選択肢 == 3
+			PRINTL 姓を入力して下さい
+			PRINTL (『チルノ』のような姓なしキャラにしたい場合、入力しない)
+			INPUTS
+			SP_COUNTRY_BOSSNAME_LAST_NAME:勢力定数  = %RESULTS%
+			PRINTL 名前を入力して下さい
+			$NAME_INPUT_LOOP
+			INPUTS
+			IF RESULTS == ""
+				PRINTL 名前は入力必須です
+				PRINTL 再入力して下さい
+				GOTO NAME_INPUT_LOOP
+			ENDIF
+			SP_COUNTRY_BOSSNAME_FIRST_NAME:勢力定数 = %RESULTS%
+		ENDIF
+	CASE 2000 TO 2999
+		RESULT = RESULT - 2000
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10
+		SIF !INRANGE(勢力定数, 0, MAX_SP_COUNTRY - 1) || 勢力定数 == 特殊勢力_ダミー || !INRANGE(選択肢, 0, 1) || !出現設定
+			GOTO SKIPPED
+		SP_COUNTRY_INITIAL_RISE:勢力定数 = 選択肢
+	CASE 3000, 3001
+		SIF !出現設定
+			GOTO SKIPPED
+		勢力定数 = 特殊勢力_野盗
+		選択肢 = RESULT - 3000
+		BANDIT_HAS_INITIAL_CITIES = 選択肢
+	CASE 4000 TO 4999
+		RESULT = RESULT - 4000
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10 - 1
+		SIF !INRANGE(勢力定数, 0, MAX_SP_COUNTRY - 1) || !INRANGE(選択肢, -1, 2)
+			GOTO SKIPPED
+		SP_COUNTRY_GENDER:勢力定数 = 選択肢
+	CASE 9999
+		FOR LOCAL, 0, MAX_SP_COUNTRY
+			SIF LOCAL != 特殊勢力_野盗 && GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:LOCAL) == -1 && SP_COUNTRY_RANK:LOCAL > 0 && SP_COUNTRY_INITIAL_RISE:LOCAL
+				TRYCALLFORM %SP_COUNTRY_NAME_ENG:LOCAL%_RISE()
+			IF LOCAL == 特殊勢力_野盗 && GET_COUNTRY_FROM_ID(SP_COUNTRY_ID:特殊勢力_野盗) == -1 && SP_COUNTRY_INITIAL_RISE:LOCAL
+				CALL BANDIT_INIT(1)
+				SIF BANDIT_HAS_INITIAL_CITIES
+					CALL BANDIT_RISE()
+			ENDIF
+		NEXT
+		RETURN
+ENDSELECT
+
+$SKIPPED
+
+CLEARLINE LINECOUNT - FIRST_LINE
+GOTO SHOW_LOOP
+
+;-------------------------------------------------------
+;特殊勢力スタート用の設定
+;-------------------------------------------------------
+@SP_COUNTRY_START_SETTING(定数)
+#DIM 定数
+#DIM 勢力定数
+#DIM 選択肢
+#DIM FIRST_LINE
+FIRST_LINE = LINECOUNT
+CALL PRINT_EACH_SP_COUNTRY_SETTING(定数, 1, 0)
+PRINTBUTTON "[完了]", 9999
+
+INPUT
+
+SELECTCASE RESULT
+	CASE 0 TO 999
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10
+		SIF 勢力定数 != 定数 || !INRANGE(選択肢, 0, 5)
+			GOTO SKIPPED
+		SP_COUNTRY_RANK:勢力定数 = 選択肢
+	CASE 1000 TO 1999
+		RESULT = RESULT - 1000
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10
+		SIF 勢力定数 != 定数 || !INRANGE(選択肢, 0, 3)
+			GOTO SKIPPED
+		SP_COUNTRY_BOSSNAME:勢力定数 = 選択肢
+		IF 選択肢 == 3
+			PRINTL 姓を入力して下さい
+			PRINTL (『チルノ』のような姓なしキャラにしたい場合、入力しない)
+			INPUTS
+			SP_COUNTRY_BOSSNAME_LAST_NAME:勢力定数  = %RESULTS%
+			PRINTL 名前を入力して下さい（必須）
+			$NAME_INPUT_LOOP
+			INPUTS
+			IF RESULTS == ""
+				PRINTL 名前は入力必須です
+				PRINTL 再入力して下さい
+				GOTO NAME_INPUT_LOOP
+			ENDIF
+			SP_COUNTRY_BOSSNAME_FIRST_NAME:勢力定数 = %RESULTS%
+		ENDIF
+	CASE 4000 TO 4999
+		RESULT = RESULT - 4000
+		勢力定数 = RESULT / 10
+		選択肢 = RESULT % 10 - 1
+		SIF 勢力定数 != 定数 || !INRANGE(選択肢, -1, 2)
+			GOTO SKIPPED
+		SP_COUNTRY_GENDER:勢力定数 = 選択肢
+	CASE 9999
+		CALL SP_COUNTRY_START_SETTING_SELECT_CITY()
+		TRYCALLFORM %SP_COUNTRY_NAME_ENG:定数%_RISE(RESULT)
+		RETURN RESULT
+ENDSELECT
+
+$SKIPPED
+
+CLEARLINE LINECOUNT - FIRST_LINE
+RESTART
+
+;-------------------------------------------------
+;旗揚げスタート時用、勢力の設定
+;-------------------------------------------------
+@SP_COUNTRY_START_SETTING_SELECT_CITY
+#DIM FIRST_LINE
+#DIM 勢力
+#DIM 都市
+#DIM 対象
+#DIM 消去行
+勢力 = GET_NEW_COUNTRY()
+
+CALL SINGLE_DRAWLINE
+CALL SET_CITY_COLOR_COUNTRY
+CALL SET_CITY_COLOR_UNIT
+CALL DRAWMAP
+CALL RESET_CITY_COLOR
+CALL SINGLE_DRAWLINE
+PRINTL 最初に奪う都市を指定してください（その周辺が奪われます）
+PRINTL 勢力が所有している都市は、その勢力が2都市以上所有していないと選択できません
+CALL SINGLE_DRAWLINE
+PRINTL 
+
+
+$INPUT_LOOP_CITY
+INPUT
+
+IF RESULT >= 1001 && RESULT <= 1001 + CITY_NUM
+	LOCAL:5 = RESULT - 1000
+	;指定された都市が存在し、無所属である場合
+	IF GET_RELAYNAME(LOCAL:5) != "無名" && CITY_TYPE:(LOCAL:5) == 0 && (IS_COUNTRY(CITY_OWNER:(LOCAL:5)) || GET_OWN_CITY(CITY_OWNER:(LOCAL:5)) > 1)
+		REDRAW 1
+		PRINTFORMW %GET_RELAYNAME(LOCAL:5)%で開始します
+		RETURN LOCAL:5
+	ELSE
+		CLEARLINE 1
+		GOTO INPUT_LOOP_CITY
+	ENDIF
+ELSE
+	CLEARLINE 1
+	GOTO INPUT_LOOP_CITY
+ENDIF
+```

@@ -1,0 +1,212 @@
+# TRAIN/COMF/COMF12_パイズリ.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/COMF/COMF12_パイズリ.ERB`
+
+类型: .ERB
+
+自动摘要: functions: COM_NAME12, COM_ABLE12, COM12_RATE_B, COM12, COM_IS_EQUIP12, COM_EQUIP12, EQUIP_MESSAGE12, COM_TEXT_BEFORE_EQUIP12, COM_TEXT_RELEASE_EQUIP12, COM_ORDER_PLAYER12, COM_TEXT_BEFORE12, COM_AVAILABLE_WHEN12, COM_PREFERENCE_PLAYER_12, COM_PREFERENCE_TARGET_12, COM_STACK_SPERM_MTAR_TO_MPLY_12; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;パイズリ
+
+;-------------------------------------------------
+;コマンド名称
+;-------------------------------------------------
+@COM_NAME12
+
+IF IS_RIDE(MPLY:0, MTAR:0)
+	LOCALS:1 = "顔騎"
+ELSE
+	LOCALS:1 = 
+ENDIF
+
+IF IS_FEMALE(MPLY:0)
+	IF GET_BUSTSIZE(MPLY:0) >= 0
+		LOCALS:1 = パイズリ
+	ELSE
+		LOCALS:1 = ナイズリ
+	ENDIF
+ELSE
+	LOCALS:1 = 胸ズリ
+ENDIF
+
+IF MPLY_NUM == 3
+	LOCALS:0 = Ｔ%LOCALS:1%
+ELSEIF MPLY_NUM == 2
+	LOCALS:0 = Ｗ%LOCALS:1%
+ELSEIF SEARCH_EQUIP(107, MPLY:0, MTAR:0) >= 0
+	LOCALS:0 = パイズリフェラ
+ELSE
+	LOCALS:0 = %LOCALS:1%
+ENDIF
+
+RESULTS:0 = %LOCALS:0%する
+RESULTS:1 = %LOCALS:0%させられる
+RESULTS:2 = %LOCALS:0%させる
+RESULTS:3 = %LOCALS:0%される
+RESULTS:4 = %LOCALS:0%させる
+RESULTS:5 = %LOCALS:0%見せつけ
+
+;-------------------------------------------------
+;選択可否判定
+;-------------------------------------------------
+@COM_ABLE12
+;共通部分
+CALL COM_ABLE_COMMON(12)
+SIF RESULT == 0
+	RETURN 0
+;プレイヤーは最大で3人まで
+SIF MPLY_NUM <= 0 || MPLY_NUM > 3
+	RETURN 0
+;ターゲットは最大で1人まで
+SIF MTAR_NUM <= 0 || MTAR_NUM > 1
+	RETURN 0
+;ターゲットに竿が必要
+SIF !HAS_PENIS(MTAR:0)
+	RETURN 0
+SIF !P_STACKABLE(MPLY:0, MTAR:0, 12)
+	RETURN 0
+;grovelling
+SIF IS_EQUIP_PLAYER(MTAR:0, 110)
+	RETURN 0
+FOR LOCAL:0, 0, MPLY_NUM
+	;this covers most common problems
+	SIF !CAN_REACH_BODY(MPLY:(LOCAL:0), MTAR:0)
+		RETURN 0
+	SIF IS_RIDDEN(MPLY:(LOCAL:0), MTAR:0)
+		RETURN 0
+	SIF IS_INSERT_MUTUAL(MPLY:(LOCAL:0), MTAR:0) > 0
+		RETURN 0
+    ;getting assjob
+	SIF SEARCH_EQUIP(15, MTAR:0, MPLY:(LOCAL:0)) >= 0
+		RETURN 0
+NEXT
+
+RETURN 1
+
+;-------------------------------------------------
+;快Ｂソースの倍率を取得する関数 ARG:0=PLAYERのキャラ番号
+;-------------------------------------------------
+@COM12_RATE_B(ARG:0)
+#FUNCTION
+LOCAL:5 = 1000
+SELECTCASE ABL:(ARG:0):奉仕
+	CASE 0
+		TIMES LOCAL:5, 0.50
+	CASE 1
+		TIMES LOCAL:5, 0.80
+	CASE 2
+		TIMES LOCAL:5, 1.00
+	CASE 3
+		TIMES LOCAL:5, 1.20
+	CASE 4
+		TIMES LOCAL:5, 1.40
+	CASEELSE
+		LOCAL:5 = LOCAL:5 * (150 + (ABL:(LOCAL:2):奉仕 - 5) * 2) / 100
+ENDSELECT
+
+SELECTCASE ABL:(ARG:0):性技
+	CASE 0
+		TIMES LOCAL:5, 1.00
+	CASE 1
+		TIMES LOCAL:5, 1.10
+	CASE 2
+		TIMES LOCAL:5, 1.20
+	CASE 3
+		TIMES LOCAL:5, 1.30
+	CASE 4
+		TIMES LOCAL:5, 1.40
+	CASEELSE
+		LOCAL:5 = LOCAL:5 * ((ABL:(LOCAL:2):性技 - 5) * 2 + 150) / 100
+ENDSELECT
+
+RETURNF LOCAL:5
+
+;-------------------------------------------------
+;メイン処理
+;-------------------------------------------------
+@COM12
+;実行判定
+CALL COM_ORDER_COMMON
+SIF RESULT == 0
+	RETURN 0
+
+LOCAL:1 = -1
+;フェラ状況を待避
+IF MPLY_NUM == 1 && MTAR_NUM == 1
+	LOCAL:1 = SEARCH_EQUIP(11, MPLY:0, MTAR:0)
+ENDIF
+
+
+;パイズリ状況を復元
+IF LOCAL:1 >= 0
+	CALL SET_EQUIP(11, 1)
+ENDIF
+
+;●人数補正の設定
+LOCAL:10 = 100
+
+SELECTCASE MPLY_NUM
+	CASE 2
+		TIMES LOCAL:10, 0.75
+	CASE 3
+		TIMES LOCAL:10, 0.60
+ENDSELECT
+
+SELECTCASE MTAR_NUM
+	CASE 2
+		TIMES LOCAL:10, 0.75
+ENDSELECT
+
+;●全プレイヤーについて判定
+FOR LOCAL:0, 0, MPLY_NUM
+	LOCAL:2 = MPLY:(LOCAL:0)
+
+	DOWNBASE:(LOCAL:2):体力 += 120
+
+	EXP:(LOCAL:2):性技経験値 += MAX(MTAR_NUM / 2 + 1, 1)
+	EXP:(LOCAL:2):口淫経験 += 1
+
+	SOURCE:(LOCAL:2):奉仕 = SERVE_HOUSHI(LOCAL:2, 450)
+	SOURCE:(LOCAL:2):接触 = 50
+	SOURCE:(LOCAL:2):快Ｂ = 200 * COM12_RATE_B(LOCAL:2) / 1000
+	SOURCE:(LOCAL:2):性行動 = 300
+
+	;口枷装着中なら無視
+	IF !IS_EQUIP_TARGET(LOCAL:2, 86)
+		SOURCE:(LOCAL:2):快Ｍ = 100 * COM11_RATE_M(LOCAL:2) / 1000
+	ENDIF
+
+	;主導権に応じた優越・受動のソース追加
+	CALL ADD_SOURCE_INITIATIVE_U(LOCAL:2, 160, 140)
+
+	;奉仕経験値を得られるコマンドのフラグ
+	TCVAR:(LOCAL:2):4 = 1
+
+	;全ターゲットに与える快感系ソースを計算
+	FOR LOCAL:1, 0, MTAR_NUM
+		LOCAL:3 = MTAR:(LOCAL:1)
+		LOCAL:4 = SENSE_HOUSHI_P(LOCAL:2, LOCAL:3, 1600) * LOCAL:10 / 100
+		;口枷装着中なら効果低下
+		IF !IS_EQUIP_TARGET(LOCAL:2, 86)
+			TIMES LOCAL:4, 0.90
+		ELSEIF TALENT:(LOCAL:3):舌使い
+			TIMES LOCAL:4, 1.20
+		ENDIF
+		SOURCE:(LOCAL:3):快Ｐ += LOCAL:4
+
+	NEXT
+NEXT
+
+;●全ターゲットについて判定
+FOR LOCAL:0, 0, MTAR_NUM
+	LOCAL:1 = MTAR:(LOCAL:0)
+
+	;●ソースの計算
+	DOWNBASE:(LOCAL:1):体力 += 60
+
+	SOURCE:(LOCAL:1):接触 = 50
+	SOURCE:(LOCAL:1):性行動 = 180
+```

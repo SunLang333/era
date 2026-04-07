@@ -1,0 +1,212 @@
+# SYSTEM/CONFIG.ERB — 自动生成文档
+
+源文件: `ERB/SYSTEM/CONFIG.ERB`
+
+类型: .ERB
+
+自动摘要: functions: INIT_CONFIG, SHOW_CONFIG, CONFIG_SAVE, CONFIG_LOAD, CONFIG_DAILY_SAVE, CONFIG_DAILY_LOAD, LISTUP_CONFIG, LISTUP_CONFIG_FILTER, LISTUP_CONFIG_DAILY, CONFIG_EXISTS, CONFIG_DAILY_EXISTS, CONFIG_OTHERS, CONFIG_OTHERS_SP, CONFIG_SAVE_EXIST_CHARA, CONFIG_COM_FILTER, CONFIG_COM_FILTER_SAVE, CONFIG_COM_FILTER_LOAD, CONFIG_TOGGLE; assigns RESULTS; UI/print; definition/data
+
+前 200 行源码片段:
+
+```text
+﻿;コンフィグ画面とゲーム設定に関する処理
+
+;-------------------------------------------------
+;コンフィグの初期設定
+;-------------------------------------------------
+@INIT_CONFIG
+CONFIG:3 = 50
+CONFIG:4 = 30
+CONFIG:6 = 1
+CONFIG:9 = 1
+CONFIG:80 = 2
+CONFIG:15 = 1
+
+;SLG部分のコンフィグの初期設定
+CALL INIT_CONFIG_SLG
+;デイリー部分のコンフィグの初期設定
+CALL INIT_CONFIG_DAILY
+;-------------------------------------------------
+;コンフィグ画面の処理
+;-------------------------------------------------
+@SHOW_CONFIG
+#DIM FIRST_LINE
+FIRST_LINE = LINECOUNT
+CALL SINGLE_DRAWLINE
+PRINTL ★★各種設定やデータの操作を行います★★
+CALL SINGLE_DRAWLINE
+PRINTBUTTON "  0[ＳＬＧパートに関する設定]", 0
+PRINTL 
+PRINTBUTTON "  1[  交流パートに関する設定]", 1
+PRINTL 
+PRINTBUTTON "  5[  特殊な性癖に関する設定]", 5
+PRINTL 
+PRINTBUTTON "  6[  デイリーイベントの設定]", 6
+PRINTL 
+PRINTBUTTON "  7[    口上デイリーフィルタ]", 7
+PRINTL
+PRINTBUTTON "  8[      既存のキャラの保存]", 8
+PRINTL
+PRINTBUTTON " 10[        コマンドフィルタ]", 10
+PRINTL 
+PRINTL 
+PRINTBUTTON " 80[        現在の設定を保存]", 80
+PRINTL 
+PRINTBUTTON " 81[  保存した設定の読み込み]", 81
+PRINTL 
+PRINTL 
+PRINTBUTTON " 82[        現在の設定を保存(ＳＬＧパートに関する設定以外)]", 82
+PRINTL 
+PRINTBUTTON " 83[  保存した設定の読み込み(ＳＬＧパートに関する設定以外)]", 83
+PRINTL 
+PRINTBUTTON " 84[    デイリーの設定を保存]", 84
+PRINTL 
+PRINTBUTTON " 85[  デイリーの設定をロード]", 85
+PRINTL 
+CALL COLOR_LINE
+PRINTBUTTON " 90[    ヘルプ]", 90
+PRINTL 
+[IF_DEBUG]
+PRINTBUTTON @" {GAMEBASE_VERSION}[  デバッグ]", GAMEBASE_VERSION
+PRINTL
+[ENDIF]
+;PRINTBUTTON " 85[データ操作]", 85
+;PRINTL 
+CALL SINGLE_DRAWLINE
+PRINTBUTTON " 99[      戻る]", 99
+PRINTL 
+$INPUT_LOOP
+INPUT
+
+IF RESULT == 99
+	RETURN
+ELSEIF RESULT == 0
+	;→(SLG\CONFIG_SLG.ERB)
+	CALL CONFIG_SLG
+ELSEIF RESULT == 1
+	CALL CONFIG_OTHERS
+ELSEIF RESULT == 5
+	;特殊設定
+	CALL CONFIG_OTHERS_SP
+ELSEIF RESULT == 6
+	;イベント設定
+	CALL CONFIG_EVENT_DAILY
+ELSEIF RESULT == 7
+	CALL CONFIG_KOJO_DAILY
+ELSEIF RESULT == 8
+	CALL CONFIG_SAVE_EXIST_CHARA
+ELSEIF RESULT == 10
+	CALL CONFIG_COM_FILTER
+ELSEIF GROUPMATCH(RESULT, 80, 82)
+	CALL CONFIG_SAVE(RESULT == 80)
+ELSEIF GROUPMATCH(RESULT, 81, 83)
+	CALL CONFIG_LOAD(RESULT == 81)
+ELSEIF RESULT == 84
+	CALL CONFIG_DAILY_SAVE()
+ELSEIF RESULT == 85
+	CALL CONFIG_DAILY_LOAD()
+ELSEIF RESULT == 90
+	CALL CONFIG_HELPMENU
+	[IF_DEBUG]
+ELSEIF RESULT == GAMEBASE_VERSION
+	CALL CONFIG_DATA_EDIT
+	[ENDIF]
+ENDIF
+CLEARLINE LINECOUNT - FIRST_LINE
+RESTART
+
+;-------------------------------------------------
+;desc  :コンフィグの書き込み
+;param :全て:全コンフィグを保存する（指定しない場合SLGを除く)
+;-------------------------------------------------
+@CONFIG_SAVE(全て)
+#DIM 全て
+#DIM 番号
+CALL SINGLE_DRAWLINE
+PRINTFORML どこにセーブしますか？
+CALL SINGLE_DRAWLINE
+
+CALL LISTUP_CONFIG
+
+PRINTFORML [99] 戻る
+
+$INPUT_LOOP
+INPUT
+
+SIF RESULT == 99
+	RETURN
+
+SIF !INRANGE(RESULT, 0, VARSIZE("G_CONFIG_NAME"))
+	GOTO INPUT_LOOP
+
+番号 = RESULT
+
+PRINTFORML 設定データの名前を入力して下さい
+PRINTFORML (何も入力しないと「設定{番号}」になります)
+
+$INPUT_LOOP_2
+INPUTS
+
+IF RESULTS == ""
+	G_CONFIG_NAME:番号 = 設定{番号}
+ELSE
+	G_CONFIG_NAME:番号 = %RESULTS%
+ENDIF
+
+
+SIF 全て
+	CALL CONFIG_SAVE_SLG(番号)
+
+CALL CONFIG_SAVE_EXCEPT_SLG(番号)
+
+;-------------------------------------------------
+;desc  :コンフィグの読み取り
+;param :全て:全コンフィグを読む
+;-------------------------------------------------
+@CONFIG_LOAD(全て)
+#DIM 全て
+#DIM 番号
+CALL SINGLE_DRAWLINE
+PRINTFORML どれをロードしますか？
+CALL SINGLE_DRAWLINE
+
+CALL LISTUP_CONFIG
+
+PRINTFORML [99] 戻る
+
+$INPUT_LOOP
+INPUT
+
+SIF RESULT == 99
+	RETURN
+
+SIF !INRANGE(RESULT, 0, VARSIZE("G_CONFIG_NAME")) || !CONFIG_EXISTS()
+	GOTO INPUT_LOOP
+
+番号 = RESULT
+
+SIF 全て
+	CALL CONFIG_LOAD_SLG(番号)
+
+CALL CONFIG_LOAD_EXCEPT_SLG(番号)
+
+;-------------------------------------------------
+;desc  :コンフィグの書き込み
+;param :全て:全コンフィグを保存する（指定しない場合SLGを除く)
+;-------------------------------------------------
+@CONFIG_DAILY_SAVE()
+#DIM 番号
+CALL SINGLE_DRAWLINE
+PRINTFORML どこにセーブしますか？
+CALL SINGLE_DRAWLINE
+
+CALL LISTUP_CONFIG_DAILY
+
+PRINTFORML [99] 戻る
+
+$INPUT_LOOP
+INPUT
+
+SIF RESULT == 99
+	RETURN
+```

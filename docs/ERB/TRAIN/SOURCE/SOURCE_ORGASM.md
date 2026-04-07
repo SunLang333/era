@@ -1,0 +1,212 @@
+# TRAIN/SOURCE/SOURCE_ORGASM.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/SOURCE/SOURCE_ORGASM.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SOURCE_ORGASM, PROCESS_EJACULATION, CORRECT_CUM_OVERFLOW, CUM_AMOUNT_CORRECTION, RECORD_CREAMPIE, ADD_SOURCE_ORGASM; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;SOURCE_CHECKで使用する関数(射精・絶頂・噴乳など)
+
+;-------------------------------------------------
+;絶頂に関する処理
+;-------------------------------------------------
+@SOURCE_ORGASM(ARG:0)
+VARSET LOCAL, 0
+
+;表示用
+LOCALS:0 = Ｃ
+LOCALS:1 = Ｖ
+LOCALS:2 = Ａ
+LOCALS:3 = Ｂ
+LOCALS:4 = Ｍ
+LOCALS:5 = Ｕ	
+;射精箇所表示用	;射精箇所表示用
+LOCALS:6 =
+;●絶頂の判定と表示
+LOCAL:5 = 0
+LOCAL:6 = 0
+LOCAL:10 = 0
+;射精関連の処理
+LOCAL:15 = 0
+FOR LOCAL:0, 0, 6
+	LOCAL:2 = PALAM:(ARG:0):(LOCAL:0) + CUP:(ARG:0):(LOCAL:0)
+
+	;絶頂した場合
+	IF LOCAL:2 >= 10000
+		IF LOCAL:10
+			PRINT /
+		ELSE
+			IF !TFLAG:3
+				TFLAG:3 = 1
+				PRINTL 
+			ENDIF
+			PRINTFORM %ANAME(ARG:0), MAX_CHARANAME_LENGTH, RIGHT%:
+		ENDIF
+		LOCAL:10 = 1
+
+		;絶頂箇所の数を加算
+		LOCAL:5 ++
+
+		;絶頂強度に応じてNOWEXをセットし、メッセージの表示を行う
+		IF LOCAL:2 >= 150000
+			IF ARG:0 == MASTER
+				SETCOLOR 0x800080
+			ELSE
+				SETCOLOR 0xFF4000
+			ENDIF
+			NOWEX:(ARG:0):(LOCAL:0) = 9
+			PRINT 最強
+			;最強絶頂箇所の数を加算
+			LOCAL:6 ++
+		ELSEIF LOCAL:2 >= 80000
+			IF ARG:0 == MASTER
+				SETCOLOR 0x6000FF
+			ELSE
+				SETCOLOR カラー_オレンジ
+			ENDIF
+			NOWEX:(ARG:0):(LOCAL:0) = 4
+			PRINT 超強
+		ELSEIF LOCAL:2 >= 30000
+			IF ARG:0 == MASTER
+				SETCOLOR 0x0080FF
+			ELSE
+				SETCOLOR 0xFFC000
+			ENDIF
+			NOWEX:(ARG:0):(LOCAL:0) = 2
+			PRINT 強
+		ELSE
+			IF ARG:0 == MASTER
+				SETCOLOR カラー_シアン
+			ELSE
+				SETCOLOR カラー_注意
+			ENDIF
+			NOWEX:(ARG:0):(LOCAL:0) = 1
+		ENDIF
+		PRINTFORM 絶頂%LOCALS:(LOCAL:0)%
+
+		;絶頂経験を増やす
+		EXP:(ARG:0):絶頂経験 += NOWEX:(ARG:0):(LOCAL:0)
+		SIF TCVAR:(ARG:0):催眠中 > 0
+			EXP:(ARG:0):催眠絶頂経験 += NOWEX:(ARG:0):(LOCAL:0)
+	ENDIF
+NEXT
+RESETCOLOR
+
+;●噴乳の判定と表示
+LOCAL:2 = PALAM:(ARG:0):噴乳 + CUP:(ARG:0):噴乳
+
+;噴乳した場合
+IF LOCAL:2 >= 10000 && SOURCE:(ARG:0):快Ｂ + SOURCE:(ARG:0):快Ｖ + SOURCE:(ARG:0):快Ａ > 0
+	IF LOCAL:10
+		PRINT /
+	ELSE
+		IF !TFLAG:3
+			TFLAG:3 = 1
+			PRINTL 
+		ENDIF
+		PRINTFORM %ANAME(ARG:0), MAX_CHARANAME_LENGTH, RIGHT%:
+	ENDIF
+	LOCAL:10 = 1
+
+	;絶頂強度に応じてNOWEXをセットし、メッセージの表示を行う
+	IF LOCAL:2 >= 300000
+		IF ARG:0 == MASTER
+			SETCOLOR 0x800080
+		ELSE
+			SETCOLOR 0xFF4000
+		ENDIF
+		NOWEX:(ARG:0):噴乳 = 9
+		PRINT 超々大量
+	ELSEIF LOCAL:2 >= 150000
+		IF ARG:0 == MASTER
+			SETCOLOR 0x6000FF
+		ELSE
+			SETCOLOR カラー_オレンジ
+		ENDIF
+		NOWEX:(ARG:0):噴乳 = 4
+		PRINT 超大量
+	ELSEIF LOCAL:2 >= 50000
+		IF ARG:0 == MASTER
+			SETCOLOR 0x0080FF
+		ELSE
+			SETCOLOR 0xFFC000
+		ENDIF
+		NOWEX:(ARG:0):噴乳 = 2
+		PRINT 大量
+	ELSE
+		IF ARG:0 == MASTER
+			SETCOLOR カラー_シアン
+		ELSE
+			SETCOLOR カラー_注意
+		ENDIF
+		NOWEX:(ARG:0):噴乳 = 1
+	ENDIF
+	PRINTFORM 噴乳
+	RESETCOLOR
+
+	EXP:(ARG:0):噴乳経験値 += NOWEX:(ARG:0):噴乳
+
+	;触手搾乳中なら相手の妖術経験値をプラス
+	IF SELECTCOM == 207 && IS_MTAR(ARG:0)
+		FOR LOCAL:0, 0, MPLY_NUM
+			EXP:(MPLY:(LOCAL:0)):妖術経験値 += NOWEX:(ARG:0):噴乳 * 2
+		NEXT
+	ELSEIF IS_EQUIP_TARGET(ARG:0, 207)
+		LOCAL:1 = SEARCH_EQUIP(207, -1, ARG:0)
+		IF LOCAL:1 >= 0
+			FOR LOCAL:0, 0, MEQUIP_PLAYER_NUM:(LOCAL:1)
+				EXP:(MEQUIP_PLAYER:(LOCAL:1):(LOCAL:0)):妖術経験値 += NOWEX:(ARG:0):噴乳 * 2
+			NEXT
+		ENDIF
+	ENDIF
+ENDIF
+
+;●潮吹きの判定と表示
+LOCAL:11 = 0
+IF CONFIG:9 == 1 && NOWEX:(ARG:0):射精 == 0
+	IF (NOWEX:(ARG:0):Ｃ絶頂 >= 2 || NOWEX:(ARG:0):Ｖ絶頂 >= 2) && PALAM:(ARG:0):潮吹き + CUP:(ARG:0):潮吹き >= 10000
+		LOCAL:11 = 1
+	ELSEIF (NOWEX:(ARG:0):Ｃ絶頂 >= 1 || NOWEX:(ARG:0):Ｖ絶頂 >= 1) && PALAM:(ARG:0):潮吹き + CUP:(ARG:0):潮吹き >= 20000
+		LOCAL:11 = 1
+	ENDIF
+ENDIF
+
+IF LOCAL:11
+	IF LOCAL:10
+		PRINT /
+	ELSE
+		IF !TFLAG:3
+			TFLAG:3 = 1
+			PRINTL 
+		ENDIF
+		PRINTFORM %ANAME(ARG:0), MAX_CHARANAME_LENGTH, RIGHT%:
+	ENDIF
+	LOCAL:10 = 1
+
+	IF ARG:0 == MASTER
+		SETCOLOR 0x0080FF
+	ELSE
+		SETCOLOR 0xFFC000
+	ENDIF
+	PRINT 潮吹き
+	RESETCOLOR
+
+	NOWEX:(ARG:0):潮吹き = 1
+
+	SOURCE:(ARG:0):露出 += 100
+	IF !HAS_VAGINA(ARG:0)
+		SOURCE:(ARG:0):屈従 += 300
+	ELSE
+		SOURCE:(ARG:0):屈従 += 50
+	ENDIF
+ENDIF
+
+;●おもらしの判定と表示
+;絶頂・尿意限界によるおもらしの設定が有効の場合
+IF CONFIG:90 == 1
+	;尿意がある状態で絶頂強度の合計が4以上によるおもらし
+```

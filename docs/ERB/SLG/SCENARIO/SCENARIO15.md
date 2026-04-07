@@ -1,0 +1,212 @@
+# SLG/SCENARIO/SCENARIO15.ERB — 自动生成文档
+
+源文件: `ERB/SLG/SCENARIO/SCENARIO15.ERB`
+
+类型: .ERB
+
+自动摘要: functions: SCENARIO_NAME_15, SCENARIO_MAPSELECT_15, SCENARIO_INTRO_15, SCENARIO_PLACEMENT_15, SCENARIO_EVENT_15; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;-------------------------------------------------
+;シナリオ13
+;
+;-------------------------------------------------
+@SCENARIO_NAME_15
+RESULTS = レミリアの野望～乱世編～
+RETURN
+
+@SCENARIO_MAPSELECT_15
+
+MAPID '= "Japan"
+PRINTFORML
+PRINTFORML 1467年の応仁の乱以後混沌とした日本社会は1560年に織田信長が桶狭間で今川義元を討ち取る頃には
+PRINTFORMW 全国に戦乱の世が広がり我こそが天下をという野望に満ち溢れていた
+PRINTFORMW が、何故か武将が東方キャラになってしまった！
+PRINTFORML あなたはこの世界に秩序をもたらし惣無事令を発布できるのか
+PRINTFORML それとも歴史の塵芥と化するのか
+PRINTFORMW 一代歴史絵巻の始まりで候
+PRINTFORML
+
+@SCENARIO_INTRO_15
+
+;ランダムキャラは選択に委ねる
+FLAG:OPランダムキャラ使用 = 0
+
+
+@SCENARIO_PLACEMENT_15
+
+;勢力設定
+COUNTRY_BOSS:0 = 0
+COUNTRY_COLOR:0 = GETDEFCOLOR()
+
+;;--------織田家;--------
+
+COUNTRY_BOSS:1 = GET_ID(NAME_TO_CHARA("レミリア"))
+COUNTRY_COLOR:1 = 0xB40404
+COUNTRY_AI_TYPE:1 = AI_好戦
+;斎藤、六角と近場のが吸収されてます。
+CITY_OWNER:GET_CITYNUMBER("末森城") = 1
+CITY_OWNER:GET_CITYNUMBER("稲葉山城") = 1
+CITY_OWNER:GET_CITYNUMBER("木造城") = 1
+CITY_OWNER:GET_CITYNUMBER("観音寺城") = 1
+
+;紅魔館組
+CFLAG:(NAME_TO_CHARA("レミリア")):1 = 1
+CFLAG:(NAME_TO_CHARA("咲夜")):1 = 1
+CFLAG:(NAME_TO_CHARA("フランドール")):1 = 1
+CFLAG:(NAME_TO_CHARA("美鈴")):1 = 1
+CFLAG:(NAME_TO_CHARA("パチュリー")):1 = 1
+CFLAG:(NAME_TO_CHARA("小悪魔")):1 = 1
+
+;;--------松平家;--------
+COUNTRY_BOSS:2 = GET_ID(NAME_TO_CHARA("マミゾウ"))
+COUNTRY_COLOR:2 = 0x9f563a
+COUNTRY_AI_TYPE:2 = AI_外交
+
+CITY_OWNER:GET_CITYNUMBER("上ノ郷城") = 2
+
+
+;狸とゆかいな仲間たち
+CFLAG:(NAME_TO_CHARA("マミゾウ")):1 = 2
+CFLAG:(NAME_TO_CHARA("こころ")):1 = 2
+CFLAG:(NAME_TO_CHARA("小傘")):1 = 2
+CFLAG:(NAME_TO_CHARA("ぬえ")):1 = 2
+
+;--------今川家;--------
+COUNTRY_BOSS:3 = GET_ID(NAME_TO_CHARA("幽々子"))
+COUNTRY_COLOR:3 = 0xF5A9F2
+COUNTRY_AI_TYPE:3 = AI_防衛
+;離反直後（？）で飛び地有り
+CITY_OWNER:GET_CITYNUMBER("設楽城") = 3
+CITY_OWNER:GET_CITYNUMBER("曳馬城") = 3
+CITY_OWNER:GET_CITYNUMBER("掛川城") = 3
+CITY_OWNER:GET_CITYNUMBER("府中城") = 3
+
+
+;妖々夢
+CFLAG:(NAME_TO_CHARA("幽々子")):1 = 3
+CFLAG:(NAME_TO_CHARA("妖夢")):1 = 3
+CFLAG:(NAME_TO_CHARA("妖忌")):1 = 3
+CFLAG:(NAME_TO_CHARA("半霊")):1 = 3
+
+
+;--------北条家;--------
+COUNTRY_BOSS:4 = GET_ID(NAME_TO_CHARA("豊姫"))
+COUNTRY_COLOR:4 = 0x1e50a2
+COUNTRY_AI_TYPE:4 = AI_外交
+
+CITY_OWNER:GET_CITYNUMBER("興国寺城") = 4
+CITY_OWNER:GET_CITYNUMBER("小田原城") = 4
+CITY_OWNER:GET_CITYNUMBER("韮山城") = 4
+CITY_OWNER:GET_CITYNUMBER("伊豆大島") = 4
+CITY_OWNER:GET_CITYNUMBER("川越城") = 4
+CITY_OWNER:GET_CITYNUMBER("国府台城") = 4
+
+;月面組
+CFLAG:(NAME_TO_CHARA("豊姫")):1 = 4
+CFLAG:(NAME_TO_CHARA("依姫")):1 = 4
+CFLAG:(NAME_TO_CHARA("レイセン")):1 = 4
+CFLAG:(NAME_TO_CHARA("月の門番")):1 = 4
+CFLAG:(NAME_TO_CHARA("サグメ")):1 = 4
+CFLAG:(NAME_TO_CHARA("清蘭")):1 = 4
+CFLAG:(NAME_TO_CHARA("鈴瑚")):1 = 4
+
+;--------武田…諏訪家だこれ;--------
+COUNTRY_BOSS:5 = GET_ID(NAME_TO_CHARA("早苗"))
+COUNTRY_COLOR:5 = 0xBEF781
+COUNTRY_AI_TYPE:5 = AI_好戦
+
+CITY_OWNER:GET_CITYNUMBER("深志城") = 5
+CITY_OWNER:GET_CITYNUMBER("諏訪上原城") = 5
+CITY_OWNER:GET_CITYNUMBER("兜山城") = 5
+CITY_OWNER:GET_CITYNUMBER("飯田城") = 5
+CITY_OWNER:GET_CITYNUMBER("躑躅ヶ崎館") = 5
+CITY_OWNER:GET_CITYNUMBER("霧ヶ城") = 5
+CITY_OWNER:GET_CITYNUMBER("箕輪城") = 5
+
+;守谷組
+CFLAG:(NAME_TO_CHARA("早苗")):1 = 5
+CFLAG:(NAME_TO_CHARA("諏訪子")):1 = 5
+CFLAG:(NAME_TO_CHARA("神奈子")):1 = 5
+
+;--------村上家--------
+COUNTRY_BOSS:6 = GET_ID(NAME_TO_CHARA("ヘカーティア"))
+COUNTRY_COLOR:6 = 0Xea553a
+COUNTRY_AI_TYPE:6 = AI_防衛
+
+CITY_OWNER:GET_CITYNUMBER("葛尾城") = 6
+
+;紺珠伝
+
+CFLAG:(NAME_TO_CHARA("純狐")):1 = 6
+CFLAG:(NAME_TO_CHARA("クラウンピース")):1 = 6
+CFLAG:(NAME_TO_CHARA("ヘカーティア")):1 = 6
+
+;--------浅井家--------
+COUNTRY_BOSS:7 = GET_ID(NAME_TO_CHARA("天子"))
+COUNTRY_COLOR:7 = 0x2ca9e1
+COUNTRY_AI_TYPE:7 = AI_外交
+;MAPの位置としてはあってるはずなんだけど尽く城がグレイズしてる。ていうか浅井要素ない。
+CITY_OWNER:GET_CITYNUMBER("佐和山城") = 7
+CITY_OWNER:GET_CITYNUMBER("後瀬山城") = 7
+
+;天界組
+CFLAG:(NAME_TO_CHARA("天子")):1 = 7
+CFLAG:(NAME_TO_CHARA("衣玖")):1 = 7
+
+;--------姉小路家--------
+COUNTRY_BOSS:8 = GET_ID(NAME_TO_CHARA("隠岐奈"))
+COUNTRY_COLOR:8 = 0x848350
+CITY_OWNER:GET_CITYNUMBER("桜洞城") = 8
+CFLAG:(NAME_TO_CHARA("隠岐奈")):1 = 8
+CFLAG:(NAME_TO_CHARA("舞")):1 = 8
+CFLAG:(NAME_TO_CHARA("里乃")):1 = 8
+
+;--------上杉家--------
+COUNTRY_BOSS:9 = GET_ID(NAME_TO_CHARA("星"))
+COUNTRY_COLOR:9 = 0xbf783a
+COUNTRY_AI_TYPE:9 = AI_好戦
+
+CITY_OWNER:GET_CITYNUMBER("魚津城") = 9
+CITY_OWNER:GET_CITYNUMBER("春日山城") = 9
+CITY_OWNER:GET_CITYNUMBER("富山城") = 9
+CITY_OWNER:GET_CITYNUMBER("板戸城") = 9
+CITY_OWNER:GET_CITYNUMBER("北条城") = 9
+CITY_OWNER:GET_CITYNUMBER("黒滝城") = 9
+CITY_OWNER:GET_CITYNUMBER("雑太城") = 9
+;寺組
+CFLAG:(NAME_TO_CHARA("星")):1 = 9
+CFLAG:(NAME_TO_CHARA("水蜜")):1 = 9
+CFLAG:(NAME_TO_CHARA("白蓮")):1 = 9
+CFLAG:(NAME_TO_CHARA("一輪")):1 = 9
+CFLAG:(NAME_TO_CHARA("雲山")):1 = 9
+CFLAG:(NAME_TO_CHARA("ナズーリン")):1 = 9
+
+
+;--------朝倉家--------
+COUNTRY_BOSS:10 = GET_ID(NAME_TO_CHARA("阿求"))
+COUNTRY_COLOR:10 = 0Xa1a46d
+COUNTRY_AI_TYPE:10 = AI_外交
+;七尾家を上杉に合流させるかで飛び地が嫌なのでこちらに合流。
+CITY_OWNER:GET_CITYNUMBER("一乗谷城") = 10
+CITY_OWNER:GET_CITYNUMBER("冨樫館") = 10
+CITY_OWNER:GET_CITYNUMBER("七尾城") = 10
+
+;書籍組
+CFLAG:(NAME_TO_CHARA("阿求")):1 = 10
+CFLAG:(NAME_TO_CHARA("小鈴")):1 = 10
+CFLAG:(NAME_TO_CHARA("朱鷺子")):1 = 10
+CFLAG:(NAME_TO_CHARA("霖之助")):1 = 10
+
+;--------三好家--------
+COUNTRY_BOSS:11 = GET_ID(NAME_TO_CHARA("紫"))
+COUNTRY_COLOR:11 = 0x65318e
+COUNTRY_AI_TYPE:11 = AI_内政
+
+CITY_OWNER:GET_CITYNUMBER("十河城") = 11
+CITY_OWNER:GET_CITYNUMBER("白地城") = 11
+CITY_OWNER:GET_CITYNUMBER("勝瑞城") = 11
+CITY_OWNER:GET_CITYNUMBER("岸和田城") = 11
+```

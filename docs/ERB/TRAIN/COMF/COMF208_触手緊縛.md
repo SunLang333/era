@@ -1,0 +1,212 @@
+# TRAIN/COMF/COMF208_触手緊縛.ERB — 自动生成文档
+
+源文件: `ERB/TRAIN/COMF/COMF208_触手緊縛.ERB`
+
+类型: .ERB
+
+自动摘要: functions: COM_NAME208, COM_ABLE208, COM208, COM_IS_EQUIP208, COM_EQUIP208, EQUIP_MESSAGE208, COM_TEXT_BEFORE_EQUIP208, COM_TEXT_RELEASE_EQUIP208, COM_ORDER_PLAYER208, COM_TEXT_BEFORE208, COM_AVAILABLE_WHEN208, COM_PREFERENCE_PLAYER_208, COM_PREFERENCE_TARGET_208; assigns RESULTS; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;触手緊縛
+
+;-------------------------------------------------
+;コマンド名称
+;-------------------------------------------------
+@COM_NAME208
+LOCALS:0 = 触手緊縛
+
+RESULTS:0 = %LOCALS:0%する
+RESULTS:1 = %LOCALS:0%させられる
+RESULTS:2 = %LOCALS:0%させる
+RESULTS:3 = %LOCALS:0%される
+RESULTS:4 = %LOCALS:0%させる
+RESULTS:5 = %LOCALS:0%見せつけ
+
+;-------------------------------------------------
+;選択可否判定
+;-------------------------------------------------
+@COM_ABLE208
+;共通部分
+CALL COM_ABLE_COMMON(208)
+SIF RESULT == 0
+	RETURN 0
+;プレイヤーは最大で1人まで
+SIF MPLY_NUM <= 0 || MPLY_NUM > 1
+	RETURN 0
+;ターゲットは1人以上
+SIF MTAR_NUM <= 0
+	RETURN 0
+;プレイヤーが行動不能なら不可
+SIF !IS_PLAYABLE(MPLY:0) && !FLAG:RECHECKING
+	RETURN 0
+;プレイヤーが触手召喚中でないなら不可
+SIF !IS_EQUIP_PLAYER(MPLY:0, 200)
+	RETURN 0
+;全てのターゲットについて判定
+FOR LOCAL:0, 0, MTAR_NUM
+	;既に拘束中なら不可
+	SIF IS_BIND(MTAR:(LOCAL:0))
+		RETURN 0
+    ;exisiting action requires mobility
+    ;There is no good way to do this. We just manually list every action that is restricted by bondage.
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 0, 1, 3, 4, 5, 9, 10)
+        RETURN 0
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 12, 14, 15, 16, 18, 23)
+        RETURN 0
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 87, 88, 90, 94)
+        RETURN 0
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 100, 101, 102, 103, 105, 106, 116)
+        RETURN 0
+    ;fucking actions. Can't use INSERT_SINGLE because it includes cowgirl etc.
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 13, 30, 31, 34, 35, 36, 37, 38, 39, 40, 41, 44, 45)
+        RETURN 0
+    SIF IS_EQUIP_PLAYER(MTAR:(LOCAL:0), 46, 47, 48, 49, 52, 53, 55, 56, 57, 58, 160, 161)
+        RETURN 0
+    ;giving/receiving tribadism, doubledildo, frotting
+	SIF IS_EQUIP(MTAR:(LOCAL:0), 21, 22, 23)
+		RETURN 0
+NEXT
+RETURN 1
+
+;-------------------------------------------------
+;メイン処理
+;-------------------------------------------------
+@COM208
+;実行判定
+CALL COM_ORDER_COMMON
+SIF RESULT == 0
+	RETURN 0
+
+;●プレイヤーについて処理
+EXP:(MPLY:0):妖術経験値 += 1
+EXP:(MPLY:0):触手経験値 += 1
+EXP:(MPLY:0):嗜虐経験値 += 1
+
+SOURCE:(MPLY:0):嗜虐 = 400
+SOURCE:(MPLY:0):逸脱 = 200
+SOURCE:(MPLY:0):触手 = 30
+
+;主導権に応じた優越・屈従のソース追加
+CALL ADD_SOURCE_INITIATIVE_U(MPLY:0, 180, 50)
+
+;●全てのターゲットについて処理
+FOR LOCAL:0, 0, MTAR_NUM
+	LOCAL:2 = MTAR:(LOCAL:0)
+
+	EXP:(LOCAL:2):緊縛経験 += 1
+	EXP:(LOCAL:2):触手経験値 += 1
+	EXP:(LOCAL:2):被虐経験値 += 1
+
+	SOURCE:(LOCAL:2):苦痛 = 120 + MIN(ABL:(MPLY:0):妖術, 90) / 2
+	SOURCE:(LOCAL:2):露出 = 50 + GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 25
+	SOURCE:(LOCAL:2):触手 = 400 + GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 200
+	SOURCE:(LOCAL:2):逸脱 = 500 - GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 250
+
+	;主導権に応じた優越・屈従のソース追加
+	CALL ADD_SOURCE_INITIATIVE_U(LOCAL:2, 0, 180)
+
+	IF GETBIT(TALENT:(MPLY:0):淫乱系, 素質_淫乱_サド)
+		TIMES SOURCE:(LOCAL:2):苦痛, 1.50
+	ENDIF
+NEXT
+
+;主導度変化基準値
+TFLAG:49 = 2
+
+;倒錯度変化基準値
+TFLAG:50 = 7
+
+;レズ・ＢＬ経験基準値
+TFLAG:51 = 0
+
+RETURN 1
+
+;-------------------------------------------------
+;継続コマンドかどうかを設定
+;-------------------------------------------------
+@COM_IS_EQUIP208
+;継続コマンドかつフィルタリング不可
+RETURN 2
+
+;-------------------------------------------------
+;継続状態の処理
+;-------------------------------------------------
+@COM_EQUIP208(ARG:0)
+;全てのターゲットについて処理
+FOR LOCAL:0, 0, MEQUIP_TARGET_NUM:(ARG:0)
+	LOCAL:3 = MEQUIP_TARGET:(ARG:0):(LOCAL:0)
+
+	EXP:(LOCAL:3):緊縛経験 += 1
+	EXP:(LOCAL:3):触手経験値 += 1
+
+	SOURCE:(LOCAL:3):苦痛 += 60
+	SOURCE:(LOCAL:3):触手 += 200 + GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 100
+	SOURCE:(LOCAL:3):逸脱 += 150 - GETBIT(TALENT:(LOCAL:2):淫乱系, 素質_淫乱_苗床) * 75
+
+	;倒錯度変化
+	TCVAR:(LOCAL:3):50 += 4
+NEXT
+
+;-------------------------------------------------
+;継続中の表示
+;-------------------------------------------------
+@EQUIP_MESSAGE208(ARG:0)
+RESULTS = %EQUIP_TARGET_ANAME(ARG:0)%を触手で緊縛中
+
+;-------------------------------------------------
+;継続中の地の文(前文)
+;-------------------------------------------------
+@COM_TEXT_BEFORE_EQUIP208(ARG:0)
+PRINTFORML %EQUIP_TARGET_ANAME(ARG:0)%は触手に全身を絡め取られ、身動き出来ないでいる…
+
+;-------------------------------------------------
+;継続を解除したときの地の文
+;-------------------------------------------------
+@COM_TEXT_RELEASE_EQUIP208(ARG:0)
+PRINTFORMW %EQUIP_TARGET_ANAME(ARG:0)%を拘束していた触手を戻した
+
+;-------------------------------------------------
+;固有の実行判定
+;-------------------------------------------------
+@COM_ORDER_PLAYER208(ARG:0)
+;実行値の設定
+TCVAR:(ARG:0):25 = 125
+
+;共通部分
+CALL COM_ORDER(ARG:0)
+
+CALL COM_ORDER_ELEMENT(ARG:0, @"欲望Lv{ABL:(ARG:0):欲望}", ABL:(ARG:0):欲望 * 1)
+CALL COM_ORDER_ELEMENT(ARG:0, @"触手Lv{ABL:(ARG:0):触手}", ABL:(ARG:0):触手 * 5)
+
+LOCAL:0 = GET_PALAMLV(PALAM:(ARG:0):欲情)
+CALL COM_ORDER_ELEMENT(ARG:0, @"欲情Lv{LOCAL:0}", MIN(LOCAL:0 * 1, 10))
+
+IF TALENT:(ARG:0):大人しい
+	CALL COM_ORDER_ELEMENT(ARG:0, "大人しい", -3)
+ENDIF
+IF TALENT:(ARG:0):恥じらい
+	CALL COM_ORDER_ELEMENT(ARG:0, "恥じらい", -2)
+ENDIF
+IF TALENT:(ARG:0):献身的
+	CALL COM_ORDER_ELEMENT(ARG:0, "献身的", 3)
+ENDIF
+IF TALENT:(ARG:0):Ｓ気質
+	CALL COM_ORDER_ELEMENT(ARG:0, "Ｓ気質", 6)
+ENDIF
+
+IF GETBIT(TALENT:(ARG:0):淫乱系, 素質_淫乱_サド)
+	CALL COM_ORDER_ELEMENT(ARG:0, "サド", 40)
+ELSE
+	IF ABL:(ARG:0):主導度Ｕ >= 500
+		CALL COM_ORDER_ELEMENT(ARG:0, "主導度", 15)
+	ELSEIF ABL:(ARG:0):主導度Ｕ >= 300
+		CALL COM_ORDER_ELEMENT(ARG:0, "主導度", 10)
+	ELSEIF ABL:(ARG:0):主導度Ｕ >= 100
+		CALL COM_ORDER_ELEMENT(ARG:0, "主導度", 5)
+	ELSEIF ABL:(ARG:0):主導度Ｕ > -100
+		CALL COM_ORDER_ELEMENT(ARG:0, "主導度", 0)
+	ELSE
+		CALL COM_ORDER_ELEMENT(ARG:0, "主導度", -5)
+```

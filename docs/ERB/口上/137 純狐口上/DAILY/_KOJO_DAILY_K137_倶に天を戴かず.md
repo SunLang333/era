@@ -1,0 +1,107 @@
+# 口上/137 純狐口上/DAILY/_KOJO_DAILY_K137_倶に天を戴かず.ERB — 自动生成文档
+
+源文件: `ERB/口上/137 純狐口上/DAILY/_KOJO_DAILY_K137_倶に天を戴かず.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K137_ARCHENEMY_RATE, KOJO_DAILY_K137_ARCHENEMY_DECISION, KOJO_DAILY_K137_ARCHENEMY_GENRE, KOJO_DAILY_K137_ARCHENEMY; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@KOJO_DAILY_K137_ARCHENEMY_RATE(対象)
+#DIM 対象
+RETURN 1000
+
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K137_ARCHENEMY_DECISION(対象)
+#DIM 対象
+#DIM 依姫
+#DIM 豊姫
+#DIM サグメ
+
+依姫 = NAME_TO_CHARA("依姫")
+豊姫 = NAME_TO_CHARA("豊姫")
+サグメ = NAME_TO_CHARA("サグメ")
+
+SIF !IS_COUNTRY(CFLAG:対象:所属)
+    RETURN 0
+
+{
+    SIF (CFLAG:依姫:捕虜先 == CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 0)) ||
+        (CFLAG:豊姫:捕虜先 == CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 1)) ||
+        (CFLAG:サグメ:捕虜先 == CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 2))
+}
+    RETURN CHECK_KOJO_DAILY_HAPPEN(対象, -1, 0, -1) && (CHECK_KOJO_DAILY_HAPPEN(依姫, -1, 1, -1) || CHECK_KOJO_DAILY_HAPPEN(豊姫, -1, 1, -1) || CHECK_KOJO_DAILY_HAPPEN(サグメ, -1, 1, -1))
+
+RETURN 0
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@KOJO_DAILY_K137_ARCHENEMY_GENRE(対象)
+#DIM 対象
+RETURN デイリー_ジャンル_その他
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@KOJO_DAILY_K137_ARCHENEMY(対象)
+#DIM 対象
+#DIM 依姫
+#DIM 豊姫
+#DIM サグメ
+
+依姫 = NAME_TO_CHARA("依姫")
+豊姫 = NAME_TO_CHARA("豊姫")
+サグメ = NAME_TO_CHARA("サグメ")
+
+PRINTFORML 「嫦娥よ！　見ているか！」
+PRINTFORML 「月の民が哀れにも、この私に捕らわれている様を！」
+
+IF CFLAG:依姫:捕虜先 ==  CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 0)
+    PRINTFORMW %ANAME(対象)%は%ANAME(依姫)%を捕らえ、高揚している……
+    SETBIT KDVAR:対象:純狐_不倶戴天, 0
+    CALL COLOR_PRINTW(@"%ANAME(対象)%の武闘が3上昇しました", カラー_注意)
+    ABL:対象:武闘 += 3
+    CALL SKILL_LEARN_BY_NAME(対象, スキル_ジャンル_PERSONAL, NO:対象, "人を殺めるための純粋な弾幕")
+    SIF RESULT
+        CALL COLOR_PRINTW(@"%ANAME(対象)%がスキル＜人を殺めるための純粋な弾幕＞を習得しました", カラー_注意)
+ENDIF
+
+IF CFLAG:豊姫:捕虜先 == CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 1)
+    PRINTFORMW %ANAME(対象)%は%ANAME(豊姫)%を捕らえ、高揚している……
+    SETBIT KDVAR:対象:純狐_不倶戴天, 1
+    CALL COLOR_PRINTW(@"%ANAME(対象)%の防衛が3上昇しました", カラー_注意)
+    ABL:対象:防衛 += 3
+    CALL SKILL_LEARN_BY_NAME(対象, スキル_ジャンル_TROOP, NO:対象, "震え凍える星")
+    SIF RESULT
+        CALL COLOR_PRINTW(@"%ANAME(対象)%がスキル＜震え凍える星＞を習得しました", カラー_注意)
+
+ENDIF
+
+IF CFLAG:サグメ:捕虜先 == CFLAG:対象:所属 && !GETBIT(KDVAR:対象:純狐_不倶戴天, 2)
+    PRINTFORMW %ANAME(対象)%は%ANAME(サグメ)%を捕らえ、高揚している……
+    SETBIT KDVAR:対象:純狐_不倶戴天, 2
+    CALL COLOR_PRINTW(@"%ANAME(対象)%の知略が3上昇しました", カラー_注意)
+    ABL:対象:知略 += 3
+    CALL SKILL_LEARN_BY_NAME(対象, スキル_ジャンル_TROOP, NO:対象, "溢れ出る瑕穢")
+    SIF RESULT
+        CALL COLOR_PRINTW(@"%ANAME(対象)%がスキル＜溢れ出る瑕穢＞を習得しました", カラー_注意)
+ENDIF
+
+
+RETURN 1
+```

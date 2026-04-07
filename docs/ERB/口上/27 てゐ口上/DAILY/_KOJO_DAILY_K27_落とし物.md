@@ -1,0 +1,89 @@
+# 口上/27 てゐ口上/DAILY/_KOJO_DAILY_K27_落とし物.ERB — 自动生成文档
+
+源文件: `ERB/口上/27 てゐ口上/DAILY/_KOJO_DAILY_K27_落とし物.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K27_LOST_PROPERTY_RATE, KOJO_DAILY_K27_LOST_PROPERTY_DECISION, KOJO_DAILY_K27_LOST_PROPERTY_GENRE, KOJO_DAILY_K27_LOST_PROPERTY; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@KOJO_DAILY_K27_LOST_PROPERTY_RATE(対象)
+#DIM 対象
+RETURN 300
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K27_LOST_PROPERTY_DECISION(対象)
+#DIM 対象
+
+SIF !HAS_PENIS(MASTER)
+	RETURN 0
+
+SIF GROUPMATCH(MASTER, NAME_TO_CHARA("鈴仙"), NAME_TO_CHARA("永琳"), NAME_TO_CHARA("輝夜"))
+	RETURN 0
+
+SIF !GETBIT(TALENT:対象:淫乱系, 素質_淫乱_淫乱)
+	RETURN 0
+
+SIF KDVAR:対象:てゐ_落とし物
+	RETURN 0
+
+
+RETURN CHECK_KOJO_DAILY_HAPPEN(対象, 1, 0, 1)
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@KOJO_DAILY_K27_LOST_PROPERTY_GENRE(対象)
+#DIM 対象
+RETURN デイリー_ジャンル_その他
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@KOJO_DAILY_K27_LOST_PROPERTY(対象)
+#DIM 対象
+
+PRINTFORML 廊下を歩いていると、何か落ちているのを見つけた……
+PRINTFORML 拾ってみると、なんと女ものの下着だ！
+PRINTFORMW なぜこんなところにあるのだろう、いやそれ以前に、どうしよう……
+
+CALL ASK_MULTI("くすねる", "そのままにしておく", "女性兵士に持ち主を探させる")
+
+IF RESULT == 1
+	IF IS_MALE(MASTER)
+		PRINTFORMW 盗みはよくない
+		PRINTFORMW かといって誰かに探させようにも、なぜ自分が持っているのかと疑われそうだ
+	ELSE
+		PRINTFORMW こんな目立つ場所に下着が落ちているというのはどうも違和感がある
+		PRINTFORMW もしかすると誰かのイタズラかもしれない
+	ENDIF
+	PRINTFORMW 触らぬ神にたたりなし。そのままにしておくことにした……
+	KDVAR:対象:てゐ_落とし物 = -1
+	RETURN 1
+ELSEIF RESULT == 2
+	PRINTFORMW 誰のものだか知らないが、ないと困るだろう
+	PRINTFORMW 女性兵士に渡して、持ち主を探してもらうことにした……
+	KDVAR:対象:てゐ_落とし物 = -1
+	RETURN 1
+ENDIF
+
+PRINTFORMW せっかくだ。拾わない手はない
+PRINTFORMW あたりに人がいないことを確認すると、それを素早く拾い上げ、そのまま部屋に急いで戻った……
+
+KDVAR:対象:てゐ_落とし物 = 1
+
+RETURN 1
+```

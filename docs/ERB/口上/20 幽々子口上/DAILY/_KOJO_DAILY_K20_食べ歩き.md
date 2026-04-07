@@ -1,0 +1,81 @@
+# 口上/20 幽々子口上/DAILY/_KOJO_DAILY_K20_食べ歩き.ERB — 自动生成文档
+
+源文件: `ERB/口上/20 幽々子口上/DAILY/_KOJO_DAILY_K20_食べ歩き.ERB`
+
+类型: .ERB
+
+自动摘要: functions: KOJO_DAILY_K20_TABEARUKI_RATE, KOJO_DAILY_K20_TABEARUKI_DECISION, KOJO_DAILY_K20_TABEARUKI_GENRE, KOJO_DAILY_K20_TABEARUKI; UI/print
+
+前 200 行源码片段:
+
+```text
+﻿;---------------------
+;基本的な発生確率(1000分率 100で10%)
+;これにコンフィグ項目の発生頻度がかけられるので、必ずしもこの通りにはならない
+;---------------------
+@KOJO_DAILY_K20_TABEARUKI_RATE(対象)
+#DIM 対象
+RETURN 30
+
+
+;---------------------
+;確率以外の発生判定
+;〇期以降になると発生するとか、デイリー側で利用している変数が-1だったら起こさない　みたいなはじき方をするときに使う
+;---------------------
+@KOJO_DAILY_K20_TABEARUKI_DECISION(対象)
+#DIM 対象
+
+;好感度500が必要
+SIF CFLAG:対象:好感度 < 500
+	RETURN 0
+
+RETURN CHECK_KOJO_DAILY_HAPPEN(対象, 1, 0, 1)
+
+;---------------------
+;ジャンル
+;コンフィグ設定で使用
+;---------------------
+@KOJO_DAILY_K20_TABEARUKI_GENRE(対象)
+#DIM 対象
+RETURN デイリー_ジャンル_その他
+
+
+;---------------------
+;本体
+;イベントが発生した場合は1、発生しなかった場合は0を返す
+;発生しなかったというのは例えば、特定条件を満たすキャラからランダムに一人選ぶデイリーで、そもそもその条件を満たすキャラが一人もいないみたいなとき
+;旧仕様で作ったことある人向けにいうと「旧仕様のデイリー本体冒頭で-1を返すような状況」
+;---------------------
+@KOJO_DAILY_K20_TABEARUKI(対象)
+#DIM 対象
+PRINTFORMW %ANAME(MASTER)%が仕事をしていると、%ANAME(対象)%が訪ねてきた
+SELECTCASE KDVAR:対象:幽々子_食べ歩き
+	CASE 0
+		PRINTFORMW 「お出かけしたいのだけど、暇なら付き合ってくれないかしら？」
+	CASE 1
+		PRINTFORMW 「またお出かけしたいのだけど、付き合ってくれないかしら？」
+	CASE 2
+		PRINTFORMW 「またお出かけしたいのだけど、今度は付き合ってくれるわよね？」
+ENDSELECT
+PRINTFORML さて、どうしようか……
+PRINTL
+CALL ASK_YN("付き合う", "今は忙しい")
+
+IF RESULT == 1
+	PRINTFORMW 「あら、そうなの？」
+	PRINTFORMW 「それなら仕方ないわね、一人で出かけることにするわ」
+	PRINTFORMW %ANAME(対象)%は一人で出かけていった……
+	KDVAR:対象:幽々子_食べ歩き = 2
+ELSE
+	PRINTFORMW 「あら、ありがとう」
+	PRINTFORMW 「それじゃ早速行きましょ？　今日の目標は10軒ね」
+	PRINTFORMW %ANAME(対象)%の食べ歩きに付き合わされた……
+	CALL COLOR_PRINTW("連れ回され、ちょっと体力がつきました", カラー_注意)
+	CALL ADD_COOLTIME(MASTER, 1)
+	CALL PRINT_ADD_EXP(MASTER, "武闘経験値", RAND(1, 3), 1)
+	CALL TRAIN_AUTO_ABLUP(MASTER)
+	KDVAR:対象:幽々子_食べ歩き = 1
+ENDIF
+
+RETURN 1
+```
