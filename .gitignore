@@ -57,3 +57,9 @@ desktop.ini
 *.temp
 *~
 ```
+DotNet10Refactor/src/eratohoK.Cli/eratohoK.Cli.csproj.lscache
+DotNet10Refactor/src/eratohoK.Core/eratohoK.Core.csproj.lscache
+DotNet10Refactor/src/eratohoK.Data/eratohoK.Data.csproj.lscache
+DotNet10Refactor/src/eratohoK.GameEngine/eratohoK.GameEngine.csproj.lscache
+DotNet10Refactor/src/eratohoK.Semantics/eratohoK.Semantics.csproj.lscache
+DotNet10Refactor/code.txt
