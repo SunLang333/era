@@ -1,0 +1,2013 @@
+﻿;-------------------------------------------------
+;イベント口上
+;-------------------------------------------------
+
+;=================================================
+;●各種イベント
+;※ARGにイベント番号が入る。詳しくは資料フォルダの「era恋姫 イベント表」を参照
+;※RETURNの値を0→1に変えると、デフォルトのメッセージが表示されなくなる
+;=================================================
+@KOJO_EVENT_K134(ARG)
+#DIM ドレミ
+;-------------------------------------------------
+;ファーストキス実行
+;-------------------------------------------------
+IF ARG == 1
+	;恋慕 or 服従
+	IF TALENT:恋慕 || TALENT:服従
+		PRINTFORMW 「んっ…」
+		PRINTFORMW ほんのりと熱を帯びた吐息がかかった
+		PRINTFORMW %ANAME(TARGET)%は更に求めるような口づけをしてきた
+		PRINTFORMW 「ふぅ…ふぅ…。　キスって、良いわね…」
+		PRINTFORMW 紅潮した%ANAME(TARGET)%の舌や唇、歯までも味わった…
+	;恋人
+	ELSEIF TALENT:恋人
+		PRINTFORMW 「はぁはぁ…」
+		PRINTFORMW ほんのりと熱を帯びた吐息がかかった
+		PRINTFORMW %ANAME(TARGET)%は更に求めるような口づけをしてきた
+		PRINTFORMW 「ふぅ…ふぅ…。　もっと…もっと…」
+		PRINTFORMW 妖怪らしく長い舌を出し、激しく深い口づけをしてきた
+		PRINTFORMW 歯の裏…舌の下…口天井…喉元まで深い舌の愛撫を受けた…
+	;それ以外
+	ELSE
+		PRINTFORMW 「んっ…」
+		PRINTFORMW ほんのりと熱を帯びた吐息がかかった
+		PRINTFORMW %ANAME(TARGET)%は更に求めるような口づけをしてきた
+		PRINTFORMW 「ふぅ…ふぅ…」
+		PRINTFORMW ほんのり濡れた唇が更なるキスを求めている…
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;告白成功
+;-------------------------------------------------
+IF ARG == 2
+	;恋慕 or 服従
+	IF TALENT:恋慕 || TALENT:服従
+		PRINTFORMW 「（…随分と長く待たされたわねぇ）」
+		PRINTFORMW 「ん？あ、いや何でも？」
+		PRINTFORML
+		PRINTFORMW 「……」
+		PRINTFORMW 「…そうですねぇ、どうしましょうかねぇ…」
+		PRINTFORML
+		PRINTFORMW 「私が欲しいですかぁ？」
+		PRINTFORMW 「シンプルな告白も良いですけど…もっと思いの丈を叫んで欲しいですねぇ」
+		PRINTFORML
+		PRINTFORMW 「！？！？！？」
+		PRINTFORMW 「そんな大声で叫ばなくても！？」
+		PRINTFORMW 「あぁもう！分かったから！分かったから～っ！」
+		PRINTFORML
+		PRINTFORMW 二人の関係は瞬く間に周知されていった
+	;それ以外
+	ELSE
+		PRINTFORMW 「恋人ですか…ええ、いいですよ」
+		PRINTFORMW 「私も別にあなたの事は嫌いじゃないですからねぇ」
+		PRINTFORML 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;告白失敗
+;-------------------------------------------------
+IF ARG == 3
+	;恋慕 or 服従
+	IF TALENT:恋慕 || TALENT:服従
+		PRINTFORMW 「！？」
+		PRINTFORMW 「(ど、どうしよう…心の準備が…)」
+		PRINTFORMW 「ちょ…ちょっと待って貰える？」
+	;それ以外
+	ELSE
+		PRINTFORMW 「んー、私達はそういう関係ではないでしょう？」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;押し倒し成功(合意は得られない);実質酔った時専用？
+;-------------------------------------------------
+IF ARG == 4
+	PRINTFORML 「ん……？な、なに…？」
+	PRINTFORMW %ANAME(TARGET)%は普段は決して見せないようなあられもない姿で仰臥している
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;押し倒し成功(合意を取得)
+;-------------------------------------------------
+IF ARG == 5
+	;恋慕
+	IF TALENT:恋慕
+		PRINTFORMW 「……おやおや」
+		PRINTFORMW 「…少し鼻息が荒いようですねぇ」
+		PRINTFORMW 「いえそれくらい情熱的である方が嬉しいです」
+		PRINTFORML
+		PRINTFORMW 「…優しくしてくださいね？」
+		PRINTFORML 
+	;服従 or 烙印
+	ELSEIF TALENT:服従 || TALENT:烙印
+		PRINTFORMW 「…いつかは来ると分かっていましたよ」
+		PRINTFORMW 「もう私はあなたのもの」
+		PRINTFORMW 「でも今日は…優しくして欲しいなって…」
+		PRINTFORML 
+	;それ以外
+	ELSE
+		PRINTFORMW 「ははぁん、随分と急ですねぇ」
+		PRINTFORML %ANAME(TARGET)%は%ANAME(MASTER)%に両腕を押さえつけられ完全に身動きが取れない
+		PRINTFORMW 余裕のある言葉を並べている%ANAME(TARGET)%だがその声色は震えている
+		PRINTFORMW 「それで私をどうするおつもりで？」
+		PRINTFORML 
+		PRINTFORMW 「どうせ前々から私をこうするつもりだったのでしょう…」
+		PRINTFORML 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;押し倒し失敗
+;-------------------------------------------------
+IF ARG == 6
+	PRINTFORML 抱き寄せようとした途端%ANAME(TARGET)%がするりとあなたから離れた
+	PRINTFORMW どうやら察されていたようだ
+	PRINTFORML 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;押し倒し成功(既に合意あり)
+;-------------------------------------------------
+IF ARG == 7
+	;妊娠
+	IF TALENT:妊娠
+		PRINTFORMW 「えっ……今！？」
+		PRINTFORMW 「その…良いんだけど」
+		PRINTFORMW %ANAME(TARGET)%は心配そうにお腹を撫でた……
+	;正妻
+	ELSEIF TALENT:正妻
+		IF RAND:3 == 0
+			PRINTFORMW 「呆れるほど…元気ですねぇ」
+			PRINTFORMW 「…んもぅ」
+		ELSEIF RAND:2 == 0
+			PRINTFORMW 「それで今日はどういうプレイをするの？」
+			PRINTFORMW 「あまりハードなのは止めて欲しいのだけれど…」
+			PRINTFORMW 「されても付き合っちゃうんだろうけど…」
+		ELSE
+			PRINTFORMW 「…子供…作らない？」
+			PRINTFORMW %ANAME(TARGET)%は催促するように甘い声を出した……
+		ENDIF
+	;恋慕
+	ELSEIF TALENT:恋慕
+		IF RAND:3 == 0
+			PRINTFORMW 「呆れるほど…元気ですねぇ」
+			PRINTFORMW 「…んもぅ」
+		ELSEIF RAND:2 == 0
+			PRINTFORMW 「それで今日はどういうプレイをするの？」
+			PRINTFORMW 「あまりハードなのは止めて欲しいのだけれど…」
+			PRINTFORMW 「されても付き合っちゃうんだろうけど…」
+		ELSE
+			PRINTFORMW 「んっ…、今日はちょっと強く…抱いて」
+		ENDIF
+	;服従 or 烙印
+	ELSEIF TALENT:服従 || TALENT:烙印
+		IF RAND:3 == 0
+			PRINTFORMW 「今日は何をするつもり…？」
+			PRINTFORMW 「せめて…優しくして…お願い」
+		ELSEIF RAND:2 == 0
+			PRINTFORML 「っ…！」
+			PRINTFORMW %ANAME(TARGET)%は身を震わせているが決して拒絶はしない
+			PRINTFORMW どうやら先の調教の効果はまだしっかり残っているようだ……
+		ELSE
+			PRINTFORML 「………ふぅ」
+			PRINTFORMW %ANAME(TARGET)%は一つため息をつくと、全身を弛緩させて%ANAME(MASTER)%を受け入れた……
+		ENDIF
+	ELSE
+		IF RAND:3 == 0
+			PRINTFORMW 「随分と急ですねぇ、良いですよ」
+		ELSEIF RAND:2 == 0
+			PRINTFORMW 「呆れるほど元気ですねぇ…」
+			PRINTFORMW 「しょうがないので相手してあげましょう」
+		ELSE
+			PRINTFORMW 「全部あなたに委ねているわけじゃないので」
+			PRINTFORMW 「勘違いしないでくださいね？」
+		ENDIF
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;真名を許すイベント
+;-------------------------------------------------
+IF ARG == 10
+	PRINTFORMW 「私の本当の名前はマジカル・ドリームキーパードレミーちゃん！」
+	PRINTFORMW ※このメッセージは本来表示され得ないメッセージらしい
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;デート中に向こうからキス
+;-------------------------------------------------
+IF ARG == 20
+	PRINTFORMW 手ごろな場所で休憩していると、隣で座る%ANAME(TARGET)%が身を寄せて来た
+	PRINTFORMW 指を絡めるように片手を繋がれそっと顔を近づけてくる…
+	PRINTFORMW 「目…閉じて」
+	PRINTFORMW 言われるままに目を閉じると唇に何かが触れた感触がした
+	PRINTFORMW 「…開けて良いですよ」
+	PRINTFORMW 目を開けると%ANAME(TARGET)%は顔を背けている…
+	PRINTFORML 
+	PRINTFORMW 「少し…恥ずかしいですね」
+	PRINTFORMW どうやら照れた顔を見せたくない様子だ
+	PRINTFORMW %ANAME(MASTER)%は一呼吸置いて空いている片手で%ANAME(TARGET)%の顎先を緩く掴んだ
+	PRINTFORMW 「………」
+	PRINTFORMW クイッと%ANAME(TARGET)%の顔をこちらに向けさせ、息つく間もなく口づけをした…
+	PRINTFORMW ほんのりと軽い、唇と唇だけの口づけ
+	PRINTFORMW 唇を離し、顔を少し話すと再び%ANAME(TARGET)%は顔を背けた
+	PRINTFORMW 「も…もう少し休憩しましょうか」
+	PRINTFORMW %ANAME(MASTER)%は無言で了解すると絡めた指を離す事無く休憩した…
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;デート中に向こうから告白　断るなんてモッタイナイ
+;-------------------------------------------------
+IF ARG == 21
+	PRINTFORMW 「ねぇ%ANAME(MASTER)%…話があるの……」
+	PRINTFORMW 「私、あなたの事が……好きなの」
+	PRINTFORML 「一緒に協力して戦って…政務をこなして…」
+	PRINTFORMW 「あなたと一緒にいるうちに、あなたの事をもっと知りたいと思ったの」
+	PRINTFORML 「最初は共通の目的があるだけのドライな関係だと思っていたのに…」
+	PRINTFORML 「でも、日を追う毎にその気持ちが強くなって来て……ある日、気付いたの」
+	PRINTFORMW 「あぁ……これが"恋"なんだ……って」
+	PRINTFORML 「……あなたは…どう？ その…私の事どう思ってるいの？」
+	PRINTFORMW 「今は……それを一番知りたい……」
+
+	CALL ASK_YN("受け入れる", "断る")
+
+	;告白を受け入れる
+	IF RESULT == 0
+		PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%を優しく抱きしめた
+		PRINTFORML 「ぁ……」
+		PRINTFORMW これが%ANAME(MASTER)%の返事なんだと%ANAME(TARGET)%は理解した
+		PRINTFORML 「嬉しい……」
+		PRINTFORMW 二人は、そのまましばらく抱き合い互いの温もりを感じていた……
+	;告白成功時はTFLAG:4に1を代入
+		TFLAG:4 = 1
+
+	;告白を断る
+	ELSE
+		PRINTFORMW 「…そう…そうよね」
+		PRINTFORMW 「ご…御免なさい、変な事を言ったわね…」
+		PRINTFORMW 「忘れて頂戴……忘れて…」
+	;告白成功時はTFLAG:4に0を代入
+		TFLAG:4 = 0
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;相手から押し倒される
+;-------------------------------------------------
+;合意なし
+IF ARG == 22
+	PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%が用意したお茶と菓子を2人きりで楽しんでいた
+	PRINTFORML 「さてそろそろ効果が出る頃ですねぇ」
+	PRINTFORMW そう囁きながら、%ANAME(TARGET)%は%ANAME(MASTER)%を背中から抱きかかる
+	PRINTFORMW 「安心してください、喰ってかかろうわけではないので…」
+	PRINTFORMW 「ただのちょっとした夢だと思っていただければ」
+	PRINTFORMW 動けない%ANAME(MASTER)%を押し倒し身体を弄る%ANAME(TARGET)%
+	PRINTFORMW %ANAME(TARGET)%は本気のようだ……
+	PRINTFORML 
+	RETURN 0
+;合意なし＆酔った勢い
+ELSEIF ARG == 23
+	PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%が用意した珍しいお酒を2人きりで楽しんでいた
+	PRINTFORML 「さてそろそろ効果が出る頃ですねぇ」
+	PRINTFORMW そう囁きながら、%ANAME(TARGET)%は%ANAME(MASTER)%を背中から抱きかかる
+	PRINTFORMW 「安心してください、喰ってかかろうわけではないので…」
+	PRINTFORMW 「ただのちょっとした夢だと思っていただければ」
+	PRINTFORMW 動けない%ANAME(MASTER)%を押し倒し身体を弄る%ANAME(TARGET)%
+	PRINTFORMW %ANAME(TARGET)%は完全に出来上がっているようだ……
+	PRINTFORML 
+	RETURN 0
+;合意あり
+ELSEIF ARG == 24
+	PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%が用意したお茶と菓子を2人きりで楽しんでいた
+	PRINTFORML 「さてそろそろ効果が出る頃ですねぇ」
+	PRINTFORMW そう囁きながら、%ANAME(TARGET)%は%ANAME(MASTER)%を背中から抱きかかる
+	PRINTFORMW 「さてどうしてあげましょうかねぇ…」
+	PRINTFORMW 動けない%ANAME(MASTER)%を押し倒し身体を弄る%ANAME(TARGET)%
+	PRINTFORMW %ANAME(TARGET)%は本気のようだ……
+	PRINTFORML 
+	RETURN 0
+;合意あり＆酔った勢い
+ELSEIF ARG == 25
+	PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%が用意した珍しいお酒を2人きりで楽しんでいた
+	PRINTFORML 「さてそろそろ効果が出る頃ですねぇ」
+	PRINTFORMW そう囁きながら、%ANAME(TARGET)%は%ANAME(MASTER)%を背中から抱きかかる
+	PRINTFORMW 「さてどうしてあげましょうかねぇ…」
+	PRINTFORMW 動けない%ANAME(MASTER)%の身体を弄る%ANAME(TARGET)%
+	PRINTFORMW %ANAME(TARGET)%は完全に出来上がっているようだ……
+	PRINTFORML 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;相手からおねだりされる
+;-------------------------------------------------
+;合意なし
+IF ARG == 26
+	PRINTFORMW 「据え膳食わぬは男の恥ですよ？」
+	PRINTFORMW %ANAME(TARGET)%は淫靡な笑みを浮かべ、着衣の裾をたくし上げている
+	RETURN 0
+;合意なし＆酔った勢い
+ELSEIF ARG == 27
+	PRINTFORMW 「据え膳食わぬは男の恥ですよ？」
+	PRINTFORMW %ANAME(TARGET)%は淫靡な笑みを浮かべ、着衣の裾をたくし上げている
+	RETURN 0
+;合意あり
+ELSEIF ARG == 28
+	PRINTFORMW 「据え膳食わぬは男の恥ですよ？」
+	PRINTFORMW %ANAME(TARGET)%は淫靡な笑みを浮かべ、着衣の裾をたくし上げている
+	RETURN 0
+;合意あり＆酔った勢い
+ELSEIF ARG == 29
+	PRINTFORMW 「据え膳食わぬは男の恥ですよ？」
+	PRINTFORMW %ANAME(TARGET)%は淫靡な笑みを浮かべ、着衣の裾をたくし上げている
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;酔い限界で倒れる
+;-------------------------------------------------
+IF ARG == 32
+	PRINTFORMW 「…少し飲みすぎたようですね」
+	PRINTFORMW 立ち上がろうとする%ANAME(TARGET)%だが%ANAME(MASTER)%の方へ倒れ込んでしまう
+	PRINTFORMW 「…少しこのままで、凄く安心するの」
+	PRINTFORMW そうつぶやくと%ANAME(TARGET)%は寝てしまった
+	PRINTFORML
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;妊娠発覚
+;-------------------------------------------------
+IF ARG == 40
+	;捕虜調教
+	IF CFLAG:9 == CFLAG:MASTER:1
+		;種親不明
+		IF CFLAG:23 == 0
+			IF ABL:出産 >= 3
+				;PRINTFORMW 
+			ELSE
+				;PRINTFORMW 
+			ENDIF
+		;主人公の子を孕んだ
+		ELSEIF CFLAG:23 == GET_ID(MASTER)
+			IF TALENT:恋慕 || TALENT:服従 || TALENT:親友
+				PRINTFORMW %ANAME(TARGET)%「子に罪は無い、ね…」
+				PRINTFORMW %ANAME(TARGET)%「堪えるわね……」
+ 			ELSEIF TALENT:恋人 || TALENT:烙印
+				PRINTFORMW %ANAME(TARGET)%「子に罪は無い、ね…」
+				PRINTFORMW %ANAME(TARGET)%「堪えるわね……」
+			ELSE
+				IF ABL:出産 >= 3;出産経験？
+					PRINTFORMW %ANAME(TARGET)%「うぶ…、おえぇ……」
+					PRINTFORML
+ 					PRINTFORMW %ANAME(TARGET)%「これは…まさか、”また”なの……？」
+ 					PRINTFORMW %ANAME(TARGET)%「くっ…、あのケダモノ…、私を何度孕ませるつもり…」
+				ELSE
+					PRINTFORMW %ANAME(TARGET)%「うぶ…、おえぇ……」
+					PRINTFORML
+ 					PRINTFORMW %ANAME(TARGET)%「これは…まさか……」
+				ENDIF
+			ENDIF
+		;触手の子を孕んだ
+		ELSEIF CFLAG:23 == GET_SPERM_ID("触手")
+			PRINTFORMW %ANAME(TARGET)%「気が狂いそうね…」
+		;他の士官の子を孕んだ
+		ELSE
+			PRINTFORMW %ANAME(TARGET)%「うぶ…、おえぇ……」
+			PRINTFORML
+ 			PRINTFORMW %ANAME(TARGET)%「これは…まさか……」
+		ENDIF
+	;捕虜調教以外
+	ELSE
+		;種親不明
+		IF CFLAG:23 == 0
+			IF ABL:出産 >= 3
+				;PRINTFORMW 
+			ELSE
+				;PRINTFORMW 
+			ENDIF
+		;主人公の子を孕んだ
+		ELSEIF CFLAG:23 == GET_ID(MASTER)
+			;1人目の反応
+			IF EXP:57 == 0
+				IF TALENT:正妻
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「あなた、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「話があるのだけど、今って良いかしら？」
+					PRINTFORML 
+					PRINTFORMW いつもより上機嫌な様子でお気に入りの紅茶を淹れる%ANAME(TARGET)%
+					PRINTFORMW 「角砂糖は二個…と」
+					PRINTFORMW テーブルの上にはペアカップに注がれた紅茶が並んでいる…
+					PRINTFORMW 「ねぇ、あなた。　私、子供が出来たわ」
+					PRINTFORMW いつものように報告する%ANAME(TARGET)%
+					PRINTFORMW それを聞いて思わず%ANAME(MASTER)%は顔が綻び笑みを浮かべた
+					PRINTFORMW 「おめでとう、もうあなたは"お父さん"ね」
+					PRINTFORMW 名前はどうしようか？
+					PRINTFORMW 「ふふふ、そうねぇ…産んでから決めない？」
+					PRINTFORMW 楽しみだ、元気な子を産んでくれ
+					PRINTFORMW 「あなたの子よ？　元気に違いないわ」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら二人は三人の未来を語り合った…
+				ELSEIF TALENT:恋慕
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 仕事を続けながら要件を聞くと%ANAME(TARGET)%は恐る恐る口を開いた
+					PRINTFORMW 「…その…ですね…」
+					PRINTFORMW 「あの…ですね」
+					PRINTFORMW 妙にそわそわしつつ本題を言い出せないでいる様子である
+					PRINTFORMW 仕方なく仕事を進める手を止め、来客用の椅子に移った…
+					PRINTFORML 
+					PRINTFORMW お気に入りの紅茶を淹れ、%ANAME(TARGET)%に出す
+					PRINTFORMW 「角砂糖は二個…でしたね」
+					PRINTFORMW 沈黙に耐え切れなかったのか自ら話題を逸らし始める%ANAME(TARGET)%
+					PRINTFORMW 妙な深刻さを感じた%ANAME(MASTER)%は今日の予定を一旦忘れ、彼女の緊張を解してやることにした
+					PRINTFORMW しばらく他愛のない雑談を繰り返し、お互いのカップも空になった頃
+					PRINTFORMW もう一杯淹れよう、と席を立とうとすると%ANAME(TARGET)%に止められた
+					PRINTFORML 
+					PRINTFORMW 「ありがとう…もう落ち着いたわ…」
+					PRINTFORMW 意を決した様子の%ANAME(TARGET)%
+					PRINTFORMW %ANAME(MASTER)%は深々と椅子に腰かけ構えた
+					PRINTFORMW 「…出来たの…」
+					PRINTFORMW 何が…とは聞かない、察した
+					PRINTFORMW %ANAME(MASTER)%は何も言わず席を立ち%ANAME(TARGET)%を抱きしめた
+					PRINTFORMW 名前はどうしようか、男なら…女の子なら…と呟いた
+					PRINTFORMW 「…！」
+					PRINTFORMW 静かに嬉しそうな表情を浮かべ、ようやくいつものような口調で%ANAME(TARGET)%は喋りはじめる
+					PRINTFORMW 「そうですねぇ、私としては顔を見てから決めてみたいわねぇ？」
+					PRINTFORMW それもありだな…と返す%ANAME(MASTER)%
+					PRINTFORMW 柔らかな日差しが祝福するように窓から差し込む中、二人は三人の未来を語り合った…
+				ELSEIF TALENT:恋人
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「%ANAME(MASTER)%、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「話があるんだけど、今良い？」
+					PRINTFORML 
+					PRINTFORMW 上機嫌な様子でお気に入りの紅茶を淹れる%ANAME(TARGET)%
+					PRINTFORMW 「角砂糖は二個…だったわね」
+					PRINTFORMW テーブルの上にはペアカップに注がれた紅茶が並んでいる…
+					PRINTFORMW  妙に緊張しているのか、一呼吸置いても話を切り出さない%ANAME(TARGET)%
+					PRINTFORMW %ANAME(MASTER)%は今日の予定を一旦忘れ、彼女の緊張を解してやることにした
+					PRINTFORML
+					PRINTFORMW しばらくいつものように他愛のない雑談を繰り返し、お互いのカップも空になった頃
+					PRINTFORMW 「ねぇ、%ANAME(MASTER)%。　私、子供が出来たの」
+					PRINTFORMW それを聞いて思わず%ANAME(MASTER)%は顔が綻び笑みを浮かべ、名前はどうしようか、男なら…女の子なら…と呟いた
+					PRINTFORMW 「ふふふ、そうねぇ…産んでから決めない？」
+					PRINTFORMW 楽しみだ、元気な子を産んでくれ
+					PRINTFORMW 「あなたの子よ？　元気に違いないわ」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら二人は三人の未来を語り合った…
+				ELSE
+					PRINTFORMW 「うぶ…、おえぇ……」
+					PRINTFORML
+	 				PRINTFORMW 「これは…まさか……」
+				ENDIF
+			;2人目の反応→もう恋慕以上やろって感じで
+			ELSEIF EXP:57 == 1
+					PRINTFORMW %ANAME(MASTER)%は、%ANAME(TARGET)%と二人きりで街の警邏に出ている
+					PRINTFORMW 「この辺は良いわ～、平和過ぎてデート気分になれるから好きよ」
+					PRINTFORMW 欠伸をしながら%ANAME(MASTER)%に寄り添う%ANAME(TARGET)%
+					PRINTFORMW 「ところで%ANAME(MASTER)%。　素敵な報告があるのだけど……言って良いかしら？」
+					PRINTFORML 
+					PRINTFORMW 上機嫌な様子の%ANAME(TARGET)%に、%ANAME(MASTER)%は適当に相槌をうった
+					PRINTFORMW 「ふっふっふ、%ANAME(MASTER)%……ついに二児のお父さんになるのよ」
+					PRINTFORMW それはつまり……
+					PRINTFORMW 「そう、二人目が出来たの。つまりあの子に弟か妹が出来るわけね～」
+					PRINTFORMW それを聞いて思わず%ANAME(MASTER)%は顔が綻び笑みを浮かべ、名前はどうしようか、男なら…女の子なら…と呟いた
+					PRINTFORMW 「次は……どっちになるかしら？　でもきっとあの子も喜ぶわ」
+					PRINTFORMW 楽しみだ、元気な子を産んでくれ
+					PRINTFORMW 「あなたの子よ？　ふふっ、元気に違いないわ」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら、二人は新たな未来を語り合った…
+			;3人目の反応
+			ELSEIF EXP:57 == 2
+					PRINTFORMW 軍議が終わり、一人廊下を歩いていると%ANAME(TARGET)%が声をかけてきた
+					PRINTFORMW 「ねぇ%ANAME(MASTER)%、突然だけど……耳貸してくれるかしら？」
+					PRINTFORMW それを聞いて%ANAME(MASTER)%は怪訝な様子で、耳に手を当てた
+					PRINTFORMW 「それでそのまま少し屈んでくれる？　そのままじゃ聞こえないから……ね」
+					PRINTFORML 
+					PRINTFORMW 上機嫌な様子の%ANAME(TARGET)%に、%ANAME(MASTER)%は少し困惑しながらも屈んだ
+					PRINTFORMW 「それじゃあ……はいっ♪」
+					PRINTFORMW 手を当てた耳に突然%ANAME(TARGET)%の腹部が押し付けられた、それも服をズラシて直接肌に触れている
+					PRINTFORMW 「……どう？　聞こえるかしら？」
+					PRINTFORMW とくん……とくん……と小さい音が聞こえ始める
+					PRINTFORMW 「次は……どっちになるかしら？」
+					PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%に宿る新しい命に気付き、思わず顔に綻び笑みを浮かべた
+					PRINTFORMW 「さぁ、このまま家族会議にしましょ。　ね？」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら、二人は新たな未来を語り合った…
+			;4人目の反応、これ以降基本ランダム発言
+			ELSEIF EXP:57 == 3
+					PRINTFORMW 仕事も終わり、私室で床に就こうとするとコンコンとノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「話があるのだけど、今って良いかしら？」
+					PRINTFORML 
+					PRINTFORMW 二人ソファに並んで座り、互いに身体を寄せ合う
+					PRINTFORMW 暖かい紅茶を息を吹きかけて冷ます%ANAME(TARGET)%
+					PRINTFORMW そんな姿を見て%ANAME(MASTER)%は少し興奮して、つい%ANAME(TARGET)%の内ももに手を滑らせる
+					PRINTFORMW 「おやおや、シタくなっちゃったの？」
+					PRINTFORMW 「でも今日はだーめ、大事な話があるの」
+					PRINTFORMW それはもしかして……
+					PRINTFORMW 「フフフ……遂に四人目が出来ちゃいました♪」
+					PRINTFORMW それを聞いて思わず%ANAME(MASTER)%は%ANAME(TARGET)%を喜びながら抱き締めた
+					PRINTFORMW 「あわわ、そんな急に抱き締めないでくださいよ……」
+					PRINTFORMW 手元の紅茶がこぼれないように、急いでテーブルに紅茶を置く%ANAME(TARGET)%
+					PRINTFORMW 「もぅ、そんなにガッついても５人目は今作れないわよ♥」
+					PRINTFORMW お互いに身体を交えながら、二人は新たな未来を語り合った…
+			;10人目の反応、割かし狙える範囲
+			ELSEIF EXP:57 == 9
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「%ANAME(MASTER)%、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「それで……話があるのだけど……」
+					PRINTFORML 
+					PRINTFORMW そうか……遂に１０人目なのだな
+					PRINTFORMW 「あら、聞いてたの？」
+					PRINTFORMW そんな気がした
+					PRINTFORMW 「まさか私がこんなにも子供を産むだなんて、想像もしなかったわ」
+					PRINTFORMW 笑いながらソファに座る%ANAME(TARGET)%
+					PRINTFORML 「一回%ANAME(MASTER)%も産んでみたら？　結構辛いわよ」
+					PRINTFORMW 「と言っても……もう少し慣れちゃったわ」
+					PRINTFORMW そうか、それならもっと産んでもらわないとな
+					PRINTFORMW 「そう、それじゃあ……」
+					PRINTFORMW %ANAME(TARGET)%は%ANAME(MASTER)%の胸元に抱き着いてきた
+					PRINTFORMW 「もっと……赤ちゃん作る？」
+					PRINTFORMW %ANAME(MASTER)%はそっと%ANAME(TARGET)%を抱き締めてベッドへ連れ込んだ……
+			;20人目の反応、大体ここまで来たら上等
+			ELSEIF EXP:57 == 19
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「%ANAME(MASTER)%、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「それで……話があるのだけど……」
+					PRINTFORML 
+					PRINTFORMW 遂に２０人目なのだな
+					PRINTFORMW 「ふふっ、だんだん周りから奇異の目で見られ始めてきたわ」
+					PRINTFORMW 大丈夫か？
+					PRINTFORMW 「大丈夫よ、むしろそれだけ%ANAME(MASTER)%に愛されてるのって自慢してやりたいくらいね」
+					PRINTFORMW 笑いながらソファに座る%ANAME(TARGET)%
+					PRINTFORML 「あの子たちは今どこで何をしてるのかしらね」
+					PRINTFORMW 「もう２０人もいるせいで、どの子が今どうしてるのか分からなくなってきたわ……」
+					PRINTFORMW なんだか年寄臭くなった気分だ……
+					PRINTFORMW 「あら？　そう言う割には……」
+					PRINTFORMW %ANAME(TARGET)%は%ANAME(MASTER)%の胸元に抱き着き、服越しに%ANAME(MASTER)%のペニスを摩った
+					PRINTFORMW 「ここは元気じゃない？」
+					PRINTFORMW %ANAME(MASTER)%はそっと%ANAME(TARGET)%を抱き締めてベッドへ連れ込んだ……
+			;50人目の反応、狂人の入り口
+			ELSEIF EXP:57 == 49
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「%ANAME(MASTER)%、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「それで……話があるのだけど……」
+					PRINTFORML 
+					PRINTFORMW ……５０人目なのだな
+					PRINTFORMW 「ははは、我ながら恐ろしい数だわ……」
+					PRINTFORMW このままだと１００人も夢じゃないな
+					PRINTFORMW 「もぅ、私が妖怪じゃなかったら２０回くらい死んでるわよ」
+					PRINTFORMW 笑いながらソファに座る%ANAME(TARGET)%
+					PRINTFORML 「ところで知ってるかしら？」
+					PRINTFORMW 「ここから倍近くの孫が出来始めるのよ……」
+					PRINTFORMW 自分の一族だけで村が出来そうだな
+					PRINTFORMW 「やれやれこのまま何時か%ANAME(MASTER)%の子供だけで街が出来そうね」
+					PRINTFORMW %ANAME(TARGET)%は%ANAME(MASTER)%の膝の上に座る
+					PRINTFORMW 「それで……目指しちゃう？　%ANAME(MASTER)%の街」
+					PRINTFORMW %ANAME(MASTER)%はそっと%ANAME(TARGET)%を抱き締めてベッドへ連れ込んだ……
+			;100人目の反応、ドレミー死ぬやろこれ
+			ELSEIF EXP:57 == 99
+					PRINTFORMW 私室で書類仕事をしていると、コンコンと扉からノック音が聞こえた
+					PRINTFORMW 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「%ANAME(MASTER)%、仕事はどう？」
+					PRINTFORMW %ANAME(MASTER)%は仕事を一旦止めて返事をした
+					PRINTFORMW 「ついに街は出来そうな数に……なっちゃったわ」
+					PRINTFORML 
+					PRINTFORMW ……１００人目なのだな
+					PRINTFORMW 「最近じゃ国中の女性から産母神扱いされ始めたわ……」
+					PRINTFORMW 最近では孕んでない%ANAME(TARGET)%が珍しくなってきている
+					PRINTFORMW 「今じゃ私が夢に出ると必ず安産になるってのが通説らしいわ」
+					PRINTFORMW 笑いながらソファに座る%ANAME(TARGET)%
+					PRINTFORML 「ところで知ってるかしら？」
+					PRINTFORMW 「%ANAME(MASTER)%も男根の神として崇められ始めてるの」
+					PRINTFORMW それは初耳だ
+					PRINTFORMW 「そのうち%ANAME(MASTER)%のここに触れただけで安産、なんて通説が生まれちゃうのかしらね」
+					PRINTFORMW %ANAME(TARGET)%は%ANAME(MASTER)%の膝の上に座る
+					PRINTFORMW 「でもだーめ、ここは私の特等席なんだから♪」
+					PRINTFORMW %ANAME(TARGET)%はそう言って%ANAME(MASTER)%のペニスをすくいだして騎乗位し始めた……
+			;1000人目の反応、普通は死に口上
+			ELSEIF EXP:57 == 999
+					PRINTFORML ・
+					PRINTFORML ・
+					PRINTFORML ・
+					PRINTFORMW 「あぁまさか、遂にここまで来てしまっただなんて」
+					PRINTFORML 軍議中、頭を抱える%ANAME(TARGET)%と%ANAME(MASTER)%
+					PRINTFORMW 遂に二人は1000人目の子供を作ってしまったのだ
+					PRINTFORMW 街では%ANAME(MASTER)%の子がすれ違い「お前何女？」「あなた何男？」と尋ね合っている
+					PRINTFORML
+					PRINTFORML 「明日、国を挙げての式典を開くそうよ。　えぇ完全にそういう神様と崇められるわね」
+					PRINTFORMW 「というかもう私にとっては、%ANAME(MASTER)%の子を産むのが日常的な感覚……って麻痺してるわ」
+					PRINTFORML 「でも、これもすべて%ANAME(MASTER)%の愛おしさ故のこと」
+					PRINTFORMW 「ねぇ……この子産んだら直ぐ、子供を産める体にしてあげる」
+					PRINTFORML 「だから直ぐに私を抱いてよね、もう子作りセックスしか頭にないの」
+					PRINTFORMW 「あぁーだめ、我慢できない……ねぇここでセックスしない？」
+					PRINTFORMW 「軍議中だからダメ？　イイじゃない、みんな慣れてるわよ」
+					PRINTFORML
+					PRINTFORMW そう言って%ANAME(TARGET)%は無理矢理、%ANAME(MASTER)%を連れて軍議の場から離れる
+					PRINTFORMW 廊下を歩く二人。　今からどんなセックスをしようか惚気ながら話し合う
+					PRINTFORML 「さぁ、次は1001人目ね。　えっ？　まだ産んでないから作れないだろって？」
+					PRINTFORMW 「もぅ、鈍感ね%ANAME(MASTER)%ってば。　ただヤリたいだけに決まってるじゃない、ふふっ」
+					PRINTFORMW 二人は%ANAME(MASTER)%の私室のドア前に着く
+					PRINTFORMW 「……これからもよろしくね、%ANAME(MASTER)%」
+					PRINTFORMW 二人は深く熱いキスを交わし、部屋のドアを開けた……
+			;5~9,11~19,21~49,51~99,101~999人目の反応
+			ELSE
+				SELECTCASE RAND:5
+				CASE 4
+					PRINTFORML その日の仕事が終わり、一人で浴場に入っていると、ガラガラとドアの開く音が聞こえてきた
+					PRINTFORML 「お仕事お疲れ様です、%ANAME(MASTER)%」
+					PRINTFORML そう言って%ANAME(MASTER)%の居る湯船に%ANAME(TARGET)%が入って来た
+					PRINTFORML %ANAME(MASTER)%は仕事の疲れからか、適当な返事をした
+					PRINTFORML 「んー……お仕事でお疲れのようですねぇ。　どうでしょう、私がマッサージしてさしあげましょうか？」
+					PRINTFORMW そう言って%ANAME(MASTER)%の隣までグイグイ迫る%ANAME(TARGET)%
+					PRINTFORML 
+					PRINTFORML 「ほらー？　どうです？　気持ち……イイ？」
+					PRINTFORML 結局%ANAME(TARGET)%に流されマッサージを受けることになった
+					PRINTFORML %ANAME(TARGET)%の指が%ANAME(MASTER)%の身体を揉み解している……
+					PRINTFORML 「……そうそう、大事なこと言い忘れてたわ。　私、もう妊娠しちゃったみたい」
+					PRINTFORML 「フフッ……前の子を産んでからそう経ってないのにねぇ」
+					PRINTFORML 「誰かさんが求めてくるから、私の身体も受け入れちゃうのかしらね」
+					PRINTFORML それを聞いた%ANAME(MASTER)%は、自分の身体を揉む%ANAME(TARGET)%の手に自身の手を重ねた
+					PRINTFORML 「ふふ、触りたいのはこっちじゃないの？」
+					PRINTFORML 悪戯気味に笑う%ANAME(TARGET)%は、%ANAME(MASTER)%の手を取り自身の腹部に当てさせた
+					PRINTFORMW そしてお互い柔らかい笑顔を交わしながら、二人は新たな未来を語り合った…
+				CASE 3
+					PRINTFORML ここはどこだろう？
+					PRINTFORML %ANAME(MASTER)%の記憶が確かなら、仕事を終えて眠っていたはずだ
+					PRINTFORML だというのに、%ANAME(MASTER)%は、奇妙な空間に一人迷い込んでいた
+					PRINTFORMW 遠くで人影が見える……近づいてみよう
+					PRINTFORML
+					PRINTFORML 「おや……？　おやおやおや」
+					PRINTFORML 「こちら側にいらっしゃるとは、珍しいですね」
+					PRINTFORML そこに居たのは%ANAME(TARGET)%だった。　どうやらここは夢の世界のようだ
+					PRINTFORML 「んん……今は悪夢を頂いている所で……」
+					PRINTFORML あたりに漂う黒い靄を。吸ったり、掴んで口に含む%ANAME(TARGET)%
+					PRINTFORML 「普段はこれほど多く食べる必要は無いのですが」
+					PRINTFORML 食べることを止めない%ANAME(TARGET)%、かなり食い意地が張っているようだ
+					PRINTFORML 「実はもうお腹に新しい子がいるのよ、だから今その子の為にも栄養を補充しているの」
+					PRINTFORML サラッと妊娠報告をされたが、もう%ANAME(MASTER)%も慣れている
+					PRINTFORML 「ンッンッンッ……ムフー。　さぁさぁ%ANAME(MASTER)%も正しい所で寝てくださいね」
+					PRINTFORML 「%ANAME(MASTER)%の悪夢も、この子の糧になるのですから……」
+					PRINTFORMW そう言われると%ANAME(MASTER)%はどんどん靄に包まれていき……
+					PRINTFORML 
+					PRINTFORML 
+					PRINTFORML 「おはよう%ANAME(MASTER)%。　……あとご馳走様」
+					PRINTFORML 隣で寝転ぶ%ANAME(TARGET)%に起こされる%ANAME(MASTER)%
+					PRINTFORML 今朝はすごくいい天気だ。今日も一日良い一日になりそうだと、%ANAME(MASTER)%の気分は明るかった
+					PRINTFORMW ……それにしても、何の夢を見ていたっけ？
+				CASE 2
+					PRINTFORML %ANAME(MASTER)%は、%ANAME(TARGET)%と二人きりで街の警邏に出ている
+					PRINTFORML 「この辺は良いわ～、平和過ぎてデート気分になれるから好きよ」
+					PRINTFORML 欠伸をしながら%ANAME(MASTER)%に寄り添う%ANAME(TARGET)%
+					PRINTFORMW 「ところで%ANAME(MASTER)%。　素敵な報告があるのだけど……言って良いかしら？」
+					PRINTFORML 
+					PRINTFORML 上機嫌な様子の%ANAME(TARGET)%に、%ANAME(MASTER)%は適当に相槌をうった
+					PRINTFORML 「ふっふっふ、%ANAME(MASTER)%……次の子が出来たわ」
+					PRINTFORML これで何人目になるかな
+					PRINTFORML 「あら覚えてないの？　確かこれで……」
+					PRINTFORML 「次は……きっとわんぱくな男の子ね」
+					PRINTFORML 楽しみだ、元気な子を産んでくれ
+					PRINTFORML 「あなたの子よ？　ふふっ、元気に違いないわ」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら、二人は新たな未来を語り合った…
+				CASE 1
+					PRINTFORML 軍議が終わり、一人廊下を歩いていると%ANAME(TARGET)%が声をかけてきた
+					PRINTFORML 「ねぇ%ANAME(MASTER)%、突然だけど……耳貸してくれるかしら？」
+					PRINTFORML それを聞いて%ANAME(MASTER)%は怪訝な様子で、耳に手を当てた
+					PRINTFORMW 「それでそのまま少し屈んでくれる？　そのままじゃ聞こえないから……ね」
+					PRINTFORML 
+					PRINTFORML 上機嫌な様子の%ANAME(TARGET)%に、%ANAME(MASTER)%は少し困惑しながらも屈んだ
+					PRINTFORML 「それじゃあ……はいっ♪」
+					PRINTFORML 手を当てた耳に突然%ANAME(TARGET)%の腹部が押し付けられた、それも服をズラシて直接肌に触れている
+					PRINTFORML 「……どう？　聞こえるかしら？」
+					PRINTFORML とくん……とくん……と小さい音が聞こえ始める
+					PRINTFORML 「次は……どっちになるかしら？」
+					PRINTFORML %ANAME(MASTER)%は%ANAME(TARGET)%に宿る新しい命に気付き、思わず顔に綻び笑みを浮かべた
+					PRINTFORML 「さぁ、このまま家族会議にしましょ。　ね？」
+					PRINTFORMW お互いに柔らかい笑顔を交わしながら、二人は新たな未来を語り合った…
+				CASEELSE
+					PRINTFORML 仕事も終わり、私室で床に就こうとするとコンコンとノック音が聞こえた
+					PRINTFORML 許可を出すと%ANAME(TARGET)%が部屋に入ってきた
+					PRINTFORMW 「話があるのだけど、今って良いかしら？」
+					PRINTFORML 
+					PRINTFORML 二人ソファに並んで座り、互いに身体を寄せ合う
+					PRINTFORML 暖かい紅茶を息を吹きかけて冷ます%ANAME(TARGET)%
+					PRINTFORML そんな姿を見て%ANAME(MASTER)%は少し興奮して、つい%ANAME(TARGET)%の内ももに手を滑らせる
+					PRINTFORML 「おやおや、シタくなっちゃったの？」
+					PRINTFORML 「でも今日はだーめ、大事な話があるの」
+					PRINTFORML それはもしかして……
+					PRINTFORML 「フフフ……遂に--人目が出来ちゃいました♪」
+					PRINTFORML それを聞いて思わず%ANAME(MASTER)%は%ANAME(TARGET)%を喜びながら抱き締めた
+					PRINTFORML 「あわわ、そんな急に抱き締めないでくださいよ……」
+					PRINTFORML 手元の紅茶がこぼれないように、急いでテーブルに紅茶を置く%ANAME(TARGET)%
+					PRINTFORML 「もぅ、そんなにガッついても--人目は今作れないわよ♥」
+					PRINTFORMW お互いに身体を交えながら、二人は新たな未来を語り合った…
+				ENDSELECT
+			ENDIF
+		;触手の子を孕んだ
+		ELSEIF CFLAG:23 == GET_SPERM_ID("触手")
+			PRINTFORMW 「気が狂いそうね…」
+		;他の士官の子を孕んだ
+		ELSE
+			PRINTFORMW 「うぶ…、おえぇ……」
+			PRINTFORML
+ 			PRINTFORMW 「これは…まさか……」
+		ENDIF
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;臨月に入った
+;-------------------------------------------------
+IF ARG == 41
+	PRINTFORML %ANAME(TARGET)%「…もうそろそろなのね」
+	PRINTFORMW %ANAME(TARGET)%は大きくなったお腹を優しく擦っている
+	PRINTFORML 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;子供を出産した
+;-------------------------------------------------
+IF ARG == 42
+	;父親のキャラ番号をLOCAL:0に取得
+	LOCAL:0 = ID_TO_CHARA(CFLAG:23)
+
+	;主人公の子供の場合
+	IF LOCAL:0 == MASTER
+		IF TALENT:正妻
+			PRINTFORMW 赤子の泣き声が鳴り響いてきた、どうやら無事に出産が済んだ様だ
+			PRINTFORMW 分娩室に駆け込むと、疲れ果ている%ANAME(TARGET)%とその腕の中で泣いている可愛い赤子がいた
+			PRINTFORMW あなたの姿を見ると、%ANAME(TARGET)%はまだ苦しそうにニコリと微笑んだ
+			PRINTFORMW よくやったと赤子と一緒に抱きしめてやるとこの上なく幸せそうに涙を流した
+			PRINTFORMW 「全部終われば、家族水入らずで暮らしたいわね……」
+		ELSEIF TALENT:恋慕 || TALENT:恋人
+			PRINTFORMW 赤子の泣き声が鳴り響いてきた、どうやら無事に出産が済んだ様だ
+			PRINTFORMW 分娩室に駆け込むと、疲れ果ている%ANAME(TARGET)%とその腕の中で泣いている可愛い赤子がいた
+			PRINTFORMW あなたの姿を見ると、%ANAME(TARGET)%はまだ苦しそうにニコリと微笑んだ
+			PRINTFORMW よくやったと赤子と一緒に抱きしめてやるとこの上なく幸せそうに涙を流した
+			PRINTFORMW 「私と…あなたの子…ふふふ」
+			PRINTFORMW 「子育てはシッカリと手伝ってもらいますからね？」
+		ELSEIF TALENT:服従 || TALENT:烙印
+			PRINTFORMW （せめてこの子だけでも幸せになってくれれば良いのだけれど……）
+		ELSE
+			PRINTFORMW 「平和な時に産んであげたかったわね…」
+		ENDIF
+	;種親不明の場合
+	ELSEIF CFLAG:23 == 0
+		;PRINTFORMW
+	;他の仕官の子の場合
+	ELSE
+		PRINTFORMW 「せめて、平和な時に産んであげたかったわね…」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;主人公に自分の子供を産ませた
+;-------------------------------------------------
+IF ARG == 43
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;子供を出産した（触手）
+;-------------------------------------------------
+IF ARG == 44
+	;捕虜調教・会いに行くでコマンド：触手産卵　？
+	;膣フラグ
+	IF CFLAG:55 >= 1
+		;アナルフラグ
+		IF CFLAG:56 >= 1
+			IF RAND:3 == 0
+				PRINTFORMW %ANAME(TARGET)%「嫌…、こんな…産みたくないぃ……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW %ANAME(TARGET)%「あっ…あっ…！内側から拡がっ……！」
+			ELSE
+				PRINTFORMW %ANAME(TARGET)%「――――っ！…っ～～～～～～！」
+			ENDIF
+		;膣のみ
+		ELSE
+			IF RAND:3 == 0
+				PRINTFORMW %ANAME(TARGET)%「嫌…、こんな…産みたくないぃ……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW %ANAME(TARGET)%「あっ…あっ…！肚がっ…内側から拡がっ……！」
+			ELSE
+				PRINTFORMW %ANAME(TARGET)%「――――っ！…っ～～～～～～！」
+			ENDIF
+		ENDIF
+	;アナルのみ
+	ELSE
+			IF RAND:3 == 0
+				PRINTFORMW %ANAME(TARGET)%「嫌…、こんな…産みたくないぃ……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW %ANAME(TARGET)%「あっ…あっ…！尻がっ…内側から拡がっ……！」
+			ELSE
+				PRINTFORMW %ANAME(TARGET)%「――――っ！…っ～～～～～～！」
+			ENDIF
+	ENDIF
+	;フェイズチェンジ時の触手調教で孕んだ　？
+	IF ABL:出産 >= 3
+		IF (ABL:Ｖ感 >= 5 && CFLAG:55 >= 1) || (ABL:Ａ感 >= 5 && CFLAG:56 >= 1)
+			IF RAND:3 == 0
+				PRINTFORMW %ANAME(TARGET)%「産まれりゅ…ぅっ……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW %ANAME(TARGET)%「はっ…ひぃ…！内側から拡がっ……！」
+			ELSE
+				PRINTFORMW %ANAME(TARGET)%「――――っ！…っ～～～～～～！」
+			ENDIF
+		ENDIF
+	ELSE
+		IF (ABL:Ｖ感 >= 5 && CFLAG:55 >= 1) || (ABL:Ａ感 >= 5 && CFLAG:56 >= 1)
+			IF RAND:3 == 0
+				PRINTFORMW %ANAME(TARGET)%「嫌…、こんな…産みたくないぃ……」
+			ELSEIF RAND:2 == 0
+				PRINTFORMW %ANAME(TARGET)%「あっ…あっ…！内側から拡がっ……！」
+			ELSE
+				PRINTFORMW %ANAME(TARGET)%「――――っ！…っ～～～～～～！」
+			ENDIF
+		ENDIF
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;忠誠を誓わせる/成功　某紫煙より
+;-------------------------------------------------
+IF ARG == 50
+	PRINTFORMW 「私はあなたの為に居たい」
+	PRINTFORMW 「おかしいのかもしれないけど、私はどういう関係であろうとあなたに関わっていたいと思うの」
+	PRINTFORMW 「変に思ってくれても良い、私はあなたの中に居続けたい…だから」
+	PRINTFORMW そう言うと%ANAME(TARGET)%は%ANAME(MASTER)%の掌にゆっくり顔を近づけて、そこに口づけし…
+	PRINTFORML
+	PRINTFORMW 「…私に命がある限り、その存在は全てあなたの夢の為にあります」
+	PRINTFORMW 「身も心も魂も、何もかもを捧げる事をお許しください」
+	PRINTFORMW 「それが私の希望であり、それが私の未来です」
+	PRINTFORML 
+	PRINTFORMW 「私はあなたのものです。%ANAME(MASTER)%様」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;忠誠を誓わせる/失敗
+;-------------------------------------------------
+IF ARG == 51
+	;嫌われてはいない
+	IF CFLAG:3 >= 0
+		PRINTFORMW 「あなたに従う義理はないの」
+	;嫌われている
+	ELSE
+		PRINTFORMW 「忠誠心というものは、その価値を理解できる人物に対して捧げられるものでしょう」
+		PRINTFORMW 「人を見る目のない主君に忠誠をつくすなんて、宝石を泥のなかへ放りこむようなものね」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;自国に誘う/成功
+;-------------------------------------------------
+IF ARG == 52
+	PRINTFORMW 『お前を迎える準備は出来ている』
+	PRINTFORMW そう告げると、%ANAME(TARGET)%はニヤリと笑みを浮かべた…
+	PRINTFORMW 「今更、私程度の人材が必要かしら？」
+	PRINTFORMW 少し悪戯染みた笑みを浮かべ聞いてくる…
+	PRINTFORML 
+	PRINTFORMW 『お前ほど他人の無意識に触れた者はいない、その経験を政に生かす気はないか』
+	PRINTFORMW 「…確かに夢は人の無意識の集合体、私ほどその点への理解がある人材はないでしょう」
+	PRINTFORMW 「でも…それだけかしら？」
+	PRINTFORMW 『…これ以上はこんな味気ない部屋から出た時に話してやろう』
+	PRINTFORMW 「…それじゃあ後でゆっくり聞かせて貰おうかしら？」
+	PRINTFORMW %ANAME(TARGET)%は帽子を取り一歩近づいてくる
+	PRINTFORMW 「ふふっ、よろしくね%ANAME(MASTER)%」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;自国に誘う/失敗
+;-------------------------------------------------
+IF ARG == 53
+	;嫌われてはいない
+	IF CFLAG:3 >= 0
+		PRINTFORMW 「お誘いありがとう、でも私の居場所はそこじゃないの」
+	;嫌われている
+	ELSE
+		PRINTFORMW 「ははぁん、そうやって何でも自分の思い通りになると思ってるのねぇ…滑稽だわ」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;恋慕を取得
+;-------------------------------------------------
+IF ARG == 60
+	PRINTFORMW (そういえば私、いつもあの人の事を考えているわね…)
+	PRINTFORMW (あの人は今…何してるのだろう…)
+	PRINTFORMW (夜も深いけど執務中かしら…ちょっと夜食でも作ってあげようかしら)
+	PRINTFORMW (…何だろう…この胸がチクチクするような気分…)
+	PRINTFORMW (……………)
+	PRINTFORMW (あぁ、そう…これが恋してるって事なのね…)
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;親友を取得
+;-------------------------------------------------
+IF ARG == 61
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;親愛を取得
+;-------------------------------------------------
+IF ARG == 62
+	PRINTFORMW 「フフッ…」
+	PRINTFORML
+	PRINTFORMW 「私達も会ってから随分と長くなりますねぇ」
+	PRINTFORMW 「あなたが家族みたいに思えるようになって来ましたよ」
+	PRINTFORMW 「おかしいですよねぇ、生涯独り身だと思っていたのですが…」
+	PRINTFORMW 「これからもよろしくお願いしますね…%ANAME(MASTER)%」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;服従を取得
+;-------------------------------------------------
+IF ARG == 63
+	;PRINTFORMW 「」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;隷属を取得
+;-------------------------------------------------
+IF ARG == 64
+	;PRINTFORMW 「」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;淫乱を取得　そのうちスイッチ仕込む
+;-------------------------------------------------
+IF ARG == 65
+	;PRINTFORMW 「」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;婚姻の儀(選択時)
+;-------------------------------------------------
+IF ARG == 90
+	PRINTFORMW 「…どうして私なの？」
+	PRINTFORMW 「自分で言うのも何だけど…その他にも魅力的な子は他に沢山いるじゃない？」
+	PRINTFORMW 「それでも私で良いの？」
+	PRINTFORML 
+	PRINTFORMW 「…そう、そこまで好かれてたのねぇ」
+	PRINTFORMW 「でもありがとう…嬉しいわ」
+	PRINTFORML 
+	PRINTFORMW …………………
+	PRINTFORMW ……
+	PRINTFORMW 「私は長く…永くの間ずっと人々の夢を見続けてきた」
+	PRINTFORMW 「憎悪から愛情に至るまで様々な感情や想いを美醜関わらず夢を通じて知った」
+	PRINTFORMW 「それが心を許せる家族も友人も居ない妖怪本質的な孤独にヒビが入った」
+	PRINTFORMW 「そして私は妖怪なのに…獏なのに愛を求めてしまった」
+	PRINTFORMW 「叶うはずのない"夢"だったのよ」
+	PRINTFORMW 「でも今、その夢が叶った…」
+	PRINTFORML 
+	PRINTFORMW 「---ねぇ、私には夢があったって話をしたかしら」
+	PRINTFORMW 「そう、でももう良いの…叶ったのですもの」
+	PRINTFORMW 「ふふっ、だから私にもっと夢を見させてくださいな」
+	PRINTFORMW 「ねっ、あなた」
+
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;婚姻の儀(イベント時)
+;-------------------------------------------------
+IF ARG == 91
+	PRINTFORML と宣言したのは良いが、戦時中だ…規模を変えるべきかもしれない…
+	PRINTFORML 結婚式の規模はどうしますか？
+	$INPUT_LOOP_41
+	PRINTL [0]戦争中だし簡易的に　[1]立場相応の規模で　[2]国の一大イベント
+	INPUT
+	SELECTCASE RESULT
+	CASE 0
+		PRINTFORMW %ANAME(TARGET)%曰く
+		PRINTFORMW 『祝い事は何時でも出来ますが、凶事は何時起こるか分かりません』
+		PRINTFORMW 『本来の規模での式は戦後に行いましょう…』
+		PRINTFORMW 少し残念だが簡易的な式で臨む事にした
+		PRINTFORML 
+		PRINTFORMW 式当日
+		PRINTFORML 
+		PRINTFORMW 「お待たせ…」
+		PRINTFORMW 控室で待っていると、簡素なドレスを着た%ANAME(TARGET)%が現れた
+		PRINTFORMW やや装飾の施された軍服の%ANAME(MASTER)%には丁度いい塩梅だ
+		PRINTFORMW 思った通りの褒め言葉を投げかけた
+		PRINTFORMW 「…本当はもっとちゃんとした化粧をして臨みたかったのですが…」
+		PRINTFORMW 確かに化粧をすればもっと綺麗になれただろう
+		PRINTFORMW しかし今のままでも十分綺麗で式に相応しいと伝えた
+		PRINTFORMW 「ふふっ、ありがとう」
+		PRINTFORMW 「貴方だって、いつもよりピシッとしていて素敵よ？」
+		PRINTFORMW ありがとうと礼を言い、彼女の手を握る
+		PRINTFORMW この扉の先には今日の為にと必死で暇を作った臣下達が待っている
+		PRINTFORML
+		PRINTFORMW 『待たせるのも悪い、行こうか』
+		PRINTFORML
+		PRINTFORMW 「えぇ、そうね%ANAME(MASTER)%」
+		PRINTFORML
+		PRINTFORMW 二人は手を繋いだまま扉を開け、知った顔ぶればかりが左右から無言で祝福する中を歩いていく
+		PRINTFORMW 部下が神父のような格好で待つ道を歩いていると、%ANAME(TARGET)%の部下の一人が目の前に躍り出た
+		PRINTFORMW 突然の事に海上内がどよめく中、部下は淡々と報告を始めた
+		PRINTFORML 
+		PRINTFORMW 「報告します、我が領土である――に――と――が率いる軍が南下しているとの事です」
+		PRINTFORMW 急報を淡々と説明し終わると、左右の部下達から怒号の声が響く
+		PRINTFORMW 今それを報告する必要があったか！　貴様は空気を読まないのか！
+		PRINTFORMW 最中、%ANAME(MASTER)%は手を挙げ全員へ沈黙を要求した
+		PRINTFORMW 『祝い事は何時でも出来ますが、凶事は何時起こるか分からないと言っていたな%ANAME(TARGET)%』
+		PRINTFORMW 「えぇ、同時に祝い事は幾らでも延期出来ますが、凶事は延期出来ません」
+		PRINTFORMW それを聞いていた部下たちの顔が真剣な軍人の表情になる
+		PRINTFORML 
+		PRINTFORMW %ANAME(MASTER)%は%ANAME(TARGET)%に口づけを交わし、自ら軍服の装飾を剥ぎ取った
+		PRINTFORMW 『これにて式は終了し、来たる敵への対処を行う』
+		PRINTFORMW 『まず――の軍に対しては―――が八千の兵を率いて陽動、その後本隊に―――と―――、そしてが―――が二万の兵を率いて攻撃』
+		PRINTFORMW 『敵をある程度を削った後、この%ANAME(MASTER)%が直接一万の兵を率いて一挙にこれを討つ！』
+		PRINTFORMW 『各々の奮戦を期待する、解散！』
+		PRINTFORMW %ANAME(MASTER)%が指示すると部下たちは無駄なく会場から出て行き各々の仕事へと戻って行った…
+		PRINTFORMW 「…お疲れ様です、それではまた後に…」
+		PRINTFORMW 自らも仕事場へ戻ろうとする%ANAME(TARGET)%の手を掴んで止めた
+		PRINTFORMW 『必ず、次はちゃんとした式を挙げよう』
+		PRINTFORMW 「…えぇ、必ず」
+		PRINTFORMW その後、二人は各々の仕事へと戻ったが今まで感じた事の無い強い絆を感じ得た…
+	CASE 1
+		PRINTFORMW 戦時中だが夫婦の儀式を疎かにしたくない、立場相応の式を執り行なう事にした
+		PRINTFORMW もし臨時の事態が発生した際は他の者が対処出来るように段取りを進めた…
+		PRINTFORMW 
+		PRINTFORMW 式当日
+		PRINTFORMW 
+		PRINTFORMW 「お待たせ…」
+		PRINTFORMW 控室で待っているとウェディングドレスを着た%ANAME(TARGET)%が現れた
+		PRINTFORMW 純白のドレスに、ベール下の綺麗な化粧姿がよく映える
+		PRINTFORMW 綺麗だ…と伝えると%ANAME(TARGET)%は化粧が崩れないように笑みを浮かべた
+		PRINTFORMW 「ふふっ、貴方もいつもより勇ましく見えて素敵ね」
+		PRINTFORMW 感謝の言葉を述べると%ANAME(MASTER)%は%ANAME(TARGET)%の手を握った…
+		PRINTFORML 
+		PRINTFORMW 『行こうか』
+		PRINTFORML
+		PRINTFORMW 「えぇ、%ANAME(MASTER)%」
+		PRINTFORML 
+		PRINTFORMW 二人は手を繋ぎ寄り添いながら扉を開け、小規模な楽団の祝宴曲が流れるなか絨毯の道を歩いていく…
+		PRINTFORMW 先で待っている神父の元に着くと神父は誓いの言葉を求めてくる
+		PRINTFORML
+		PRINTFORMW 「『私たちは本日ここに　ご列席の皆様の前で結婚式を挙げます』」
+		PRINTFORMW 『これからは永遠に変わることなく』
+		PRINTFORMW 「幸せな時も」
+		PRINTFORMW 『困難な時も』
+		PRINTFORMW 「心をひとつにして乗り越え」
+		PRINTFORMW 「『笑顔に満ちた明るい家庭を築いていくことを皆様の前で誓います』」
+		PRINTFORML 
+		PRINTFORMW 二人は誓いの言葉を告げた後エンゲージリングを交換し、誓いのキスを交わした…
+	CASE 2
+		PRINTFORMW いっそ国の一大イベントとして執り行う事にした
+		PRINTFORMW 他国の主君・重臣にも招待状を出し、領民にも盛大に祝って貰おうという流れになっている
+		PRINTFORMW %ANAME(TARGET)%曰く
+		PRINTFORMW もしこの日に無粋な真似をする国があれば攻める大義名分
+		PRINTFORMW そして他国からの非難の的になります、いっそ見せつける方が良いでしょう…らしい
+		PRINTFORMW
+		PRINTFORMW 式当日
+		PRINTFORMW 
+		PRINTFORMW 「お待たせ…」
+		PRINTFORMW 特設された控室で待っているとウェディングドレスを着た%ANAME(TARGET)%が現れた
+		PRINTFORMW 幼い子供が後ろで裾を持つほど大きな純白のドレスに、ベール下の綺麗な化粧姿がよく映える
+		PRINTFORMW 「大規模な結婚式ですから相応の格好をしているのですが…これはこれで重いというか…」
+		PRINTFORMW 動き辛いのだろう？…と伝えると%ANAME(TARGET)%は化粧が崩れないように笑みを浮かべた
+		PRINTFORMW 「そうそう、もう少しシンプルでも良かった気がするわねぇ」
+		PRINTFORMW だが荘厳なドレスであっても%ANAME(TARGET)%は%ANAME(TARGET)%であると認識出来る
+		PRINTFORMW 「貴方も凄い格好ね、軍服とは思えない装飾ね」
+		PRINTFORMW 言われている通り%ANAME(MASTER)%の格好は軍服に過度過ぎるくらい豪華な装飾が施されている
+		PRINTFORMW %ANAME(MASTER)%も内心では鬱陶しいくらいであったが、規模からすれば自然ではある
+		PRINTFORML 
+		PRINTFORMW しばらく談笑していると案内係がやって来た、どうやら準備が整ったようだ
+		PRINTFORMW %ANAME(MASTER)%は了解すると%ANAME(TARGET)%の手を握った…
+		PRINTFORML 
+		PRINTFORMW 『行こうか』
+		PRINTFORML
+		PRINTFORMW 「えぇ、%ANAME(MASTER)%」
+		PRINTFORML 
+		PRINTFORMW 二人は手を繋ぎ寄り添いながら扉を開け、大規模な楽団の祝宴曲が流れるなか絢爛たる絨毯の道を歩いていく…
+		PRINTFORMW 左右双方には来賓席に自国他国問わず君主重臣が並んでおりいずれも正装である
+		PRINTFORMW 更に左右奥には領民が歓声と祝いが響いており、憲兵がズラッと並んでそれを眺めている
+		PRINTFORMW 「こっ、これは思ったよりも凄いですね…」
+		PRINTFORMW 雰囲気に押され気味な%ANAME(TARGET)%だったが%ANAME(MASTER)%がリードしていく
+		PRINTFORMW 長い絨毯の道を進んだ先には最高聖職者の大主教が立っている…
+		PRINTFORMW 神父の元に着くと神父は誓いの言葉を求めてくる
+		PRINTFORMW 汝ら誓いの言葉を…
+		PRINTFORML
+		PRINTFORMW 『汝を妻とし、今日よりいかなる時も共にあることを誓います』
+		PRINTFORMW 『幸せな時も、困難な時も、富める時も、貧しき時も、病める時も、健やかなる時も、死がふたりを分かつまで愛し、慈しむことをここに誓います』
+		PRINTFORMW 「私は、あなたを生涯変わることなく愛することを誓います」
+		PRINTFORML 
+		PRINTFORMW 二人は誓いの言葉を告げた後エンゲージリングを交換し、誓いのキスを交わした…
+		PRINTFORMW その後祝宴は二日に続いて大規模に執り行なわれた
+		PRINTFORMW 二人は普段の仕事よりハードな二日を経って今まで感じた事の無い強い絆を感じ得た…
+		ENDSELECT
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;調教後自慰(Ｃ)
+;-------------------------------------------------
+IF ARG == 100
+	PRINTFORML （うぅ…っ、我ながら女々しいわね……）
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;調教後自慰(Ａ)
+;-------------------------------------------------
+IF ARG == 101
+	PRINTFORML （うぅ…っ、これじゃあまるで変態ね……）
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;調教後性交
+;-------------------------------------------------
+IF ARG == 102
+	PRINTFORMW
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;おねだりに対して「おあずけ」を選択
+;-------------------------------------------------
+IF ARG == 103
+	PRINTFORMW 内心では抱いてしまいたいが嗜虐心がおあづけを出した
+	PRINTFORMW 「そ…そうですか…」
+	PRINTFORMW かなり残念そうな様子を隠しきれない様子である
+	PRINTFORMW 微かに見える瞳の奥の熱をすくってしまいたかったが我慢した…
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;誘惑成功(合意を取得)
+;-------------------------------------------------
+IF ARG == 105
+	;恋慕
+	IF TALENT:恋慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORMW 「おやおや、そんな姿を見せつけられたら我慢が出来ませんよ…ふふふ」
+		CASE 1
+			PRINTFORMW 「%ANAME(MASTER)%…ねぇ、良いでしょう？」
+		CASE 2
+			PRINTFORMW 「そんな風に誘われたら…本気になっちゃいますよ…私、ふふふ」
+	ENDSELECT 
+	;それ以外
+	ELSE
+		PRINTFORMW 「おやおや、そんな姿を見せつけられたら我慢が出来ませんよ…ふふふ」
+	ENDIF
+	RETURN 0
+ENDIF
+;-------------------------------------------------
+;誘惑失敗
+;-------------------------------------------------
+IF ARG == 106
+	PRINTFORMW 「……はぁ」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;誘惑成功(既に合意あり)
+;-------------------------------------------------
+IF ARG == 107
+	;恋慕
+	IF TALENT:恋慕
+	SELECTCASE RAND:3
+		CASE 0
+			PRINTFORMW 「おやおや、そんな姿を見せつけられたら我慢が出来ませんよ…ふふふ」
+		CASE 1
+			PRINTFORMW 「%ANAME(MASTER)%…ねぇ、良いでしょう？」
+		CASE 2
+			PRINTFORMW 「そんな風に誘われたら…本気になっちゃいますよ…私、ふふふ」
+	ENDSELECT 
+	;それ以外
+	ELSE
+		PRINTFORMW 「おやおや、そんな姿を見せつけられたら我慢が出来ませんよ…ふふふ」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;コマンド実行失敗
+;-------------------------------------------------
+IF ARG == 150
+;思いついたら増やす
+	IF FLAG:調教モード == 0 || FLAG:調教モード == 1
+		SELECTCASE SELECTCOM
+		CASE 23;騎乗位
+			PRINTFORMW 「う…痛っ！」
+			PRINTFORML 「もう少し慣れてからで…お願い」
+			PRINTFORMW %ANAME(TARGET)%は珍しく弱音を吐いた……
+		CASE 24;背面騎乗位
+			PRINTFORMW 「う…痛っ！」
+			PRINTFORML 「もう少し慣れてからで…お願い」
+			PRINTFORMW %ANAME(TARGET)%は珍しく弱音を吐いた……
+		CASE 30;A騎乗位
+			PRINTFORML 「お、お尻なんて無理よ？！」
+			PRINTFORMW %ANAME(TARGET)%は珍しく弱音を吐いた……
+		CASE 31;A背面騎乗位
+			PRINTFORML 「お、お尻なんて無理よ？！」
+			PRINTFORMW %ANAME(TARGET)%は珍しく弱音を吐いた……
+		CASE 11;フェラ
+			PRINTFORML 「う…、まだ抵抗が……」
+			PRINTFORMW %ANAME(TARGET)%は顔に近づけられた陰茎から目を逸らした……
+		CASE 107;亀頭責めフェラ
+			PRINTFORML 「う…、まだ抵抗が……」
+			PRINTFORMW %ANAME(TARGET)%は顔に近づけられた陰茎から目を逸らした……
+		CASEELSE
+			IF RAND:3 == 0
+				PRINTFORML 「……ぐぅ（Zz）」
+				PRINTFORMW %ANAME(TARGET)%は狸寝入りを決め込んでいる……
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「親しき仲にも礼儀ありって言わない？」
+			ELSE
+				PRINTFORMW 「なんで私がそんなこと…」
+			ENDIF
+		ENDSELECT
+		RETURN 0
+	ELSE
+		SELECTCASE SELECTCOM
+		CASE 23;騎乗位
+			PRINTFORMW 「ご奉仕せっくす？」
+			PRINTFORML 「ははぁん、自分の立場を分かってないのかしらねぇ」
+			PRINTFORMW %ANAME(TARGET)%は嘲るように笑った……
+		CASE 24;背面騎乗位
+			PRINTFORMW 「ご奉仕せっくす？」
+			PRINTFORML 「ははぁん、自分の立場を分かってないのかしらねぇ」
+			PRINTFORMW %ANAME(TARGET)%は嘲るように笑った……
+		CASE 30;A騎乗位
+			PRINTFORMW 「奉仕…？尻で…？」
+			PRINTFORML 「あなた頭は大丈夫？」
+			PRINTFORMW %ANAME(TARGET)%は嘲るように笑った……
+		CASE 31;A背面騎乗位
+			PRINTFORMW 「奉仕…？尻で…？」
+			PRINTFORML 「あなた頭は大丈夫？」
+			PRINTFORMW %ANAME(TARGET)%は嘲るように笑った……
+		CASE 20;キス
+			PRINTFORMW 「石鹸でうがいしてくれたら考えてあげるわね」
+			PRINTFORMW %ANAME(TARGET)%は無理難題を押し付けてくる……
+		CASE 11;フェラ
+			PRINTFORMW 「石鹸でうがいしてくれたら考えてあげるわね」
+			PRINTFORMW %ANAME(TARGET)%は無理難題を押し付けてくる……
+		CASE 107;亀頭責めフェラ
+			PRINTFORMW 「石鹸でうがいしてくれたら考えてあげるわね」
+			PRINTFORMW %ANAME(TARGET)%は無理難題を押し付けてくる……
+		CASEELSE
+			IF RAND:3 == 0
+				PRINTFORML 「……ぐぅ（Zz）」
+				PRINTFORMW %ANAME(TARGET)%は狸寝入りを決め込んでいる……
+			ELSEIF RAND:2 == 0
+				PRINTFORMW 「ははぁん！馬鹿らしいわね…！」
+			ELSE
+				PRINTFORMW 「なんで私がそんなこと…」
+			ENDIF
+		ENDSELECT
+		RETURN 0
+	ENDIF
+ENDIF
+
+;-------------------------------------------------
+;夜イベント/一般
+;-------------------------------------------------
+;添い寝
+IF ARG == 200
+	;恋慕
+	IF TALENT:恋慕
+		SELECTCASE RAND:4
+			CASE 0
+				PRINTFORMW 寝ようとベッドに向かうと%ANAME(TARGET)%が寝ていた
+				PRINTFORMW 「知ってます？獏と寝ると良い夢を見れるのですよ？」
+				PRINTFORMW 「(まぁ一緒に寝たいだけのウソですけど)」
+			CASE 1
+				PRINTFORML 寝ようとベッドに向かうと%ANAME(TARGET)%が寝ていた
+				PRINTFORMW 「ごめんなさい、少し今日は何だか寂しくて…」
+				PRINTFORMW 「一緒に寝てくれない？」
+			CASE 2
+				PRINTFORML 寝ようとベッドに向かうと%ANAME(TARGET)%が寝ていた
+				PRINTFORMW 「ふふっ、抱き枕ならぬ獏枕ですよ～」
+				PRINTFORMW 「…自分で言っておいてなんですが恥ずかしいわね」
+			CASE 3
+				PRINTFORML 寝ようとベッドに向かうと%ANAME(TARGET)%が寝ていた
+				PRINTFORMW 「今日は寒いですからね…温めあいましょう？」
+				PRINTFORMW 「…ふふふ、今夜はどこを触っても良いのですよ？」
+		ENDSELECT 
+	;その他
+	ELSE
+		PRINTFORMW 寝ようとベッドに向かうと%ANAME(TARGET)%が寝ていた
+		PRINTFORMW 「知ってます？獏と寝ると良い夢を見れるのですよ？」
+		PRINTFORMW 「(まぁ一緒に寝たいだけのウソですけど)」
+	ENDIF
+	RETURN 0
+;晩酌
+ELSEIF ARG == 201
+	PRINTFORMW 仕事を終え、夜を持て余していると部屋に酒瓶を持った%ANAME(TARGET)%がやって来た
+	SELECTCASE RAND:4
+			CASE 0
+				PRINTFORMW 「良いお酒を手に入れましてねぇ、一緒にどうです？」
+			CASE 1
+				PRINTFORMW 「静かな夜…晩酌でもどうです？」
+			CASE 2
+				PRINTFORMW 「たまには私からお誘いしようと思いましてね」
+			CASE 3
+				PRINTFORMW 「ふふっ明日に支障が出ない程度ですが付き合ってくれますよね？」
+		ENDSELECT 
+	RETURN 0
+;談笑
+ELSEIF ARG == 202
+	PRINTFORMW 仕事を終え、夜を持て余していると部屋に%ANAME(TARGET)%がやってきた
+	;恋慕
+	IF TALENT:恋慕
+		SELECTCASE RAND:6
+			CASE 0
+				PRINTFORMW 「ふふっ、夜風が気持ち良さそうですし散歩にでも行きませんか？」
+			CASE 1
+				PRINTFORMW 「仕事お疲れ様…良かったら愚痴でも聞いてあげるわよ？」
+			CASE 2
+				PRINTFORMW 「美味しい茶菓子と紅茶を頂いたの、どう？」
+			CASE 3
+				PRINTFORMW 「おやおや、夜更かしを希望ですか？　まぁたまには良いでしょう」
+			CASE 4
+				PRINTFORMW 「お昼だけじゃ話足りなかったの…まだ夜は長いし良いでしょう？」
+			CASE 5
+				PRINTFORMW 「綺麗な月ですね…ふふふ」
+		ENDSELECT 
+	;その他
+	ELSE
+		SELECTCASE RAND:3
+			CASE 0
+				PRINTFORMW 「こんばんは、ちょっとお話ししませんか？」
+			CASE 1
+				PRINTFORMW 「仕事お疲れ様…少しくらいなら愚痴でも聞いてあげるわよ？」
+			CASE 2
+				PRINTFORMW 「おやおや、夜更かしを希望ですか？　まぁたまには良いでしょう」
+		ENDSELECT 
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;夜イベント/愛撫
+;-------------------------------------------------
+;責め(通常)
+IF ARG == 210
+	;――――――――――――――――――――――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………ふふふっ…」
+		ELSEIF !RAND:4
+		PRINTFORML 「……♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「………あっ♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML 夜伽に現れた%ANAME(TARGET)%は、%ANAME(MASTER)%の前で挑発的に微笑んで短いスカートをたくし上げた。
+			PRINTFORMW ノーパンでこの部屋までやって来たらしい。%ANAME(TARGET)%はむき出しの潤んだ秘所を指で開帳し、%ANAME(MASTER)%の情けを丁寧な口調で乞い願った…
+		ELSEIF RAND:5 == 0
+			PRINTFORML 服を脱ぎ始める%ANAME(TARGET)%だったが、下着の上からでも欲情しきっているのがわかるほど蜜壺が濡れていた。
+			PRINTFORMW 恍惚とした表情で身体を預けてくる%ANAME(TARGET)%に応えるため、%ANAME(MASTER)%は愛液に塗れた秘所を掻き立て始めた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML 夜伽に来た%ANAME(TARGET)%を入室させると、%ANAME(TARGET)%はスルスルと衣服を脱ぎ落とし艶めかしい肌を晒して裸になった。
+			PRINTFORMW %ANAME(MASTER)%の下まで来ると自然と寄り添い、互いの舌を交わらせる程の濃厚なキスをした…
+		ELSEIF RAND:3 == 0
+			PRINTFORML いつもとは違い、ゆっくりと長く快楽を愉しむようにお互いを愛撫し始める。
+			PRINTFORMW 幸せそうに抱きついてくる%ANAME(TARGET)%を抱え、二人は徐々に興奮を高めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML %ANAME(TARGET)%はどうやら性欲を抑えきれなくなったようで、モジモジと身体を捻って上目遣いでこちらを見つめる。
+			PRINTFORMW ベッドに寝転がる%ANAME(MASTER)%が手招きしてやると、嬉しそうに抱きついてきた…
+		ELSE
+			PRINTFORML 毛布一枚の裸でやってきた%ANAME(TARGET)%は、チラチラと陰部や胸を%ANAME(MASTER)%に見せて誘惑してくる。
+			PRINTFORMW %ANAME(MASTER)%が勃起したのを見てとると、%ANAME(TARGET)%は責任を取るべく口で奉仕を始めた…
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+	RETURN 0
+;責め(加虐)
+ELSEIF ARG == 211
+	;――――――――――――――――――――――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………ふふふっ…」
+		ELSEIF !RAND:4
+		PRINTFORML 「……♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「………あっ♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML 夜伽に現れた%ANAME(TARGET)%は、%ANAME(MASTER)%の前で挑発的に微笑んで短いスカートをたくし上げた。
+			PRINTFORMW ノーパンでこの部屋までやって来たらしい。%ANAME(TARGET)%はむき出しの潤んだ秘所を指で開帳し、%ANAME(MASTER)%の情けを丁寧な口調で乞い願った…
+		ELSEIF RAND:5 == 0
+			PRINTFORML 服を脱ぎ始める%ANAME(TARGET)%だったが、下着の上からでも欲情しきっているのがわかるほど蜜壺が濡れていた。
+			PRINTFORMW 恍惚とした表情で身体を預けてくる%ANAME(TARGET)%に応えるため、%ANAME(MASTER)%は愛液に塗れた秘所を掻き立て始めた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML 夜伽に来た%ANAME(TARGET)%を入室させると、%ANAME(TARGET)%はスルスルと衣服を脱ぎ落とし艶めかしい肌を晒して裸になった。
+			PRINTFORMW %ANAME(MASTER)%の下まで来ると自然と寄り添い、互いの舌を交わらせる程の濃厚なキスをした…
+		ELSEIF RAND:3 == 0
+			PRINTFORML いつもとは違い、ゆっくりと長く快楽を愉しむようにお互いを愛撫し始める。
+			PRINTFORMW 幸せそうに抱きついてくる%ANAME(TARGET)%を抱え、二人は徐々に興奮を高めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML %ANAME(TARGET)%はどうやら性欲を抑えきれなくなったようで、モジモジと身体を捻って上目遣いでこちらを見つめる。
+			PRINTFORMW ベッドに寝転がる%ANAME(MASTER)%が手招きしてやると、嬉しそうに抱きついてきた…
+		ELSE
+			PRINTFORML 毛布一枚の裸でやってきた%ANAME(TARGET)%は、チラチラと陰部や胸を%ANAME(MASTER)%に見せて誘惑してくる。
+			PRINTFORMW %ANAME(MASTER)%が勃起したのを見てとると、%ANAME(TARGET)%は責任を取るべく口で奉仕を始めた…
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+	RETURN 0
+;受け(通常)
+ELSEIF ARG == 212
+	;――――――――――――――――――――――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………ふふふっ…」
+		ELSEIF !RAND:4
+		PRINTFORML 「……♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「………あっ♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML 夜伽に現れた%ANAME(TARGET)%は、%ANAME(MASTER)%の前で挑発的に微笑んで短いスカートをたくし上げた。
+			PRINTFORMW ノーパンでこの部屋までやって来たらしい。%ANAME(TARGET)%はむき出しの潤んだ秘所を指で開帳し、%ANAME(MASTER)%の情けを丁寧な口調で乞い願った…
+		ELSEIF RAND:5 == 0
+			PRINTFORML 服を脱ぎ始める%ANAME(TARGET)%だったが、下着の上からでも欲情しきっているのがわかるほど蜜壺が濡れていた。
+			PRINTFORMW 恍惚とした表情で身体を預けてくる%ANAME(TARGET)%に応えるため、%ANAME(MASTER)%は愛液に塗れた秘所を掻き立て始めた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML 夜伽に来た%ANAME(TARGET)%を入室させると、%ANAME(TARGET)%はスルスルと衣服を脱ぎ落とし艶めかしい肌を晒して裸になった。
+			PRINTFORMW %ANAME(MASTER)%の下まで来ると自然と寄り添い、互いの舌を交わらせる程の濃厚なキスをした…
+		ELSEIF RAND:3 == 0
+			PRINTFORML いつもとは違い、ゆっくりと長く快楽を愉しむようにお互いを愛撫し始める。
+			PRINTFORMW 幸せそうに抱きついてくる%ANAME(TARGET)%を抱え、二人は徐々に興奮を高めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML %ANAME(TARGET)%はどうやら性欲を抑えきれなくなったようで、モジモジと身体を捻って上目遣いでこちらを見つめる。
+			PRINTFORMW ベッドに寝転がる%ANAME(MASTER)%が手招きしてやると、嬉しそうに抱きついてきた…
+		ELSE
+			PRINTFORML 毛布一枚の裸でやってきた%ANAME(TARGET)%は、チラチラと陰部や胸を%ANAME(MASTER)%に見せて誘惑してくる。
+			PRINTFORMW %ANAME(MASTER)%が勃起したのを見てとると、%ANAME(TARGET)%は責任を取るべく口で奉仕を始めた…
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+	RETURN 0
+;受け(被虐)
+ELSEIF ARG == 213
+	;――――――――――――――――――――――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………ふふふっ…」
+		ELSEIF !RAND:4
+		PRINTFORML 「……♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「………あっ♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML 夜伽に現れた%ANAME(TARGET)%は、%ANAME(MASTER)%の前で挑発的に微笑んで短いスカートをたくし上げた。
+			PRINTFORMW ノーパンでこの部屋までやって来たらしい。%ANAME(TARGET)%はむき出しの潤んだ秘所を指で開帳し、%ANAME(MASTER)%の情けを丁寧な口調で乞い願った…
+		ELSEIF RAND:5 == 0
+			PRINTFORML 服を脱ぎ始める%ANAME(TARGET)%だったが、下着の上からでも欲情しきっているのがわかるほど蜜壺が濡れていた。
+			PRINTFORMW 恍惚とした表情で身体を預けてくる%ANAME(TARGET)%に応えるため、%ANAME(MASTER)%は愛液に塗れた秘所を掻き立て始めた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML 夜伽に来た%ANAME(TARGET)%を入室させると、%ANAME(TARGET)%はスルスルと衣服を脱ぎ落とし艶めかしい肌を晒して裸になった。
+			PRINTFORMW %ANAME(MASTER)%の下まで来ると自然と寄り添い、互いの舌を交わらせる程の濃厚なキスをした…
+		ELSEIF RAND:3 == 0
+			PRINTFORML いつもとは違い、ゆっくりと長く快楽を愉しむようにお互いを愛撫し始める。
+			PRINTFORMW 幸せそうに抱きついてくる%ANAME(TARGET)%を抱え、二人は徐々に興奮を高めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML %ANAME(TARGET)%はどうやら性欲を抑えきれなくなったようで、モジモジと身体を捻って上目遣いでこちらを見つめる。
+			PRINTFORMW ベッドに寝転がる%ANAME(MASTER)%が手招きしてやると、嬉しそうに抱きついてきた…
+		ELSE
+			PRINTFORML 毛布一枚の裸でやってきた%ANAME(TARGET)%は、チラチラと陰部や胸を%ANAME(MASTER)%に見せて誘惑してくる。
+			PRINTFORMW %ANAME(MASTER)%が勃起したのを見てとると、%ANAME(TARGET)%は責任を取るべく口で奉仕を始めた…
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;夜イベント/性交
+;-------------------------------------------------
+;主人公がこのキャラのＶに挿入
+IF ARG == 220
+	PRINTFORML
+	PRINTFORML
+	PRINTFORML
+	;――――――――――――――――――――――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………ふふふっ…♥」
+		ELSEIF !RAND:4
+		PRINTFORML 「……♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「………あっ♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML 夜伽に現れた%ANAME(TARGET)%は、%ANAME(MASTER)%の前で挑発的に微笑んで短いスカートをたくし上げた。
+			PRINTFORMW ノーパンでこの部屋までやって来たらしい。%ANAME(TARGET)%はむき出しの潤んだ秘所を指で開帳し、%ANAME(MASTER)%の情けを丁寧な口調で乞い願った…
+		ELSEIF RAND:5 == 0
+			PRINTFORML 服を脱ぎ始める%ANAME(TARGET)%だったが、下着の上からでも欲情しきっているのがわかるほど蜜壺が濡れていた。
+			PRINTFORMW 恍惚とした表情で身体を預けてくる%ANAME(TARGET)%に応えるため、%ANAME(MASTER)%は愛液に塗れた秘所を掻き立て始めた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML 夜伽に来た%ANAME(TARGET)%を入室させると、%ANAME(TARGET)%はスルスルと衣服を脱ぎ落とし艶めかしい肌を晒して裸になった。
+			PRINTFORMW %ANAME(MASTER)%の下まで来ると自然と寄り添い、互いの舌を交わらせる程の濃厚なキスをした…
+		ELSEIF RAND:3 == 0
+			PRINTFORML いつもとは違い、ゆっくりと長く快楽を愉しむようにお互いを愛撫し始める。
+			PRINTFORMW 幸せそうに抱きついてくる%ANAME(TARGET)%を抱え、二人は徐々に興奮を高めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML %ANAME(TARGET)%はどうやら性欲を抑えきれなくなったようで、モジモジと身体を捻って上目遣いでこちらを見つめる。
+			PRINTFORMW ベッドに寝転がる%ANAME(MASTER)%が手招きしてやると、嬉しそうに抱きついてきた…
+		ELSE
+			PRINTFORML 毛布一枚の裸でやってきた%ANAME(TARGET)%は、チラチラと陰部や胸を%ANAME(MASTER)%に見せて誘惑してくる。
+			PRINTFORMW %ANAME(MASTER)%が勃起したのを見てとると、%ANAME(TARGET)%は責任を取るべく秘部で奉仕を始めた…
+		ENDIF
+PRINTFORML
+PRINTFORML
+	;――――――――――――――――――――汎用台詞開始――――――――――――――――――――
+		IF !RAND:10
+		PRINTFORML 「膣内っ……こすれっ…♥……あぁっ…あっあっあっはぁんっ♥」
+		ELSEIF !RAND:9
+		PRINTFORML 「…っ…ひゃっ…いいっ……ぅあぁっ！……♥」
+		ELSEIF !RAND:8
+		PRINTFORML 「あはっ♥……はっ…んっ……くあっ…♥」
+		ELSEIF !RAND:7
+		PRINTFORML 「はぅっ…♪……っ…あっ……きもち…いっ……♥」
+		ELSEIF !RAND:6
+		PRINTFORML 「ぁっあっぁっああっ……んぁあっ！…♥」
+		ELSEIF !RAND:5
+		PRINTFORML 「…ぅあっ…ぁっ…膣内で…コツンっ…てっ……♥」
+		ELSEIF !RAND:4
+		PRINTFORML 「当たっ…て…っ♥…ああぁっ！…あんっ…はぁあぁっ！♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「んぁあっ……はっ……ぃ…いっ…ぱい……出し…っはぁぁんっ…♪」
+		ELSEIF !RAND:2
+		PRINTFORML 「ふぁっ！……んっ…んっあっ……ぁ…あはっ♥」
+		ELSE
+		PRINTFORML 「…ッ気持ち……ぁっ…よすぎ…♥……イっちゃっ…ひゃあぁあっ♥」
+		ENDIF
+;――――――――――――――――――――汎用台詞終了――――――――――――――――――――
+		IF RAND:6 == 0
+			PRINTFORML %ANAME(MASTER)%は%ANAME(TARGET)%に壁へ手を着かせ、突き出した尻を捕まえて無心に腰を叩きつける。
+			PRINTFORML 膣内を入り口から奥まで肉棒で激しく蹂躙し、尻たぶにパチンと強く平手打ちを食らわせる。
+			PRINTFORML 陵辱そのもののセックスに、ピンと伸ばしてつま先立ちになった%ANAME(TARGET)%の両足ががたがた震えた。
+			PRINTFORML 何度射精しても、絶頂しても、%ANAME(MASTER)%は%ANAME(TARGET)%に膝を折ることを許さない。
+			PRINTFORMW とうとう失禁して崩れ落ちた%ANAME(TARGET)%を抱きとめ、朦朧とした乱れ顔の耳元で”お仕置きだ”と囁いた…
+		ELSEIF RAND:5 == 0
+			PRINTFORML ベッドが軋む程の激しい動きで%ANAME(MASTER)%は%ANAME(TARGET)%の膣内を剛直でかき乱す様に正常位で犯し続ける。
+			PRINTFORML 腰を打ち付ける度に喘ぐ%ANAME(TARGET)%を見下ろし、既に自身の精液で汚れている子宮に再び射精しようとする。
+			PRINTFORML 新たな種付けが行われることを察知した%ANAME(TARGET)%は、%ANAME(MASTER)%の腰に両脚をしっかりと絡めつけた。
+			PRINTFORMW 高まるボルテージが限界を振り切り、%ANAME(MASTER)%は濃厚な精液を子宮にぶちまけた…
+		ELSEIF RAND:4 == 0
+			PRINTFORML %ANAME(MASTER)%は後ろから肉棒を%ANAME(TARGET)%の肉壷に打ち付け、交尾する獣のようにピッチの短いピストンを繰り返す。
+			PRINTFORML 最初は%ANAME(TARGET)%のくびれを掴んで腰を振っていたが、腕を掴んでベッドに押さえつけ、%ANAME(MASTER)%はさらにストロークを速めていく。
+			PRINTFORML 肉棒に蹂躙される%ANAME(TARGET)%は、%ANAME(MASTER)%に犯されているという雌の快楽に満たされ淫らな声を上げる。
+			PRINTFORMW 種付けの為に下りてきた子宮を亀頭で感じ取ると、%ANAME(MASTER)%は最後に強く突き入れて遺伝子を刻み込んだ…
+		ELSEIF RAND:3 == 0
+			PRINTFORML %ANAME(TARGET)%は%ANAME(MASTER)%の上に跨り、お腹に手を付いて腰を上下にストロークさせていく。
+			PRINTFORML %ANAME(MASTER)%から主導権を取れてはいるが、その動きは献身的に奉仕するようにグラインドさせるだけ。
+			PRINTFORML 淫らに腰を振り続ける姿を下から眺めていた%ANAME(MASTER)%も、射精が近いペニスを動かし始める。
+			PRINTFORMW 絶頂が近い%ANAME(MASTER)%を見て微笑むと、種付けを欲する子宮の疼きを癒す為、その動きを速めていった…
+		ELSEIF RAND:2 == 0
+			PRINTFORML 腰を動かし続ける%ANAME(MASTER)%を受け止める%ANAME(TARGET)%は、放心したような表情で淫らに喘いでいる。
+			PRINTFORML 飽きずに子宮をノックを繰り返す肉棒を、懸命に膣壁できつく締めつけて射精に導く。
+			PRINTFORML 子宮口をこじ開けた肉棒から何度目かわからない膣内射精を行い、%ANAME(TARGET)%はそれを確かめるように身体を震わす。
+			PRINTFORML だがまだ満足できない%ANAME(MASTER)%は、射精の余韻が続くうちにピストンを再開した。
+			PRINTFORMW 同じく再び喘ぎ出す%ANAME(TARGET)%だが、この繰り返しにうんざりするどころか幸せそうだった…
+		ELSE
+			PRINTFORML 濃厚な種付けを終えた%ANAME(MASTER)%がペニスを引き抜く。すると大量の精液が蜜壺からどぽっと零れ落ちた。
+			PRINTFORMW %ANAME(TARGET)%は満足そうにお腹をさすると、ベトベトの肉棒にお掃除フェラを始めた…
+		ENDIF
+	PRINTFORML
+	PRINTFORML
+	;――――――――――――――――――――汎用台詞開始――――――――――――――――――――
+		IF !RAND:5
+		PRINTFORML 「………朝…？」
+		ELSEIF !RAND:4
+		PRINTFORML 「…………ちゅっ♥」
+		ELSEIF !RAND:3
+		PRINTFORML 「………おはよう%ANAME(MASTER)%♥」
+		ELSEIF !RAND:2
+		PRINTFORML 「………♥」
+		ELSE
+		PRINTFORML 「…………ふふっ♥」
+		ENDIF
+;――――――――――――――――――――汎用台詞終了――――――――――――――――――――
+		IF RAND:2 == 0
+			PRINTFORML お互いまどろみから目覚め切ると、いつもの仕事の準備をするために二人は服を着始める。
+			PRINTFORMW 支度を終えた%ANAME(TARGET)%は不意に%ANAME(MASTER)%に軽く口付けすると、笑顔で一足先に退出していった…
+		ELSEIF RAND:4
+			PRINTFORML ふと唇に柔らかい感触がしたので、眠っていた%ANAME(MASTER)%は瞼を開く。
+			PRINTFORML ぼやけ気味の視界には、今まさに唇を重ねている%ANAME(TARGET)%の顔が映った。
+			PRINTFORMW %ANAME(MASTER)%が目を覚ましたのに気付くと、%ANAME(TARGET)%は恥ずかしげに微笑んだ…
+		ELSEIF RAND:4
+			PRINTFORML 唾液を交換するほどの濃厚なキスを終え、%ANAME(TARGET)%の顔を見るとどうやらスイッチが入ってしまったようだ。
+			PRINTFORMW 仕事の準備もあるので発情した%ANAME(TARGET)%を我慢させた後、腕に抱きつく%ANAME(TARGET)%と共に部屋を出た…
+		ELSE
+			PRINTFORML お目覚めのキスで目覚めた%ANAME(TARGET)%は鼻歌交じりに着替えを終え、%ANAME(MASTER)%の腕に甘えるように抱きつく。
+			PRINTFORMW その後、気分の乗った二人はギリギリの時間までイチャイチャし続けた…
+		ENDIF
+	RETURN 1
+;主人公がこのキャラのＡに挿入
+ELSEIF ARG == 221
+	PRINTFORML 「ん、これは…意外と…」
+	PRINTFORMW そうつぶやく%ANAME(TARGET)%の口元には、妖艶な笑みが浮かんでいる
+	PRINTFORML 
+	RETURN 0
+;このキャラが主人公のＶに挿入
+ELSEIF ARG == 222
+	PRINTFORML 「私が攻める事になるとは…でもこれはこれで…」
+	PRINTFORMW そうつぶやく%ANAME(TARGET)%の口元には、妖艶な笑みが浮かんでいる
+	PRINTFORML 
+	RETURN 0
+;このキャラが主人公のＡに挿入
+ELSEIF ARG == 223
+	PRINTFORML 「私が攻める事になるとは…でもこれはこれで…」
+	PRINTFORMW そうつぶやく%ANAME(TARGET)%の口元には、妖艶な笑みが浮かんでいる
+	PRINTFORML 
+	RETURN 0
+;レズ絡み
+ELSEIF ARG == 224
+	PRINTFORML 「こういうのも…意外と悪くないわねぇ」
+	PRINTFORMW そうつぶやく%ANAME(TARGET)%の口元には、妖艶な笑みが浮かんでいる
+	PRINTFORML 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;朝イベント/自ら性知識を学ぶ 書いてから気づいたけどデフォの性知識的に実質死に口上
+;-------------------------------------------------
+IF ARG == 240
+	IF RAND:3 == 0
+		PRINTFORML 「えぇ…もしかして生身！？」
+		PRINTFORMW 「生身…生身よね勿論…」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルト雑誌を読んでいる……
+	ELSEIF RAND:2 == 0
+		PRINTFORMW 「『んほおぉぉぉぉ♥！おちんぽしゅごいのぉぉぉ♥！』」
+		PRINTFORMW 「……」
+		PRINTFORML 「ははぁん、馬鹿らしいわねぇ……でもこれで喜んで貰えるのかしらね」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルトコミックスを読んでいる……
+	ELSE
+		PRINTFORMW 「なるほど…、肉の身体って神秘的なのねぇ」
+		PRINTFORMW 「……」
+		PRINTFORML 「とはいえここまでハードな事は出来ないわね…たぶん」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルト雑誌を読んでいる……
+	ENDIF
+	RETURN 0
+ENDIF
+;-------------------------------------------------
+;朝イベント/自ら性知識を学ぶ(逆調教)　書いてから気づいたけどデフォの性知識的に実質死に口上
+;-------------------------------------------------
+IF ARG == 241
+	;PRINTFORMW 
+	IF RAND:3 == 0
+		PRINTFORML 「えぇ…もしかして生身！？」
+		PRINTFORMW 「生身…生身よね勿論…」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルト雑誌を読んでいる……
+	ELSEIF RAND:2 == 0
+		PRINTFORMW 「『んほおぉぉぉぉ♥！おちんぽしゅごいのぉぉぉ♥！』」
+		PRINTFORMW 「……」
+		PRINTFORML 「ははぁん、馬鹿らしいわねぇ……でもこれで喜んで貰えるのかしらね」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルトコミックスを読んでいる……
+	ELSE
+		PRINTFORMW 「なるほど…、肉の身体って神秘的なのねぇ」
+		PRINTFORMW 「……」
+		PRINTFORML 「とはいえここまでハードな事は出来ないわね…たぶん」
+		PRINTFORMW %ANAME(TARGET)%は外の世界のアダルト雑誌を読んでいる……
+	ENDIF
+	RETURN 0
+	RETURN 0
+ENDIF
+;-------------------------------------------------
+;戦闘開始
+;-------------------------------------------------
+;野戦
+IF ARG == 300
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「あまり荒事には関わりたくないのですがねぇ」
+	ELSEIF RAND:2 == 0
+		PRINTFORMW %ANAME(TARGET)%「さて行きましょうか兵卒の皆様」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「ははぁん、随分と弱そうな相手達ですねぇ」
+	ENDIF
+	RETURN 0
+
+;防衛戦(侵攻側)
+ELSEIF ARG == 301
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「兵卒の皆様に頑張って貰いましょう」
+	ELSEIF RAND:2 == 0
+		PRINTFORMW %ANAME(TARGET)%「ははぁん、相手は用兵を知らないようですねぇ…」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「こら！そこ！油断しない！」
+	ENDIF
+	RETURN 0
+
+;防衛戦(防衛側)
+ELSEIF ARG == 302
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「兵卒の皆様、なんとしてもここは守りましょうね」
+	ELSEIF RAND:2 == 0
+		PRINTFORML %ANAME(TARGET)%「ははぁん」
+		PRINTFORMW %ANAME(TARGET)%「威勢のいいことで」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「出来れば荒事は避けたかったのですがねぇ」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;特殊戦術
+;-------------------------------------------------
+;計略発動
+IF ARG == 310
+	IF RAND:3 == 0
+		PRINTFORML %ANAME(TARGET)%「さてと…事前に用意しておいた策がそろそろ役に立つはずですねぇ」
+		PRINTFORMW %ANAME(TARGET)%「兵卒の皆様、一旦撤退してくださいね」
+	ELSEIF RAND:2 == 0
+		PRINTFORML %ANAME(TARGET)%「さてと…事前に用意しておいた策がそろそろ役に立つはずですねぇ」
+		PRINTFORMW %ANAME(TARGET)%「兵卒の皆様に陣立ての変更をお願いします」
+	ELSE
+		PRINTFORML %ANAME(TARGET)%「さてと…事前に用意しておいた策がそろそろ役に立つはずですねぇ」
+		PRINTFORMW %ANAME(TARGET)%「兵卒の皆様、一点集中で攻撃してください！」
+	ENDIF
+	RETURN 0
+;反計
+ELSEIF ARG == 311
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「ははぁん、策ですか」
+		PRINTFORMW %ANAME(TARGET)%「生意気ですねぇ」
+	ELSEIF RAND:2 == 0
+		PRINTFORMW %ANAME(TARGET)%「困りましたねぇ」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「これはまずいですね…」
+	ENDIF
+	RETURN 0
+;貫計(武力)
+ELSEIF ARG == 312
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「やれやれ、これじゃあ策なんて不要ですねぇ」
+	ELSEIF RAND:2 == 0
+		PRINTFORMW %ANAME(TARGET)%「こうなると相手の兵卒が哀れにも見えてきますね」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「戦いは準備の段階で決まっているのですよ」
+	ENDIF
+	RETURN 0
+;貫計(好感度)
+ELSEIF ARG == 313
+	IF RAND:3 == 0
+		PRINTFORMW %ANAME(TARGET)%「生憎と負けるわけにはいかないので」
+	ELSEIF RAND:2 == 0
+		PRINTFORMW %ANAME(TARGET)%「さて私も武勲をあげていきましょうか」
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「うーん、私がここまで出来るとは…」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;主人公勢力に捕縛される(部隊壊滅時)
+;-------------------------------------------------
+IF ARG == 330
+	PRINTFORMW %ANAME(TARGET)%「参りました。投降します…」
+	PRINTFORMW 目の前には縄で縛りあげられた敵の武将がいる
+	PRINTFORMW %ANAME(TARGET)%と言ったか、サンタ帽を被った青髪でショートヘアー
+	PRINTFORMW 黒いポンチョと白黒の玉房状の飾り（ポンポン）が沢山ついているエプロンつきの服を着ていて特徴的だ
+	PRINTFORMW 部下曰く彼女は夢の世界を支配している獏らしい
+	PRINTFORMW さて、どうしようか？
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;主人公勢力に捕縛される(滅亡時)
+;-------------------------------------------------
+IF ARG == 331
+	PRINTFORMW %ANAME(TARGET)%「まさかここまでしてやられるとはね…」
+	PRINTFORMW 目の前には縄で縛りあげられた敵の武将がいる
+	PRINTFORMW %ANAME(TARGET)%と言ったか、サンタ帽を被った青髪でショートヘアー
+	PRINTFORMW 黒いポンチョと白黒の玉房状の飾り（ポンポン）が沢山ついているエプロンつきの服を着ていて特徴的だ
+	PRINTFORMW 部下曰く彼女は夢の世界を支配している獏らしい
+	PRINTFORMW さて、どうしようか？
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;主人公勢力に捕縛されたときのリアクション
+;-------------------------------------------------
+;登用に応じる
+IF ARG == 332
+	PRINTFORML 縄で縛りあげられた敵の武将、%NAME_FORMAL(134)%
+	PRINTFORML %ANAME(MASTER)%が手を挙げると傍らにいた2人の部下が太い鎖を%ANAME(TARGET)%に掛けた
+	PRINTFORML ここで%ANAME(MASTER)%が手を降ろされれば%ANAME(TARGET)%の首は鎖によって絞殺されるだろう
+	PRINTFORML 「ははっ、あっけないものね……私」
+	PRINTFORMW やや強張った様子だったがその表情の裏には覚悟と恐怖が入りまじったものが窺える……
+	PRINTFORML 
+	PRINTFORML 
+	PRINTFORML %ANAME(MASTER)%は手を横に大きく振ると%ANAME(TARGET)%の首に巻かれた鎖が解かれた
+	PRINTFORML 「あらっ？　殺さないの？」
+	PRINTFORML 拍子抜けした様子で尋ねるに%ANAME(MASTER)%は旗下に加わるように命じた
+	PRINTFORML 「……ふぅん、それじゃあ。　これからよろしくお願い申し上げますね」
+	PRINTFORML 「えっと……%ANAME(MASTER)%だっけ？」
+	PRINTFORML 「命を助けて貰った以上、ちゃんと働かせて貰います」
+	PRINTFORMW 鎖から解き放たれた%ANAME(TARGET)%は新たなる舞台へ進む事を決意した…
+	RETURN 0
+;登用を拒否する
+ELSEIF ARG == 333
+	PRINTFORMW %ANAME(TARGET)%「お断りさせて頂きます」
+	RETURN 0
+;解放される
+ELSEIF ARG == 334
+	PRINTFORMW %ANAME(TARGET)%「…ありがとうございます」
+	RETURN 0
+;投獄される
+ELSEIF ARG == 335
+	PRINTFORMW %ANAME(TARGET)%「…仕方ないわよね」
+	RETURN 0
+;処刑される
+ELSEIF ARG == 336
+	PRINTFORMW %ANAME(TARGET)%「案外私も最後は呆気ないのね」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;戦死時
+;-------------------------------------------------
+IF ARG == 337
+	;主人公と同一勢力に所属
+	IF CFLAG:1 >= 1 && CFLAG:1 == CFLAG:MASTER:1
+		IF TALENT:恋慕 || TALENT:服従 || TALENT:親友
+			PRINTFORMW 「十分な戦力を用意出来ず…政に専念すべき私が剣を持った結果が…」
+			PRINTFORMW 「ふふっ、もうダメみたいね…」
+			PRINTFORMW %ANAME(TARGET)%の片腕は凶刃に奪われ、腹部には雑多な作りの槍が抉るように刺さっている
+			PRINTFORMW 「(%ANAME(MASTER)%、今あなたは…)」
+			PRINTFORMW 「(…最後に一目貴方を…)」
+			PRINTFORMW ！！！
+			PRINTFORMW ・
+			PRINTFORMW ・
+			PRINTFORMW ・
+			PRINTFORMW 兵達の勝鬨が響いている…敵国の将を討ち取ったと…
+			PRINTFORMW 髪を掴まれた首が敵の大将の元へ送られるだろう
+			PRINTFORMW %ANAME(MASTER)%の元へ凶報が届くのは時間の問題だろう…
+		ELSE
+			PRINTFORMW %ANAME(TARGET)%「あぁ、私もここまでなのね…」
+		ENDIF
+	;主人公と異なる勢力に所属
+	ELSE
+		PRINTFORMW %ANAME(TARGET)%「あぁ、私もここまでなのね…」
+	ENDIF
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;捕虜調教のメニュー
+;-------------------------------------------------
+;解放される
+IF ARG == 340
+	PRINTFORMW 「…ありがとうございます」
+	RETURN 0
+;処刑される
+ELSEIF ARG == 341
+	PRINTFORMW 「案外私も最後は呆気ないのね」
+	RETURN 0
+;性奴隷化される
+ELSEIF ARG == 342
+	;PRINTFORMW 「命あっての物種…ね」
+	RETURN 0
+;触手処刑される
+ELSEIF ARG == 343
+	;PRINTFORMW 「なに…これ、嘘…嫌っ！」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;放浪イベント
+;-------------------------------------------------
+;登用に応じる
+IF ARG == 350
+		PRINTFORMW %ANAME(TARGET)%が我が国を放浪していると聞き、部下を通じて食事に誘った
+		PRINTFORMW 「食事にお誘いありがとうございます」
+		PRINTFORMW 食事を取りつつ政治的な話を交わした後、我が国に仕える事を提案した
+		PRINTFORMW 「なるほど…だから部外者である私に政治的な話をして来たのですね」
+		PRINTFORMW 彼女の政治力は充分に役立つ、手元へ加えたい所である
+		PRINTFORMW 「良いでしょう、これ以上寝なし草をするつもりもありませんから」
+		PRINTFORMW %ANAME(TARGET)%は帽子を取り一歩近づいてくる
+		PRINTFORMW 「ふふっ、よろしくね%ANAME(MASTER)%」
+		PRINTFORMW 二人は固い握手を交わし、共に国に尽くす事を誓った
+	RETURN 0
+;登用を拒否する
+ELSEIF ARG == 351
+	PRINTFORMW 「お断りさせて頂きます」
+	RETURN 0
+;投獄される
+ELSEIF ARG == 352
+	PRINTFORMW 「なんて横暴な…！」
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;霖之助・藍関係
+;-------------------------------------------------
+;[霖之助に恋慕]を取得
+IF ARG == 400
+	;PRINTFORMW 
+	RETURN 0
+;[霖之助の恋人]を取得
+ELSEIF ARG == 401
+	;PRINTFORMW 
+	RETURN 0
+;[霖之助に恋慕]を喪失
+ELSEIF ARG == 402
+	;PRINTFORMW 
+	RETURN 0
+;霖之助と別れさせることに成功
+ELSEIF ARG == 403
+	;PRINTFORMW 
+	RETURN 0
+;霖之助と別れさせることに失敗
+ELSEIF ARG == 404
+	;PRINTFORMW 
+	RETURN 0
+;[藍に恋慕]を取得
+ELSEIF ARG == 410
+	;PRINTFORMW 
+	RETURN 0
+;[藍の恋人]を取得
+ELSEIF ARG == 411
+	;PRINTFORMW 
+	RETURN 0
+;[藍に恋慕]を喪失
+ELSEIF ARG == 412
+	;PRINTFORMW 
+	RETURN 0
+;藍と別れさせることに成功
+ELSEIF ARG == 413
+	;PRINTFORMW 
+	RETURN 0
+;藍と別れさせることに失敗
+ELSEIF ARG == 414
+	;PRINTFORMW 
+	RETURN 0
+ENDIF
+
+;-------------------------------------------------
+;逆調教時　現状死に口上？
+;-------------------------------------------------
+;主人公に対して忠誠を誓わせる
+IF ARG == 450
+	PRINTFORMW 「」
+	PRINTFORMW 「」
+	RETURN 0
+;主人公に対して忠誠を誓わせる/成功
+ELSEIF ARG == 451
+	PRINTFORMW 「ははぁん」
+	PRINTFORMW %ANAME(TARGET)%「」
+	RETURN 0
+;主人公に対して忠誠を誓わせる/失敗
+ELSEIF ARG == 452
+	PRINTFORMW 「ははぁん」
+	PRINTFORMW 「」
+	RETURN 0
+ENDIF
