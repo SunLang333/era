@@ -41,7 +41,29 @@ public class CsvDataReader : IDisposable
     }
 
     public List<TrainDefinition> ReadTrainDefinitions()
-        => ReadDefinitionCsv("Train").Select(x => new TrainDefinition(x.Id, x.Name)).ToList();
+        => ReadDefinitionCsv("Train")
+            .Select(x => new TrainDefinition(x.Id, x.Name, TrainDefinition.InferActionType(x.Id)))
+            .ToList();
+
+    /// <summary>アイテム CSV からショップ商品を読み込む</summary>
+    public List<ShopItem> ReadShopItems()
+    {
+        var raw = ReadDefinitionCsv("Item");
+        var result = new List<ShopItem>();
+        foreach (var (id, name, comment) in raw)
+        {
+            // Item.csv の 3 列目が価格（コメント列と兼用）
+            int price = 0;
+            if (!string.IsNullOrEmpty(comment))
+            {
+                var parts = comment.TrimStart(';').Trim().Split(';');
+                if (parts.Length > 0)
+                    int.TryParse(parts[0].Trim(), out price);
+            }
+            result.Add(new ShopItem(id, name, price));
+        }
+        return result;
+    }
 
     public List<TalentDefinition> ReadTalentDefinitions()
         => ReadDefinitionCsv("Talent").Select(x => new TalentDefinition(x.Id, x.Name, x.Comment)).ToList();
@@ -215,8 +237,37 @@ public class CsvDataReader : IDisposable
 /// <summary>素質定義</summary>
 public record TalentDefinition(int Id, string Name, string Comment);
 
-/// <summary>調教定義</summary>
-public record TrainDefinition(int Id, string Name);
+/// <summary>調教定義（ActionType はコマンド ID から推定）</summary>
+public record TrainDefinition(int Id, string Name,
+    eratohoK.Core.TrainingActionType ActionType = eratohoK.Core.TrainingActionType.Caress)
+{
+    /// <summary>Train CSV の ID からアクションタイプを推定する</summary>
+    public static eratohoK.Core.TrainingActionType InferActionType(int id) => id switch
+    {
+        // 愛撫系（Caress）
+        0 or 1 or 5 or 12 or 13 or 14 or 15 or 17 or 18 or 25 or 26
+            => eratohoK.Core.TrainingActionType.Caress,
+        // 口技系（Oral）
+        2 or 8 or 9 or 10 or 11 or 19 or 24 or 90
+            => eratohoK.Core.TrainingActionType.Oral,
+        // 挿入系（Vaginal）
+        3 or 6 or 21 or 23 or >= 30 and <= 39 or 52 or 55 or 57 or 160
+            => eratohoK.Core.TrainingActionType.Vaginal,
+        // アナル系（Anal）
+        4 or 7 or >= 40 and <= 49 or 53 or 56 or 58 or 161
+            => eratohoK.Core.TrainingActionType.Anal,
+        // 器具系（Toy）
+        16 or 22 or >= 60 and <= 68
+            => eratohoK.Core.TrainingActionType.Toy,
+        // 日常系（Daily）
+        20 or 50 or 51 or >= 70 and <= 79
+            => eratohoK.Core.TrainingActionType.Daily,
+        // 制裁系（Punishment）
+        >= 80 and <= 99
+            => eratohoK.Core.TrainingActionType.Punishment,
+        _ => eratohoK.Core.TrainingActionType.Caress
+    };
+}
 
 /// <summary>能力定義</summary>
 public record AblDefinition(int Id, string Name);

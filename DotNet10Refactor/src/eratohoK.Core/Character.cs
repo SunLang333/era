@@ -35,6 +35,8 @@ public class Character : IGameResource
     
     // 装備
     public List<int> EquipmentIds { get; set; } = new();
+    public List<Equipment> EquippedItems { get; set; } = new();
+    public int PregnancyWeek { get; set; }
     
     // スキル
     public List<Skill> Skills { get; set; } = new();

@@ -27,6 +27,10 @@ public sealed class CommonPreconditionValidator : ICommandValidator
         if (trainer.BaseStatus.Physical <= 0 || target.BaseStatus.Physical <= 0)
             return false;
 
+        // Clothing/restraint check
+        if (ClothingSystem.IsActionBlocked(target, context.Action.ActionType))
+            return false;
+
         return true;
     }
 
@@ -41,6 +45,8 @@ public sealed class CommonPreconditionValidator : ICommandValidator
             return $"{context.Trainer.Name}の体力が不足しています。";
         if (context.Target.BaseStatus.Physical <= 0)
             return $"{context.Target.Name}の体力が不足しています。";
+        if (ClothingSystem.IsActionBlocked(context.Target, context.Action.ActionType))
+            return $"{context.Target.Name}の装備がこのアクションを阻んでいます。";
         return null;
     }
 }
