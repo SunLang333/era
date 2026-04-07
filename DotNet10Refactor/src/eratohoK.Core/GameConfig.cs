@@ -33,6 +33,14 @@ public class GameConfig
     public double StoicPleasurePenalty { get; set; } = 0.7;
     /// <summary>天賦「濡れやすい」がある場合の快感ボーナス倍率</summary>
     public double EasilyWetBonus { get; set; } = 1.4;
+    /// <summary>天賦「濡れにくい」がある場合の快感ペナルティ倍率</summary>
+    public double HardlyWetPenalty { get; set; } = 0.6;
     /// <summary>天賦「献身的」で好感度正の場合の服従ボーナス倍率</summary>
     public double DevotedObedienceBonus { get; set; } = 1.2;
+    /// <summary>天賦「痛みに弱い」がある場合の制裁快感ボーナス倍率</summary>
+    public double WeakToPainBonus { get; set; } = 1.5;
+    /// <summary>天賦「痛みに強い」がある場合の制裁快感ペナルティ倍率</summary>
+    public double StrongToPainPenalty { get; set; } = 0.6;
+    /// <summary>1 アクション当たりの平均時間 (分)（セッション時間上限計算に使用）</summary>
+    public int AverageActionTimeMinutes { get; set; } = 12;
 }

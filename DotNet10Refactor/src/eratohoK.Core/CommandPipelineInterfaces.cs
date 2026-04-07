@@ -50,7 +50,8 @@ public interface ISourceAccumulator
     /// </summary>
     /// <param name="source">セッション累積 SOURCE 値</param>
     /// <param name="target">変化を受ける対象キャラクター</param>
+    /// <param name="trainerId">好感度変化の相手となるトレーナーキャラクター ID</param>
     /// <param name="config">演算定数を含むゲーム設定</param>
     /// <returns>ステータス名と変化量のマップ</returns>
-    IDictionary<string, int> ApplySource(SourceValues source, Character target, GameConfig config);
+    IDictionary<string, int> ApplySource(SourceValues source, Character target, int trainerId, GameConfig config);
 }

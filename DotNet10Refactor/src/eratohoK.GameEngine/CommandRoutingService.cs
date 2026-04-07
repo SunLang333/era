@@ -91,7 +91,7 @@ public sealed class CommandRoutingService
     /// <param name="target">SOURCE を適用するキャラクター</param>
     /// <returns>ステータス変化マップ</returns>
     public IDictionary<string, int> FinalizeSession(TrainingSession session, Character target)
-        => _sourceAccumulator.ApplySource(session.AccumulatedSource, target, _config);
+        => _sourceAccumulator.ApplySource(session.AccumulatedSource, target, session.TrainerId, _config);
 
     // ──────────────────────────────────────────────────────────────────────────
     // Private helpers
@@ -102,7 +102,7 @@ public sealed class CommandRoutingService
         => new CompositeValidator(
         [
             new CommonPreconditionValidator(),
-            new ActionTimeValidator(config.MaxTrainingActionsPerDay * 12), // 12 分/アクション想定
+            new ActionTimeValidator(config.MaxTrainingActionsPerDay * config.AverageActionTimeMinutes),
             new SkillRequirementValidator()
         ]);
 }

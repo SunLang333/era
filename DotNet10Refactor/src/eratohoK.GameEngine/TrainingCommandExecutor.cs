@@ -240,7 +240,7 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
             TrainingActionType.Caress or TrainingActionType.Oral or
             TrainingActionType.Vaginal or TrainingActionType.Anal)
         {
-            pleasureMul *= (2.0 - config.EasilyWetBonus); // 対称的なペナルティ
+            pleasureMul *= config.HardlyWetPenalty;
         }
 
         // 献身的：好感度が正の場合に服従ボーナス
@@ -249,11 +249,11 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
 
         // 痛みに弱い：制裁コマンドの快感を増幅
         if (talent.IsWeakToPain && actionType == TrainingActionType.Punishment)
-            pleasureMul *= 1.5;
+            pleasureMul *= config.WeakToPainBonus;
 
         // 痛みに強い：制裁コマンドの快感を低減
         if (talent.IsStrongToPain && actionType == TrainingActionType.Punishment)
-            pleasureMul *= 0.6;
+            pleasureMul *= config.StrongToPainPenalty;
     }
 
     /// <summary>

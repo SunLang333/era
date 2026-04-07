@@ -18,7 +18,7 @@ using eratohoK.Core;
 public sealed class SourceApplicator : ISourceAccumulator
 {
     /// <inheritdoc/>
-    public IDictionary<string, int> ApplySource(SourceValues source, Character target, GameConfig config)
+    public IDictionary<string, int> ApplySource(SourceValues source, Character target, int trainerId, GameConfig config)
     {
         var changes = new Dictionary<string, int>();
 
@@ -45,11 +45,11 @@ public sealed class SourceApplicator : ISourceAccumulator
             };
         }
 
-        // 爱情系 → 好感度
+        // 爱情系 → 対トレーナー好感度
         if (source.Love != 0)
         {
             int loveDelta = source.Love / 10;
-            target.UpdateLikeability(target.Id, loveDelta); // self-likeability as proxy
+            target.UpdateLikeability(trainerId, loveDelta);
             changes["Likeability"] = loveDelta;
         }
 
