@@ -1,152 +1,81 @@
-# eratohoK Reborn - .NET 10 リファクタリング版
+# eratohoK Reborn — .NET 10 Refactor
 
-## 概要
+This repository contains a .NET 10 refactoring of the eratohoK codebase. The goal is to replace legacy ERB scripts with a modern, modular C# implementation while keeping compatibility with original CSV data assets.
 
-eratohoK を .NET 10 でリファクタリングしたバージョンです。
-元の ERB スクリプトから脱却し、現代的な C# アーキテクチャで再構築されています。
+The refactor splits responsibilities into small projects:
 
-## 主な特徴
+- `eratohoK.Core` — core entities and immutable records (Character, Country, City, etc.)
+- `eratohoK.Data` — CSV data access and loaders (character CSVs, definitions, items)
+- `eratohoK.Semantics` — semantic text model and asset management (口上/portrayal)
+- `eratohoK.GameEngine` — game systems (training, SLG, battle, events, save/load)
+- `eratohoK.Cli`  — simple command-line front-end for testing and playing
 
-### 1. リソースの解離
-
-- **CSV データとの互換性**: 既存の CSV フォーマットを完全にサポート
-- **型安全なデータアクセス**: CsvHelper を使用した型安全な CSV パース
-- **遅延ロード**: 必要なデータのみをメモリに読み込む
-
-### 2. セマンティックテキストシステム
-
-- **基本意味への分解**: 重複した会話・描写をセマンティックカテゴリに分類
-- **コンテキストベース**: 時間帯、感情状態、関係性などのコンテキスト情報を保持
-- **LLM 潤色対応**: AI によるテキスト生成・润色のための構造を提供
-
-### 3. アーキテクチャ
-
-```
-eratohoK.Core         - コアエンティティとインターフェース
-eratohoK.Data         - CSV データアクセス層
-eratohoK.Semantics    - セマンティックテキスト処理
-eratohoK.GameEngine   - ゲームロジックエンジン
-eratohoK.Cli          - コマンドラインインターフェース
-```
-
-## プロジェクト構造
+## Project layout
 
 ```
 DotNet10Refactor/
 ├── eratohoK.Reborn.sln
 └── src/
     ├── eratohoK.Core/
-    │   ├── Enums.cs              - 列挙型定義
-    │   ├── Interfaces.cs         - インターフェース定義
-    │   ├── CharacterStats.cs     - ステータスレコード
-    │   ├── Character.cs          - キャラクターエンティティ
-    │   └── CountryAndCity.cs     - 勢力・都市エンティティ
     ├── eratohoK.Data/
-    │   └── CsvDataReader.cs      - CSV データリーダー
+    │   └── CsvDataReader.cs      # CSV loader and parsers
     ├── eratohoK.Semantics/
-    │   ├── SemanticText.cs       - セマンティックテキスト
-    │   └── SemanticTextFactory.cs - ファクトリー
     ├── eratohoK.GameEngine/
-    │   └── GameEngine.cs         - ゲームエンジン
     └── eratohoK.Cli/
-        └── Program.cs            - エントリーポイント
 ```
 
-## ビルド方法
+## What changed in this update
 
-### 前提条件
+- README translated to English and reorganized.
+- CSV parsing improved: `CsvDataReader` now includes a robust line splitter that supports quoted fields and escaped quotes (RFC-like behavior). This makes the loader more tolerant of commas inside quoted text.
+- Minor documentation to show how to build and run the CLI.
 
+## Build and run
+
+Prerequisites:
 - .NET 10 SDK
 
-### ビルド
+Build:
 
 ```bash
 cd DotNet10Refactor
 dotnet build
 ```
 
-### 実行
+Run CLI (point to the CSV folder):
 
 ```bash
 dotnet run --project src/eratohoK.Cli/eratohoK.Cli.csproj -- ../CSV
 ```
 
-## セマンティックテキストシステム
+If `../CSV` is missing, the CLI will fall back to built-in demo data.
 
-### 基本意味カテゴリ
+## CSV parsing details
 
-| カテゴリ | 説明 |
-|---------|------|
-| Greeting | 挨拶 |
-| Farewell | 別れ |
-| Thanks | 感謝 |
-| Apology | 謝罪 |
-| Joy | 喜び |
-| Anger | 怒り |
-| Sorrow | 悲しみ |
-| Fear | 恐怖 |
-| Morning | 朝 |
-| Night | 夜 |
-| TrainingStart | 調教開始 |
-| Pleasure | 快感 |
-| Pain | 痛み |
+`eratohoK.Data/CsvDataReader.cs` provides utilities to read definition CSVs (Train, Item, Talent, etc.) and character CSVs under `Chara/`.
 
-### LLM 潤色の使用方法
+- The reader now uses an internal `SplitCsvLine(string)` method that correctly handles fields surrounded by double quotes and escaped quotes (`""`).
+- Fields are returned raw and callers trim values as needed. The parser ignores lines starting with `;` and empty lines.
+
+Example usage:
 
 ```csharp
-var assetManager = new SemanticTextAssetManager();
-
-// LLM 用プロンプト生成
-var prompt = assetManager.GenerateLlmPrompt(
-    category: "Greeting",
-    baseText: "おはようございます",
-    style: "polite"
-);
-
-// 結果を LLM API に送信して润色
-// ...
+using var csv = new CsvDataReader("../CSV");
+var trainDefs = csv.ReadTrainDefinitions();
+var characters = csv.LoadAllCharacters();
 ```
 
-## CSV 互換性
+## Next steps / roadmap
 
-### サポートされている CSV ファイル
+1. Complete automatic conversion of ERB mouth/lines (口上) to semantic assets.
+2. Expand CSV field coverage to match every CSV used by the original project.
+3. Add a conversion tool for legacy saves (if required).
+4. Provide a GUI front-end (Blazor/Avalonia) and automated test coverage.
 
-- `Talent.csv` - 素質定義
-- `Train.csv` - 調教コマンド
-- `Abl.csv` - 能力
-- `Base.csv` - 基礎ステータス
-- `Exp.csv` - 経験値
-- `Item.csv` - アイテム
-- `Chara/*.csv` - キャラクターデータ
+## Contributing
 
-### 使用例
+Issues and pull requests are welcome. If you add CSV parsing for additional files, please include sample CSVs and unit tests demonstrating correct parsing of quoted fields.
 
-```csharp
-using var csvReader = new CsvDataReader("../CSV");
+## License
 
-// 素質定義を読み込み
-var talentDefs = csvReader.ReadTalentDefinitions();
-
-// 調教定義を読み込み
-var trainDefs = csvReader.ReadTrainDefinitions();
-
-// キャラクター CSV を読み込み
-var charaData = csvReader.ReadCharacterCsvs();
-```
-
-## 今後の拡張予定
-
-1. **完全な CSV パース**: すべての CSV フォーマットをサポート
-2. **口上システム**: 既存の口上ファイルをセマンティックテキストに変換
-3. **デイリーイベント**: イベントシステムの再実装
-4. **戦略フェーズ**: SLG 要素の実装
-5. **バトルシステム**: 戦闘ロジックの実装
-6. **UI フロントエンド**: Blazor または Avalonia による UI
-
-## ライセンス
-
-元の eratohoK のライセンスに従います。
-
-## 貢献
-
-バグ報告や機能提案は GitHub Issues で受け付けています。
+This project follows the licensing terms of the original eratohoK project.
