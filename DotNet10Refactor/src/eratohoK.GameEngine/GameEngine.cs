@@ -113,6 +113,39 @@ public class GameStateManager
     {
         return _characters.Where(c => c.CityId == cityId).ToList();
     }
+
+    // ─── Save/Load helpers ──────────────────────────────────────────
+
+    /// <summary>現在のゲーム状態から SaveData を生成する</summary>
+    public SaveData CreateSaveData(int day, int playerCharId, List<int> targetIds,
+        int gold, List<int> itemIds)
+        => new()
+        {
+            Day                  = day,
+            CurrentDate          = CurrentDate,
+            PlayerCharacterId    = playerCharId,
+            TargetCharacterIds   = targetIds,
+            PlayerCountryId      = PlayerCountryId,
+            PlayerGold           = gold,
+            OwnedItemIds         = itemIds,
+            Characters           = _characters.Select(CharSave.From).ToList(),
+            Countries            = _countries.Select(CountrySave.From).ToList(),
+            Cities               = _cities.Select(CitySave.From).ToList(),
+            SavedAt              = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+        };
+
+    /// <summary>SaveData からゲーム状態を復元する</summary>
+    public void RestoreFromSaveData(SaveData data)
+    {
+        _characters.Clear();
+        _countries.Clear();
+        _cities.Clear();
+        _characters.AddRange(data.Characters.Select(d => d.ToCharacter()));
+        _countries.AddRange(data.Countries.Select(d => d.ToCountry()));
+        _cities.AddRange(data.Cities.Select(d => d.ToCity()));
+        CurrentDate     = data.CurrentDate;
+        PlayerCountryId = data.PlayerCountryId;
+    }
 }
 
 /// <summary>
