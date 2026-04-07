@@ -55,7 +55,11 @@ public class CsvDataReader : IDisposable
             // Item.csv の 3 列目が価格（コメント列と兼用）
             int price = 0;
             if (!string.IsNullOrEmpty(comment))
-                int.TryParse(comment.TrimStart(';').Trim().Split(';')[0].Trim(), out price);
+            {
+                var parts = comment.TrimStart(';').Trim().Split(';');
+                if (parts.Length > 0)
+                    int.TryParse(parts[0].Trim(), out price);
+            }
             result.Add(new ShopItem(id, name, price));
         }
         return result;

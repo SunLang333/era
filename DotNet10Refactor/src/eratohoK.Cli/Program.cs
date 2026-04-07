@@ -495,15 +495,16 @@ class Program
         // Apply item effect: boost Joy / Obedience based on item category
         int bonusJoy = 0, bonusObed = 0;
         string effect = "";
+        var rng = Random.Shared;
         if (item.Id is >= 70 and <= 79)   // drugs / 媚薬 range
         {
-            bonusJoy  = 50 + new Random().Next(30);
-            bonusObed = 20 + new Random().Next(20);
+            bonusJoy  = 50 + rng.Next(30);
+            bonusObed = 20 + rng.Next(20);
             effect = $"媚薬効果: 快感+{bonusJoy}  服従+{bonusObed}";
         }
         else if (item.Id is >= 150 and <= 159) // 酒
         {
-            bonusJoy  = 30 + new Random().Next(20);
+            bonusJoy  = 30 + rng.Next(20);
             effect = $"酒酔い効果: 快感+{bonusJoy}";
         }
         else
@@ -756,8 +757,8 @@ class Program
         Console.WriteLine($"  恋人      : {(target.IsLover ? "あり" : "なし")}");
         string talentTags = string.Join(" ", new[]
         {
-            target.Talent.IsVirgin      ? "[処女]"      : null,
-            target.Talent.IsAnalVirgin  ? "[A処女]"     : null,
+            (target.Talent.IsVirgin && target.Gender != Gender.Male)     ? "[処女]"      : null,
+            (target.Talent.IsAnalVirgin && target.Gender != Gender.Male) ? "[A処女]"     : null,
             target.Talent.IsRebellious  ? "[反抗的]"    : null,
             target.Talent.IsHonest      ? "[素直]"      : null,
             target.Talent.IsStoic       ? "[気丈]"      : null,

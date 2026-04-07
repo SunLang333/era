@@ -7,7 +7,7 @@ using eratohoK.Core;
 public class SaveData
 {
     public string Version { get; set; } = "1.0";
-    public string SavedAt { get; set; } = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+    public string SavedAt { get; set; } = "";
     public int Day { get; set; }
     public DateTime CurrentDate { get; set; }
     public int PlayerCharacterId { get; set; }
@@ -247,6 +247,7 @@ public class SaveSystem
     {
         try
         {
+            data.SavedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             Directory.CreateDirectory(SaveDirectory);
             File.WriteAllText(GetSavePath(slot), JsonSerializer.Serialize(data, Options));
             return true;

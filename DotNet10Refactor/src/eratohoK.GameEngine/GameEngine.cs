@@ -130,8 +130,7 @@ public class GameStateManager
             OwnedItemIds         = itemIds,
             Characters           = _characters.Select(CharSave.From).ToList(),
             Countries            = _countries.Select(CountrySave.From).ToList(),
-            Cities               = _cities.Select(CitySave.From).ToList(),
-            SavedAt              = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+            Cities               = _cities.Select(CitySave.From).ToList()
         };
 
     /// <summary>SaveData からゲーム状態を復元する</summary>
