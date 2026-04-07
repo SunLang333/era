@@ -26,6 +26,9 @@ public static class TurnEndProcessor
             {
                 var ev = PregnancySystem.ProgressPregnancy(ch, rng);
                 if (ev != null) events.Add(ev.Message ?? $"{ch.Name}: 妊娠イベント発生");
+                
+                var childEv = PregnancySystem.ProgressChildcare(ch);
+                if (childEv != null) events.Add(childEv.Message ?? $"{ch.Name}: 育児イベント");
             }
             foreach (var ch in gameState.GetAllCharacters())
                 ch.IsDangerDay = rng.NextDouble() < 0.2;

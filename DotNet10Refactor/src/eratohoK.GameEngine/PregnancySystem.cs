@@ -37,10 +37,27 @@ public static class PregnancySystem
         {
             character.IsPregnant = false;
             character.PregnancyWeek = 0;
+            character.ChildcareWeek = 20; // 20 weeks of childcare
             character.ActionDisabledState = ActionDisabledState.Childcare;
             return new PregnancyEvent($"{character.Name}が出産した！しばらく育児に専念する。");
         }
 
+        return null;
+    }
+
+    public static PregnancyEvent? ProgressChildcare(Character character)
+    {
+        if (character.ActionDisabledState != ActionDisabledState.Childcare) return null;
+
+        if (character.ChildcareWeek > 0)
+        {
+            character.ChildcareWeek--;
+            if (character.ChildcareWeek == 0)
+            {
+                character.ActionDisabledState = ActionDisabledState.Normal;
+                return new PregnancyEvent($"{character.Name}の育児期間が終わり、復帰した。");
+            }
+        }
         return null;
     }
 }

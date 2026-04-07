@@ -94,9 +94,26 @@ public class CharSave
     public int Subordination { get; set; }
     public int Dependency { get; set; }
     public bool IsPregnant { get; set; }
+    public bool IsDangerDay { get; set; }
+    public int PregnancyWeek { get; set; }
+    public int ChildcareWeek { get; set; }
+    public int ActionDisabledState { get; set; }
     public bool IsInLove { get; set; }
     public bool IsLover { get; set; }
     public bool HasActed { get; set; }
+
+    // Experience
+    public int ExpVaginal { get; set; }
+    public int ExpAnal { get; set; }
+    public int ExpOral { get; set; }
+    public int ExpHand { get; set; }
+    public int ExpBreast { get; set; }
+    public int ExpFoot { get; set; }
+    public int ExpTorture { get; set; }
+    public int ExpMasochistic { get; set; }
+    public int ExpSadistic { get; set; }
+    public int ExpPublic { get; set; }
+    public int ExpGroup { get; set; }
 
     public static CharSave From(Character c)
     {
@@ -133,7 +150,14 @@ public class CharSave
             IsProud = c.Talent.IsProud, IsShy = c.Talent.IsShy, IsShameless = c.Talent.IsShameless,
             // State
             Likeability = c.Likeability, Subordination = c.Subordination, Dependency = c.Dependency,
-            IsPregnant = c.IsPregnant, IsInLove = c.IsInLove, IsLover = c.IsLover, HasActed = c.HasActed,
+            IsPregnant = c.IsPregnant, IsDangerDay = c.IsDangerDay, PregnancyWeek = c.PregnancyWeek, ChildcareWeek = c.ChildcareWeek,
+            ActionDisabledState = (int)c.ActionDisabledState,
+            IsInLove = c.IsInLove, IsLover = c.IsLover, HasActed = c.HasActed,
+            // Experience
+            ExpVaginal = c.Experience.Vaginal, ExpAnal = c.Experience.Anal, ExpOral = c.Experience.Oral,
+            ExpHand = c.Experience.Hand, ExpBreast = c.Experience.Breast, ExpFoot = c.Experience.Foot,
+            ExpTorture = c.Experience.Torture, ExpMasochistic = c.Experience.Masochistic, ExpSadistic = c.Experience.Sadistic,
+            ExpPublic = c.Experience.Public, ExpGroup = c.Experience.Group,
             // Relations
             LikeRelations = c.RelationsLike.Select(kv => new IntKvp { K = kv.Key, V = kv.Value }).ToList()
         };
@@ -168,8 +192,14 @@ public class CharSave
                 IsWeakToPain: IsWeakToPain, IsStrongToPain: IsStrongToPain,
                 IsCurious: IsCurious, IsOptimistic: IsOptimistic, IsTsundere: IsTsundere,
                 IsCowardly: IsCowardly, IsProud: IsProud, IsShy: IsShy, IsShameless: IsShameless),
+            Experience = new Experience(
+                Vaginal: ExpVaginal, Anal: ExpAnal, Oral: ExpOral, Hand: ExpHand,
+                Breast: ExpBreast, Foot: ExpFoot, Torture: ExpTorture,
+                Masochistic: ExpMasochistic, Sadistic: ExpSadistic, Public: ExpPublic, Group: ExpGroup),
             Likeability = Likeability, Subordination = Subordination, Dependency = Dependency,
-            IsPregnant = IsPregnant, IsInLove = IsInLove, IsLover = IsLover, HasActed = HasActed
+            IsPregnant = IsPregnant, IsDangerDay = IsDangerDay, PregnancyWeek = PregnancyWeek, ChildcareWeek = ChildcareWeek,
+            ActionDisabledState = (ActionDisabledState)ActionDisabledState,
+            IsInLove = IsInLove, IsLover = IsLover, HasActed = HasActed
         };
         foreach (var kv in LikeRelations)
             ch.RelationsLike[kv.K] = kv.V;

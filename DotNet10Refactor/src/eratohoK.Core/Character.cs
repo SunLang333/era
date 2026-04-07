@@ -56,6 +56,7 @@ public class Character : IGameResource
     // 妊娠状態
     public bool IsPregnant { get; set; }
     public bool IsDangerDay { get; set; }
+    public int ChildcareWeek { get; set; } // 育児期間
     public bool IsInLove { get; set; }      // 恋慕
     public bool IsLover { get; set; }       // 恋人
     
