@@ -93,11 +93,13 @@ class Program
 
         // Build training action defs from definitions
         var actionDefs = trainDefs.Select(t => new TrainingActionDef(t.Id, t.Name)).ToList();
-        var trainingEngine = new TrainingEngine(actionDefs);
+        var gameConfig = new GameConfig();
+        var commandRouter = new CommandRoutingService(config: gameConfig);
+        var trainingEngine = new TrainingEngine(actionDefs, commandRouter);
 
         // Setup game state and SLG
         var gameState = BuildDemoGameState(characters);
-        var slgEngine = new SlgEngine();
+        var slgEngine = new SlgEngine(commandRouter);
         var gameEngine = new GameEngine(gameState);
         gameEngine.StartGame();
 
@@ -170,7 +172,7 @@ class Program
         for (int i = 0; i < Math.Min(engine.AvailableActions.Count, MaxDisplayedActions); i++)
         {
             var a = engine.AvailableActions[i];
-            Console.WriteLine($"  [{i}] {a.Name} ({a.TimeRequired}分)");
+            Console.WriteLine($"  [{i}] {a.Name} ({a.TimeRequired}分) [{a.ActionType}]");
         }
         Console.Write("> ");
         var input = ReadLine();
@@ -186,13 +188,38 @@ class Program
         var result = engine.ExecuteAction(session, player, target, engine.AvailableActions[idx].Id);
 
         Console.WriteLine();
-        Console.WriteLine($"【{result.ActionName}】を実行しました。");
-        if (result.StatChanges != null)
+        if (result.Success)
         {
-            Console.WriteLine("  ── ステータス変化 ──");
-            foreach (var kv in result.StatChanges)
-                Console.WriteLine($"    {kv.Key}: {(kv.Value >= 0 ? "+" : "")}{kv.Value}");
+            Console.WriteLine($"【{result.ActionName}】を実行しました。");
+            if (result.StatChanges != null)
+            {
+                Console.WriteLine("  ── ステータス変化 ──");
+                foreach (var kv in result.StatChanges)
+                    Console.WriteLine($"    {kv.Key}: {(kv.Value >= 0 ? "+" : "")}{kv.Value}");
+            }
+            if (result.SourceDelta != null)
+            {
+                Console.WriteLine("  ── SOURCE 蓄積 ──");
+                Console.WriteLine($"    快感: {result.SourceDelta.Pleasure}  " +
+                                  $"愛情: {result.SourceDelta.Love}  " +
+                                  $"屈辱: {result.SourceDelta.Humiliation}  " +
+                                  $"痛苦: {result.SourceDelta.Pain}");
+            }
+
+            // APPLY_SOURCE: セッション終了後に SOURCE 効果を適用
+            var finalChanges = engine.FinalizeSession(session, target);
+            if (finalChanges.Any(kv => kv.Value != 0))
+            {
+                Console.WriteLine("  ── SOURCE 最終適用 ──");
+                foreach (var kv in finalChanges.Where(kv => kv.Value != 0))
+                    Console.WriteLine($"    {kv.Key}: {(kv.Value >= 0 ? "+" : "")}{kv.Value}");
+            }
         }
+        else
+        {
+            Console.WriteLine($"  [{result.ActionName}] 失敗: {result.Message}");
+        }
+
         Console.WriteLine($"  使用時間: {session.TimeUsed}分");
         Console.WriteLine();
         Console.Write("  [Enter で続ける]");
