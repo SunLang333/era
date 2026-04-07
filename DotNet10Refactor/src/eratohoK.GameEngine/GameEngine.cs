@@ -11,6 +11,7 @@ public class GameStateManager
     private readonly List<Character> _characters = new();
     private readonly List<Country> _countries = new();
     private readonly List<City> _cities = new();
+    private readonly List<MilitaryUnit> _units = new();
     
     // ゲームフェーズ
     public GamePhase CurrentPhase { get; set; } = GamePhase.Title;
@@ -20,6 +21,16 @@ public class GameStateManager
     
     // プレイヤー勢力 ID
     public int PlayerCountryId { get; set; }
+    
+    // ショップ残り回数
+    public int ShopTime { get; set; } = 3;
+    public int MaxShopTime { get; set; } = 3;
+    
+    // 外交調教カウントダウン
+    public int DiplomacyTrainedDay { get; set; }
+    
+    // 外交調教システム
+    public DiplomacyTrainingSystem DiplomacySystem { get; } = new();
     
     /// <summary>
     /// キャラクターを追加
@@ -114,6 +125,64 @@ public class GameStateManager
         return _characters.Where(c => c.CityId == cityId).ToList();
     }
 
+    // ── MilitaryUnit management ──────────────────────────────────────
+
+    public List<MilitaryUnit> GetUnitsForCountry(int countryId)
+        => _units.Where(u => u.CountryId == countryId).ToList();
+
+    public void AddUnit(MilitaryUnit unit)
+    {
+        if (_units.Count(u => u.CountryId == unit.CountryId) >= 10) return;
+        _units.Add(unit);
+    }
+
+    public void RemoveUnit(int unitId)
+        => _units.RemoveAll(u => u.Id == unitId);
+
+    public List<MilitaryUnit> GetAllUnits() => _units.ToList();
+
+    public void RecalcMaxShopTime(Country playerCountry)
+    {
+        MaxShopTime = 3 + playerCountry.EconomyScale / 100;
+        ShopTime = Math.Min(ShopTime, MaxShopTime);
+    }
+
+    public void SetCharacterWanderer(int characterId)
+    {
+        var ch = GetCharacter(characterId);
+        if (ch == null) return;
+        ch.SpecialState = SpecialState.Wanderer;
+        var country = GetCountry(ch.CountryId);
+        country?.CharacterIds.Remove(characterId);
+        ch.CountryId = 0;
+    }
+
+    public void CaptureCharacter(int characterId, int captorCountryId)
+    {
+        var ch = GetCharacter(characterId);
+        if (ch == null) return;
+        ch.PrisonerOfCountryId = captorCountryId;
+        ch.SpecialState = SpecialState.Normal;
+    }
+
+    public void ReleaseCharacter(int characterId, bool returnToOriginalCountry = false)
+    {
+        var ch = GetCharacter(characterId);
+        if (ch == null) return;
+        ch.PrisonerOfCountryId = 0;
+        if (!returnToOriginalCountry)
+            ch.SpecialState = SpecialState.Wanderer;
+    }
+
+    public bool CanCharacterAct(int characterId)
+    {
+        var ch = GetCharacter(characterId);
+        if (ch == null) return false;
+        if (ch.SpecialState == SpecialState.Dead || ch.SpecialState == SpecialState.Wanderer) return false;
+        if (ch.PrisonerOfCountryId > 0 && ch.PrisonerOfCountryId != PlayerCountryId) return false;
+        return true;
+    }
+
     // ─── Save/Load helpers ──────────────────────────────────────────
 
     /// <summary>現在のゲーム状態から SaveData を生成する</summary>
@@ -130,7 +199,13 @@ public class GameStateManager
             OwnedItemIds         = itemIds,
             Characters           = _characters.Select(CharSave.From).ToList(),
             Countries            = _countries.Select(CountrySave.From).ToList(),
-            Cities               = _cities.Select(CitySave.From).ToList()
+            Cities               = _cities.Select(CitySave.From).ToList(),
+            Units                = _units.Select(UnitSave.From).ToList(),
+            ShopTime             = ShopTime,
+            MaxShopTime          = MaxShopTime,
+            DiplomacyTrainedDay         = DiplomacySystem.DiplomacyTrainedDay,
+            DiplomacyTrainingCharaId    = DiplomacySystem.DiplomacyTrainingCharaId,
+            TrainingRequestPending      = DiplomacySystem.TrainingRequestPending
         };
 
     /// <summary>SaveData からゲーム状態を復元する</summary>
@@ -139,11 +214,18 @@ public class GameStateManager
         _characters.Clear();
         _countries.Clear();
         _cities.Clear();
+        _units.Clear();
         _characters.AddRange(data.Characters.Select(d => d.ToCharacter()));
         _countries.AddRange(data.Countries.Select(d => d.ToCountry()));
         _cities.AddRange(data.Cities.Select(d => d.ToCity()));
+        _units.AddRange(data.Units.Select(u => u.ToUnit()));
         CurrentDate     = data.CurrentDate;
         PlayerCountryId = data.PlayerCountryId;
+        ShopTime        = data.ShopTime;
+        MaxShopTime     = data.MaxShopTime;
+        DiplomacySystem.DiplomacyTrainedDay      = data.DiplomacyTrainedDay;
+        DiplomacySystem.DiplomacyTrainingCharaId = data.DiplomacyTrainingCharaId;
+        DiplomacySystem.TrainingRequestPending   = data.TrainingRequestPending;
     }
 }
 

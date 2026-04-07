@@ -18,6 +18,12 @@ public class SaveData
     public List<CharSave> Characters { get; set; } = [];
     public List<CountrySave> Countries { get; set; } = [];
     public List<CitySave> Cities { get; set; } = [];
+    public List<UnitSave> Units { get; set; } = [];
+    public int DiplomacyTrainedDay { get; set; }
+    public int DiplomacyTrainingCharaId { get; set; }
+    public bool TrainingRequestPending { get; set; }
+    public int ShopTime { get; set; } = 3;
+    public int MaxShopTime { get; set; } = 3;
 }
 
 /// <summary>キャラクターのセーブ用 DTO（ステータス類をフラット化）</summary>
@@ -233,6 +239,35 @@ public class CitySave
         Id = Id, Name = Name, CountryId = CountryId,
         Defense = Defense, Population = Population, Gold = Gold, Food = Food,
         StationedCharacterIds = StationedCharacterIds.ToList()
+    };
+}
+
+/// <summary>部隊のセーブ用 DTO</summary>
+public class UnitSave
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public string? Description { get; set; }
+    public int CountryId { get; set; }
+    public int SoldierCount { get; set; }
+    public List<int> CommanderIds { get; set; } = [];
+    public int Position { get; set; }
+    public int TargetCityId { get; set; }
+
+    public static UnitSave From(MilitaryUnit u) => new()
+    {
+        Id = u.Id, Name = u.Name, Description = u.Description,
+        CountryId = u.CountryId, SoldierCount = u.SoldierCount,
+        CommanderIds = u.CommanderIds.ToList(),
+        Position = u.Position, TargetCityId = u.TargetCityId
+    };
+
+    public MilitaryUnit ToUnit() => new()
+    {
+        Id = Id, Name = Name, Description = Description,
+        CountryId = CountryId, SoldierCount = SoldierCount,
+        CommanderIds = CommanderIds.ToList(),
+        Position = Position, TargetCityId = TargetCityId
     };
 }
 

@@ -78,6 +78,8 @@ public class SlgEngine
                 AdjustRelation(country.Id, target.Id, delta);
                 log.Add($"  [{country.Name}] {target.Name}との外交を強化。関係度 +{delta}。");
             }
+
+            log.Add($"  [{country.Name}] 軍勢を整備中。");
         }
 
         return log;
@@ -177,4 +179,25 @@ public class SlgEngine
 
     private static int CalculateSoldierRecruitment(Country country) =>
         Math.Max(1, country.EconomyScale / EconomyPerSoldier);
+
+    // ── MilitaryUnit helpers ──────────────────────────────────────
+
+    public CommandResult MoveUnit(MilitaryUnit unit, int targetCityId)
+    {
+        unit.TargetCityId = targetCityId;
+        unit.Position = targetCityId;
+        return new CommandResult(true, $"{unit.Name}を都市 {targetCityId} へ移動しました。");
+    }
+
+    public CommandResult AssignCommanders(MilitaryUnit unit, List<Character> commanders)
+    {
+        unit.CommanderIds = commanders.Select(c => c.Id).ToList();
+        return new CommandResult(true, $"{unit.Name}に指揮官を割り当てました。");
+    }
+
+    public CommandResult DisbandUnit(GameStateManager gameState, int unitId)
+    {
+        gameState.RemoveUnit(unitId);
+        return new CommandResult(true, $"部隊 {unitId} を解散しました。");
+    }
 }

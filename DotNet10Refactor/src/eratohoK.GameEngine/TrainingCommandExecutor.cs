@@ -85,6 +85,25 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
                 config.MinStatValue, config.MaxStatValue)
         };
 
+        // Experience counters
+        target.Experience = action.ActionType switch {
+            TrainingActionType.Vaginal => target.Experience with { Vaginal = target.Experience.Vaginal + 1 },
+            TrainingActionType.Oral    => target.Experience with { Oral    = target.Experience.Oral    + 1 },
+            TrainingActionType.Anal    => target.Experience with { Anal    = target.Experience.Anal    + 1 },
+            TrainingActionType.Daily   => target.Experience with { Hand    = target.Experience.Hand    + 1 },
+            _                          => target.Experience
+        };
+
+        // Pregnancy check for Vaginal action
+        if (action.ActionType == TrainingActionType.Vaginal && target.Gender == Gender.Female)
+        {
+            var pregnancyMsg = PregnancySystem.CheckConception(target, target.IsDangerDay, config.UseCondom, config, _rng);
+            if (pregnancyMsg != null) statChanges["Pregnant"] = 1;
+        }
+
+        // Skill command passives
+        SkillEngine.ProcessCommandPassives(trainer, target, action.ActionType, config);
+
         // ── 7. 体力消費 ────────────────────────────────────────────
         trainer.BaseStatus = trainer.BaseStatus with
         {

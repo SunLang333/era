@@ -134,6 +134,29 @@ public static class ReactionSystem
     }
 
     /// <summary>
+    /// キャラクター固有のセリフ付き反応テキストを返す。
+    /// キャラクター番号が一致しない場合は汎用テキストにフォールバックする。
+    /// </summary>
+    public static string GetCharacterReaction(Character target, TrainingActionType action)
+    {
+        var lines = (target.No, action) switch {
+            (1, TrainingActionType.Caress)  => new[]{"「…ちょっと、何するのよ」"},
+            (1, TrainingActionType.Oral)    => new[]{"「やっ、そんな…」"},
+            (1, TrainingActionType.Vaginal) => new[]{"「あっ、あっ…♥」"},
+            (2, TrainingActionType.Caress)  => new[]{"「な、なんだよ急に」"},
+            (2, TrainingActionType.Oral)    => new[]{"「う、うわっ…」"},
+            (2, TrainingActionType.Vaginal) => new[]{"「くっ、気持ちいいじゃないか」"},
+            (9, TrainingActionType.Caress)  => new[]{"「お嬢様の許可を…んっ」"},
+            (9, TrainingActionType.Oral)    => new[]{"「…私には似合わない、でも…」"},
+            (10, TrainingActionType.Caress) => new[]{"「吸血鬼に触れるとは無礼よ…でも悪くはない」"},
+            (8, TrainingActionType.Caress)  => new[]{"「本を読んでいたのに…もう」"},
+            _ => null
+        };
+        if (lines != null) return lines[Rng.Next(lines.Length)];
+        return GetTrainingReaction(target, action);
+    }
+
+    /// <summary>
     /// セッション終了後のターゲットのまとめ反応テキストを返す。
     /// </summary>
     public static string GetSessionEndReaction(Character target)

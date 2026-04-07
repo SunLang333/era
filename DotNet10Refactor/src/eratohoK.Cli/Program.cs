@@ -92,6 +92,17 @@ class Program
 
         if (characters.Count == 0) { Console.WriteLine("キャラクターデータがありません。"); return; }
 
+        // Scenario selection
+        var scenarios = ScenarioLoader.GetBuiltInScenarios();
+        Console.WriteLine();
+        Console.WriteLine("── シナリオを選択 ──");
+        for (int i = 0; i < scenarios.Count; i++)
+            Console.WriteLine($"  [{i + 1}] {scenarios[i].Name} — {scenarios[i].Description}");
+        Console.WriteLine("  [0] デフォルト（キャラデータ準拠）");
+        Console.Write("> ");
+        int scenarioIdx = -1;
+        int.TryParse(ReadLine(), out scenarioIdx);
+
         var player = SelectCharacter(characters, "プレイヤーキャラクターを選択してください:");
         if (player == null) return;
 
@@ -103,7 +114,16 @@ class Program
         var gameConfig  = new GameConfig();
         var router      = new CommandRoutingService(config: gameConfig);
         var trainEngine = new TrainingEngine(actionDefs, router);
-        var gameState   = BuildGameState(characters);
+
+        GameStateManager gameState;
+        if (scenarioIdx >= 1 && scenarioIdx <= scenarios.Count)
+            gameState = BuildGameStateFromScenario(characters, scenarios[scenarioIdx - 1]);
+        else
+            gameState = BuildGameState(characters);
+
+        var playerCountry = gameState.GetCountry(gameState.PlayerCountryId);
+        if (playerCountry != null) gameState.RecalcMaxShopTime(playerCountry);
+
         var slgEngine   = new SlgEngine(router);
         var gameEngine  = new GameEngine(gameState);
         gameEngine.StartGame();
@@ -112,14 +132,13 @@ class Program
         int  playerGold = 2000;
         var  inventory  = new PlayerInventory();
         int  day        = 1;
-        int  restCount  = 0; // counts rest actions toward SLG trigger
 
         Console.WriteLine();
         Console.WriteLine($"「{player.Name}」でゲームを開始します！（所持金: {playerGold} G）");
         Console.WriteLine();
 
-        RunGameLoop(player, targets, trainEngine, gameState, slgEngine, gameEngine,
-            ref day, ref restCount, ref playerGold, inventory, isNewGame: true);
+        RunGameLoop(player, targets, trainEngine, gameState, slgEngine, gameEngine, gameConfig,
+            ref day, ref playerGold, inventory, isNewGame: true);
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -201,14 +220,13 @@ class Program
         foreach (var id in saveData.OwnedItemIds) inventory.AddItem(id);
         int  playerGold = saveData.PlayerGold;
         int  day        = saveData.Day;
-        int  restCount  = 0;
         gameState.CurrentDate = saveData.CurrentDate;
 
         Console.WriteLine($"ロードしました。Day {day}  所持金: {playerGold} G");
         Console.WriteLine();
 
-        RunGameLoop(player, targets, trainEngine, gameState, slgEngine, gameEngine,
-            ref day, ref restCount, ref playerGold, inventory, isNewGame: false);
+        RunGameLoop(player, targets, trainEngine, gameState, slgEngine, gameEngine, gameConfig,
+            ref day, ref playerGold, inventory, isNewGame: false);
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -221,16 +239,22 @@ class Program
         GameStateManager gameState,
         SlgEngine slgEngine,
         GameEngine gameEngine,
+        GameConfig gameConfig,
         ref int day,
-        ref int restCount,
         ref int playerGold,
         PlayerInventory inventory,
         bool isNewGame)
     {
+        var rng = Random.Shared;
         var targetIds = targets.Select(c => c.Id).ToList();
 
         while (true)
         {
+            // ── Morning event ──────────────────────────────────────
+            var morningEv = MorningEventSystem.FireMorningEvent(gameState, player, rng);
+            if (morningEv != null)
+                Console.WriteLine($"  ☀ {morningEv.Message}");
+
             // ── Win/Lose check ─────────────────────────────────────
             var endResult = CheckEndCondition(gameState, targets, day, player);
             if (endResult != null)
@@ -241,7 +265,7 @@ class Program
 
             Console.WriteLine($"═══════════════════════════════════════");
             Console.WriteLine($"  Day {day,-4} [{gameState.CurrentDate:yyyy/MM/dd}]  " +
-                              $"所持金: {playerGold,6} G");
+                              $"所持金: {playerGold,6} G  休息まで: {gameState.ShopTime}日");
             Console.WriteLine($"═══════════════════════════════════════");
             Console.WriteLine("[1] 調教");
             Console.WriteLine("[2] アイテムを使う");
@@ -256,6 +280,14 @@ class Program
             {
                 case "1":
                     DoTraining(player, targets, trainEngine);
+                    // Daily event after training
+                    var trainDailyEv = DailyEventSystem.TryFireEvent(gameState, player, rng);
+                    if (trainDailyEv != null)
+                    {
+                        Console.WriteLine($"  📅 【{trainDailyEv.EventName}】{trainDailyEv.Message}");
+                        foreach (var d in trainDailyEv.Details) Console.WriteLine($"    {d}");
+                        Console.WriteLine();
+                    }
                     break;
 
                 case "2":
@@ -271,13 +303,30 @@ class Program
                     gameState.AdvanceTurn();
                     playerGold += GoldPerDay;
                     day++;
-                    restCount++;
+                    gameState.ShopTime--;
                     Console.WriteLine($"  休息しました。Day {day}。(所持金 +{GoldPerDay} G)");
+
+                    // TurnEnd processing
+                    var turnResult = TurnEndProcessor.ProcessTurnEnd(gameState, gameConfig, rng);
+                    playerGold += turnResult.GoldGained;
+                    if (turnResult.GoldGained > 0)
+                        Console.WriteLine($"  都市収入: +{turnResult.GoldGained} G");
+                    foreach (var ev in turnResult.Events)
+                        Console.WriteLine($"  ⚡ {ev}");
                     Console.WriteLine();
 
-                    if (restCount >= SlgTriggerDay)
+                    // Daily event on rest
+                    var dailyEv = DailyEventSystem.TryFireEvent(gameState, player, rng);
+                    if (dailyEv != null)
                     {
-                        restCount = 0;
+                        Console.WriteLine($"  📅 【{dailyEv.EventName}】{dailyEv.Message}");
+                        foreach (var d in dailyEv.Details) Console.WriteLine($"    {d}");
+                        Console.WriteLine();
+                    }
+
+                    if (gameState.ShopTime <= 0)
+                    {
+                        gameState.ShopTime = gameState.MaxShopTime;
                         var warResult = ShowSlgPhase(gameState, slgEngine, player, ref playerGold);
                         if (warResult == EndReason.PlayerDestroyed)
                         {
@@ -577,6 +626,9 @@ class Program
         Console.WriteLine("[3] 宣戦布告");
         Console.WriteLine("[4] 徴兵");
         Console.WriteLine("[5] スキップ");
+        Console.WriteLine("[6] 部隊管理");
+        Console.WriteLine("[7] 技術研究");
+        Console.WriteLine("[8] 外交調教提案");
         Console.Write("> ");
 
         switch (ReadLine())
@@ -638,7 +690,7 @@ class Program
                 var result = BattleEng.ResolveSiege(playerCountry, target, targetCities[ci]);
                 Console.WriteLine();
                 Console.WriteLine("  ── 攻城戦結果 ──");
-                PrintBattleResult(result);
+                PrintBattleResult(result, gameState);
                 Console.WriteLine();
                 break;
             }
@@ -654,6 +706,80 @@ class Program
                 playerCountry.SoldierCount += recruit;
                 Console.WriteLine($"  兵士を徴兵しました。+{recruit} 人 (合計: {playerCountry.SoldierCount} 人)  " +
                                   $"資金: {playerGold} G");
+                Console.WriteLine();
+                break;
+            }
+            case "6": // Unit management
+            {
+                var units = gameState.GetUnitsForCountry(playerCountry.Id);
+                Console.WriteLine($"  保有部隊: {units.Count} / 10");
+                foreach (var u in units)
+                    Console.WriteLine($"    [{u.Id}] {u.Name}  兵数:{u.SoldierCount}  位置:{u.Position}");
+                Console.WriteLine("  [n] 新規部隊を編成  [q] 戻る");
+                Console.Write("  > ");
+                var unitInput = ReadLine();
+                if (unitInput == "n")
+                {
+                    int newId = units.Count > 0 ? units.Max(u => u.Id) + 1 : 1;
+                    var newUnit = new MilitaryUnit
+                    {
+                        Id = newId, Name = $"{playerCountry.Name}第{newId}軍",
+                        CountryId = playerCountry.Id,
+                        SoldierCount = Math.Min(10, playerCountry.SoldierCount)
+                    };
+                    gameState.AddUnit(newUnit);
+                    Console.WriteLine($"  {newUnit.Name} を編成しました。");
+                }
+                Console.WriteLine();
+                break;
+            }
+            case "7": // Tech research
+            {
+                var techDescs = TechSystem.GetAllTechDescriptions();
+                Console.WriteLine("  ── 利用可能な技術 ──");
+                var available = techDescs.Keys.Where(t => TechSystem.CanResearch(playerCountry, t)).ToList();
+                if (available.Count == 0)
+                {
+                    Console.WriteLine("  研究できる技術がありません。");
+                }
+                else
+                {
+                    for (int i = 0; i < available.Count; i++)
+                        Console.WriteLine($"    [{i}] {techDescs[available[i]]}");
+                    Console.Write("  > ");
+                    if (int.TryParse(ReadLine(), out var ti) && ti >= 0 && ti < available.Count)
+                    {
+                        TechSystem.Research(playerCountry, available[ti]);
+                        Console.WriteLine($"  【{available[ti]}】を研究しました！");
+                    }
+                    else
+                    {
+                        Console.WriteLine("  キャンセルしました。");
+                    }
+                }
+                Console.WriteLine();
+                break;
+            }
+            case "8": // Diplomacy training proposal
+            {
+                var rng = Random.Shared;
+                var enemies = allCountries.Where(c => c.Id != playerCountry.Id && !c.IsDestroyed).ToList();
+                if (enemies.Count == 0) { Console.WriteLine("  外交相手がいません。"); break; }
+                Console.WriteLine("  外交調教を提案する勢力を選択:");
+                for (int i = 0; i < enemies.Count; i++)
+                    Console.WriteLine($"    [{i}] {enemies[i].Name}");
+                Console.Write("  > ");
+                if (!int.TryParse(ReadLine(), out var dti) || dti < 0 || dti >= enemies.Count)
+                {
+                    Console.WriteLine("  キャンセルしました。"); break;
+                }
+                var targetCountry = enemies[dti];
+                var targetChars = gameState.GetCharactersByCountry(targetCountry.Id);
+                if (targetChars.Count == 0) { Console.WriteLine("  対象キャラクターがいません。"); break; }
+                var targetChar = targetChars[rng.Next(targetChars.Count)];
+                var dipResult = gameState.DiplomacySystem.ProposeTraining(
+                    playerCountry, targetCountry, targetChar, slgEngine, rng);
+                Console.WriteLine($"  {dipResult.Message}");
                 Console.WriteLine();
                 break;
             }
@@ -683,19 +809,31 @@ class Program
 
             var city = cities[rng.Next(cities.Count)];
             var result = BattleEng.ResolveSiege(attacker, defender, city);
-            PrintBattleResult(result);
+            PrintBattleResult(result, gameState);
         }
     }
 
-    static void PrintBattleResult(BattleResult r)
+    static void PrintBattleResult(BattleResult r, GameStateManager? gameState = null)
     {
         string outcome = r.AttackerWon ? "陥落！" : "防衛成功";
         Console.WriteLine($"  [{r.AttackerName}] → [{r.CityName}({r.DefenderName})] : {outcome}");
-        Console.WriteLine($"    攻撃側損失: {r.AttackerLoss}  防衛側損失: {r.DefenderLoss}");
+        Console.WriteLine($"    攻撃側損失: {r.AttackerLoss}  防衛側損失: {r.DefenderLoss}  ({r.RoundsPlayed}ラウンド)");
         if (r.AttackerWon && r.Plunder > 0)
             Console.WriteLine($"    略奪: {r.Plunder} G");
         if (r.DefenderDestroyed)
             Console.WriteLine($"  ★ {r.DefenderName} が滅亡しました！");
+        if (r.CapturedCharacterId.HasValue && gameState != null)
+        {
+            gameState.CaptureCharacter(r.CapturedCharacterId.Value, gameState.PlayerCountryId);
+            var captured = gameState.GetCharacter(r.CapturedCharacterId.Value);
+            if (captured != null)
+                Console.WriteLine($"  ★ {captured.Name} を捕虜にした！");
+        }
+        if (r.RoundLog != null && r.RoundLog.Count > 0)
+        {
+            foreach (var line in r.RoundLog)
+                Console.WriteLine(line);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -921,6 +1059,44 @@ class Program
         player.CityIds.Add(1);
         c2.CityIds.Add(2);
         c3.CityIds.Add(3);
+
+        gs.PlayerCountryId = 1;
+        return gs;
+    }
+
+    static GameStateManager BuildGameStateFromScenario(List<Character> characters, ScenarioDefinition scenario)
+    {
+        var gs = new GameStateManager();
+        foreach (var c in characters) gs.AddCharacter(c);
+
+        for (int i = 0; i < scenario.Factions.Count; i++)
+        {
+            var faction = scenario.Factions[i];
+            int id = i + 1;
+            var country = new Country
+            {
+                Id = id,
+                Name = faction.Name,
+                EconomyScale = faction.EconomyScale,
+                SoldierCount = faction.SoldierCount,
+                IsAIControlled = i != 0
+            };
+            foreach (var tech in faction.StartingTechs)
+                country.ResearchTechnology(tech);
+            gs.AddCountry(country);
+
+            var city = new City
+            {
+                Id = id,
+                Name = faction.Name,
+                CountryId = id,
+                Population = faction.EconomyScale / 6,
+                Gold = faction.EconomyScale * 3,
+                Defense = faction.SoldierCount * 2
+            };
+            gs.AddCity(city);
+            country.CityIds.Add(id);
+        }
 
         gs.PlayerCountryId = 1;
         return gs;

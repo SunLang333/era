@@ -22,61 +22,72 @@ public class BattleEngine
     private const int    MinSoldierAfter  = 0;
 
     /// <summary>
-    /// 攻城戦を解決する。
+    /// 攻城戦を解決する（後方互換オーバーロード）。
+    /// </summary>
+    public BattleResult ResolveSiege(Country attacker, Country defender, City targetCity)
+        => ResolveSiege(attacker, defender, targetCity, null, null);
+
+    /// <summary>
+    /// 攻城戦を解決する（指揮官指定・ラウンドログ付き版）。
     /// 攻撃側が勝利した場合、都市の帰属が攻撃側に変更される。
     /// </summary>
-    /// <param name="attacker">攻撃勢力</param>
-    /// <param name="defender">防衛勢力</param>
-    /// <param name="targetCity">攻撃対象の都市</param>
-    /// <returns>戦闘結果</returns>
-    public BattleResult ResolveSiege(Country attacker, Country defender, City targetCity)
+    public BattleResult ResolveSiege(Country attacker, Country defender, City targetCity,
+        IEnumerable<Character>? attackerCommanders,
+        IEnumerable<Character>? defenderCommanders)
     {
-        double attackRoll = attacker.SoldierCount
-            * (_rng.NextDouble() * (AttackRollMax - AttackRollMin) + AttackRollMin);
-        double defenseRoll = defender.SoldierCount
-            * (_rng.NextDouble() * (DefenseRollMax - DefenseRollMin) + DefenseRollMin)
-            + targetCity.Defense;
+        var atkCmdrs = attackerCommanders?.ToList() ?? [];
+        var defCmdrs = defenderCommanders?.ToList() ?? [];
+        bool hasCombatDoctrine = attacker.HasTechnology("CombatDoctrine");
+        double techBonus = defCmdrs.Count > 0 ? 0.1 : 0.0;
 
-        bool attackerWins = attackRoll > defenseRoll;
+        var roundLog = new List<string>();
+        int atkWins = 0, defWins = 0;
+        int totalAtkLoss = 0, totalDefLoss = 0;
+        int rounds = 0;
+        const int MaxRounds = 5;
 
-        int attackerLoss = (int)(attacker.SoldierCount * AttackerLossPct
-            + defenseRoll * 0.04);
-        int defenderLoss = (int)(defender.SoldierCount * DefenderLossPct
-            + attackRoll * 0.05);
-
-        attackerLoss = Math.Clamp(attackerLoss, 1, attacker.SoldierCount);
-        defenderLoss = Math.Clamp(defenderLoss, 0, defender.SoldierCount);
-
-        attacker.SoldierCount = Math.Max(MinSoldierAfter, attacker.SoldierCount - attackerLoss);
-        defender.SoldierCount = Math.Max(MinSoldierAfter, defender.SoldierCount - defenderLoss);
-
-        int plunder = 0;
-        if (attackerWins)
+        while (rounds < MaxRounds && atkWins < 3 && defWins < 3
+               && attacker.SoldierCount > 0 && defender.SoldierCount > 0)
         {
-            var oldCountryId = targetCity.CountryId;
-            targetCity.CountryId = attacker.Id;
-            if (!attacker.CityIds.Contains(targetCity.Id))
-                attacker.CityIds.Add(targetCity.Id);
-            defender.CityIds.Remove(targetCity.Id);
+            rounds++;
+            double cmdBonus = atkCmdrs.Sum(c => c.Ability.Command / 10.0 + c.Ability.Fight / 20.0);
+            double attackRoll = (attacker.SoldierCount * (_rng.NextDouble() * 0.6 + 0.7)) * (1.0 + cmdBonus / 100.0);
+            if (hasCombatDoctrine) attackRoll *= 1.2;
+            double defenseRoll = (defender.SoldierCount * (_rng.NextDouble() * 0.6 + 0.7)) + targetCity.Defense * (1.0 + techBonus);
 
-            // 都市の金を一部略奪
-            plunder = targetCity.Gold / 4;
-            targetCity.Gold -= plunder;
+            bool roundWin = attackRoll > defenseRoll;
+            if (roundWin) atkWins++; else defWins++;
 
-            // 防衛側に他の都市がなければ滅亡
-            if (defender.CityIds.Count == 0)
-                defender.IsDestroyed = true;
+            int atkLoss = (int)(attacker.SoldierCount * 0.08 + defenseRoll * 0.02);
+            int defLoss = (int)(defender.SoldierCount * 0.07 + attackRoll  * 0.02);
+            atkLoss = Math.Clamp(atkLoss, 1, attacker.SoldierCount);
+            defLoss = Math.Clamp(defLoss, 0, defender.SoldierCount);
+            attacker.SoldierCount = Math.Max(0, attacker.SoldierCount - atkLoss);
+            defender.SoldierCount = Math.Max(0, defender.SoldierCount - defLoss);
+            totalAtkLoss += atkLoss; totalDefLoss += defLoss;
+
+            roundLog.Add($"  ラウンド{rounds}: {(roundWin ? "攻撃側優勢" : "防衛側優勢")} | 損失 攻:{atkLoss} 防:{defLoss}");
         }
 
-        return new BattleResult(
-            AttackerWon: attackerWins,
-            AttackerName: attacker.Name,
-            DefenderName: defender.Name,
-            CityName: targetCity.Name,
-            AttackerLoss: attackerLoss,
-            DefenderLoss: defenderLoss,
-            Plunder: plunder,
-            DefenderDestroyed: defender.IsDestroyed);
+        bool attackerWins = atkWins > defWins;
+        int plunder = 0;
+        int? capturedCharId = null;
+
+        if (attackerWins)
+        {
+            targetCity.CountryId = attacker.Id;
+            if (!attacker.CityIds.Contains(targetCity.Id)) attacker.CityIds.Add(targetCity.Id);
+            defender.CityIds.Remove(targetCity.Id);
+            plunder = targetCity.Gold / 4;
+            targetCity.Gold -= plunder;
+            if (defender.CityIds.Count == 0) defender.IsDestroyed = true;
+            // 30% chance to capture defender's boss
+            if (_rng.NextDouble() < 0.3 && defender.BossCharacterId > 0)
+                capturedCharId = defender.BossCharacterId;
+        }
+
+        return new BattleResult(attackerWins, attacker.Name, defender.Name, targetCity.Name,
+            totalAtkLoss, totalDefLoss, plunder, defender.IsDestroyed, rounds, roundLog, capturedCharId);
     }
 
     /// <summary>
@@ -111,7 +122,10 @@ public record BattleResult(
     int AttackerLoss,
     int DefenderLoss,
     int Plunder,
-    bool DefenderDestroyed);
+    bool DefenderDestroyed,
+    int RoundsPlayed = 1,
+    List<string>? RoundLog = null,
+    int? CapturedCharacterId = null);
 
 /// <summary>野戦結果</summary>
 public record FieldBattleResult(
