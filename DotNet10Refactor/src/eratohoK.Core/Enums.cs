@@ -1,6 +1,34 @@
 namespace eratohoK.Core;
 
 /// <summary>
+/// 調教コマンドのカテゴリ
+/// 原版 ERB の調教コマンドカテゴリ（0=愛撫系、1=口系、2=V系、3=A系 …）に対応
+/// </summary>
+public enum TrainingActionType
+{
+    /// <summary>愛撫系 – 一般的な愛撫・接触 (ERB カテゴリ 0)</summary>
+    Caress = 0,
+    /// <summary>口技系 – 口によるプレイ (ERB カテゴリ 1)</summary>
+    Oral = 1,
+    /// <summary>挿入系 – 指・異物などの膣内挿入 (ERB カテゴリ 2)</summary>
+    Vaginal = 2,
+    /// <summary>アナル系 – アナル関連 (ERB カテゴリ 3)</summary>
+    Anal = 3,
+    /// <summary>器具系 – 器具・玩具を使用 (ERB カテゴリ 5)</summary>
+    Toy = 5,
+    /// <summary>精神調教系 – 言葉・精神的圧力 (ERB カテゴリ 6)</summary>
+    Mental = 6,
+    /// <summary>日常系 – 非性的な日常行動・会話 (ERB カテゴリ 7)</summary>
+    Daily = 7,
+    /// <summary>制裁系 – 痛みや罰を与える (拡張)</summary>
+    Punishment = 8,
+    /// <summary>褒美系 – 快楽的な報酬を与える (拡張)</summary>
+    Reward = 9,
+    /// <summary>カスタム – 未定義の拡張コマンド</summary>
+    Custom = 99
+}
+
+/// <summary>
 /// 性別の列挙型
 /// </summary>
 public enum Gender
