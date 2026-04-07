@@ -30,7 +30,7 @@ public class CsvDataReader : IDisposable
         {
             line = line.Trim();
             if (string.IsNullOrEmpty(line) || line.StartsWith(';')) continue;
-            var parts = line.Split(',');
+            var parts = SplitCsvLine(line);
             if (parts.Length < 2) continue;
             if (!int.TryParse(parts[0].Trim(), out var id)) continue;
             var name = parts[1].Trim();
@@ -105,7 +105,7 @@ public class CsvDataReader : IDisposable
         {
             line = line.Trim();
             if (string.IsNullOrEmpty(line) || line.StartsWith(';')) continue;
-            var parts = line.Split(',');
+            var parts = SplitCsvLine(line);
             if (parts.Length < 2) continue;
 
             var key = parts[0].Trim();
@@ -230,6 +230,64 @@ public class CsvDataReader : IDisposable
     }
 
     public void Dispose() { }
+
+    /// <summary>
+    /// Robust CSV line splitter that handles quoted fields and escaped quotes.
+    /// Returns raw field strings without trimming (caller may Trim()).
+    /// </summary>
+    private static string[] SplitCsvLine(string line)
+    {
+        if (string.IsNullOrEmpty(line)) return Array.Empty<string>();
+
+        var fields = new List<string>();
+        var sb = new StringBuilder();
+        bool inQuotes = false;
+
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (inQuotes)
+            {
+                if (c == '"')
+                {
+                    // If next char is also quote, treat as escaped quote
+                    if (i + 1 < line.Length && line[i + 1] == '"')
+                    {
+                        sb.Append('"');
+                        i++; // skip escaped quote
+                    }
+                    else
+                    {
+                        inQuotes = false; // end of quoted field
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            else
+            {
+                if (c == ',')
+                {
+                    fields.Add(sb.ToString());
+                    sb.Clear();
+                }
+                else if (c == '"')
+                {
+                    inQuotes = true;
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+        }
+
+        // add final field
+        fields.Add(sb.ToString());
+        return fields.ToArray();
+    }
 }
 
 // ────────────────── Definition records ──────────────────
