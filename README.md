@@ -1,59 +1,163 @@
-# era — Repository Overview
+# eratohoK / eratohoK Reborn
 
-This repository contains the original eratohoK assets together with a modern .NET 10 refactor called `DotNet10Refactor`.
+> `ERB` / `CSV` の既存アセットを保持しつつ、.NET 10 を用いて従来のスクリプト駆動コンテンツを保守性・拡張性の高い C# ゲームシステムへ段階的にリファクタリングすることを目的としたリポジトリです。
 
-The refactor aims to provide a maintainable, testable, and playable C# implementation
+このリポジトリは単なる「古い資産のバックアップ」でも、完成済みの商用リメイクでもなく、どちらかと言えば**原始コンテンツのアーカイブ + モダンなリファクタリング作業台**です：
 
-## Repository layout
+- 元のゲームデータやスクリプト（`ERB` / `CSV`）はそのまま保持しています。
+- .NET 10 ベースのプロジェクトはこれらのデータを読み込み、動作する CLI プロトタイプを提供します。
+- 口上（`ERB/口上`）は逐次抽出・コンパイルされ、より構造化されたセマンティック資産へと整理されつつあります。
+- ローカルの `.gguf` モデルを組み込み、動的な反応テキスト生成を実装しています。
 
-- `DotNet10Refactor/` — .NET 10 refactor (C# projects: `eratohoK.Core`, `eratohoK.Data`, `eratohoK.Semantics`, `eratohoK.GameEngine`, `eratohoK.Cli`). See `DotNet10Refactor/README.md` for details.
-- `ERB/` — original ERB assets (口上, SLG scripts, skill scripts etc.). These are the textual resources from the original project.
-- `CSV/` — data files (Train.csv, Item.csv, Talent.csv, Chara/…); used by the refactor CSV loader.
-- `docs/` — additional documentation and guides.
-- `saves/` — example save files.
-- `パッチのReadme/` and other localized patch docs — community patches and notes.
+## 現在のプロジェクト状況
 
-## DotNet10Refactor (quick start)
+主なゴールは次のとおりです：
 
-Prerequisites:
+1. **原始アセット互換の維持**：`CSV/` および `ERB/` の既存データを継続利用すること。
+2. **コア玩法の C# への移植**：訓練、イベント、SLG、戦闘、セーブ/ロードなどをモジュール化された C# に移行すること。
+3. **テキストロジックのセマンティック化**：口上スクリプトからテキストや条件、文脈を抽出して構造化資産へ変換すること。
+4. **将来拡張の下地作り**：テスト、フロントエンド差し替え、AI 強化などが容易になる基盤を整えること。
 
-- .NET 10 SDK
+2026-04-08 時点で、リポジトリ上で確認されている事項：
 
-Build:
+- `dotnet build ./DotNet10Refactor/eratohoK.Reborn.sln` が成功することを確認しました。
+- CLI の診断コマンド `--extract-koujou 1` が実行可能で、キャラクター `1` について **775 件** のセマンティック資産を抽出し、`koujou.db` に保存することを確認しました。
 
-```bash
-cd DotNet10Refactor
-dotnet build
+## 現在利用可能な主な機能
+
+### ゲーム原型（CLI）
+
+`DotNet10Refactor/src/eratohoK.Cli` の CLI は次の基本的な流れを提供します：
+
+- ニューゲーム / ロード
+- キャラクターや定義データの読み込み
+- 訓練ループ
+- ショップとアイテム使用
+- 休息、日常イベント、フェーズの進行
+- SLG フェーズおよび戦闘ロジック
+- JSON 形式のセーブ/ロード
+
+CSV パスが見つからない場合は組み込みのデモデータへフォールバックするため、データが不完全でも主なフローの検証は可能です。
+
+### ローカル LLM による動的テキスト生成
+
+プロジェクトは `LLamaSharp`（CPU バックエンド）を利用しており、ローカルの `.gguf` モデルから動的に反応文を生成します。
+
+- 起動時に埋め込みリソースまたはサイドカーの GGUF モデルを探索してロードします。
+- リポジトリにはモデルを配置できる場所があり（例：`DotNet10Refactor/src/eratohoK.Cli/models/`）、モデルが無いと CLI 起動時にエラーになる箇所があります。
+- 生成に失敗した場合に備え、フォールバックの静的文言も用意されています。
+
+### 口上（こうじょう）セマンティック抽出
+
+`eratohoK.Semantics` と `eratohoK.Data` を通じて、次のパイプラインが整備されています：
+
+`ERB/口上` → セマンティックコンパイル → `SemanticText` 資産 → SQLite（`koujou.db`）への永続化
+
+現在できること：
+
+- 口上フォルダの自動検出（キャラクター単位）
+- `PRINTFORM*` 系の出力テキストの抽出
+- 近傍の条件や文脈メタデータの保持
+- 一部条件式の正規化（NormalizedConditions）
+- 抽出結果を `koujou.db` に保存して後続の解析や再利用に供する
+
+## リポジトリ構成（抜粋）
+
+```text
+.
+├─ CSV/                  # 定義テーブルやキャラデータ（元データ）
+├─ ERB/                  # 元のスクリプトと口上テキスト
+├─ DotNet10Refactor/     # .NET 10 によるリファクタリングプロジェクト群
+├─ saves/                # 保存済みセーブや実行生成物
+├─ koujou.db             # 口上抽出結果（SQLite）
+├─ download.ps1          # 補助スクリプト
+├─ fix_compiler.ps1      # 補助スクリプト
+├─ *.txt                 # 実験出力 / デバッグログ
+└─ README.md
 ```
 
-Run the CLI (point to your CSV folder):
+コアとなる部分は主に `CSV/`（データ）、`ERB/`（原典）、`DotNet10Refactor/`（実行側）です。
+
+## .NET 側プロジェクトの役割
+
+ソリューション `DotNet10Refactor/eratohoK.Reborn.sln` は現状次のプロジェクトで構成されています：
+
+- `eratohoK.Core`
+  - エンティティ定義や共有モデル（キャラクター、装備、コマンドコンテキスト等）
+
+- `eratohoK.Data`
+  - CSV 読み取り、データロード、`KoujouDatabase`（SQLite 保存）等
+
+- `eratohoK.Semantics`
+  - 口上のセマンティックコンパイラ、条件正規化器、`SemanticTextFactory` など
+
+- `eratohoK.GameEngine`
+  - ゲームのルールや各種システム（訓練、戦闘、SLG、イベント、セーブ等）
+
+- `eratohoK.Cli`
+  - 現在のフロントエンド（CLI）、メニュー、診断コマンド、モデル検出ロジック等
+
+## クイックスタート
+
+### 必要な環境
+
+- `.NET 10 SDK`
+- 利用する `.gguf` モデルファイル（ローカルに配置するか、ビルド時に埋め込む）
+
+リポジトリにモデルが置かれている場合は、そのままビルドして実行できます。
+
+### ルートからビルド
 
 ```bash
-dotnet run --project src/eratohoK.Cli/eratohoK.Cli.csproj -- ../CSV
+dotnet build ./DotNet10Refactor/eratohoK.Reborn.sln
 ```
 
-If `../CSV` is missing the CLI will fall back to built-in demo data.
+### ルートから CLI を実行（CSV を指定）
 
-For more details about the refactor design, CSV handling, and internals, open `DotNet10Refactor/README.md`.
+```bash
+dotnet run --project ./DotNet10Refactor/src/eratohoK.Cli/eratohoK.Cli.csproj -- ./CSV
+```
 
-## CSV compatibility
+### `DotNet10Refactor/` 内から実行する場合
 
-The refactor includes a CSV reader (`eratohoK.Data/CsvDataReader.cs`) that handles quoted fields and common quirks of the original CSVs. If you add or modify CSVs, please keep a backup and test by running the CLI.
+```bash
+dotnet run --project ./src/eratohoK.Cli/eratohoK.Cli.csproj -- ../CSV
+```
 
-## Notes about original assets
+### 口上抽出の診断を実行する例
 
-This project preserves original ERB assets under `ERB/`. The refactor does not attempt to relicense or alter the original content; it only reads those assets as data during conversion and testing. Respect the original project's license when redistributing.
+```bash
+dotnet run --project ./DotNet10Refactor/src/eratohoK.Cli/eratohoK.Cli.csproj -- --extract-koujou 1
+```
 
-## Special thanks
+補足：
 
-Special thanks to the original eratohoK project and its contributors for creating the content and inspiration this repository builds upon.
+- `1` はキャラクター ID を示します。
+- 実行すると抽出結果がコンソールに表示され、その後カレントディレクトリの `koujou.db` に保存されます。
+- 上記コマンドは本リポジトリで動作確認済みです。
 
----
+## 既知の制限
 
-If you'd like, I can also:
+現状は探索・再構築フェーズにあるため、次の点に注意してください：
 
-- add a root-level `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`;
-- add small unit tests for the CSV parser to ensure quoted-field handling across typical CSVs in this repo; or
-- implement an ERB → semantic-text conversion prototype to start migrating `ERB/口上` into `eratohoK.Semantics` assets.
+- 現在の主なフロントエンドは CLI であり、GUI は未実装です。
+- 独立した自動化テストプロジェクトは未作成です。
+- `eratohoK.Semantics` のビルドで nullable に関するワーニングが残っています。
+- 口上のセマンティックコンパイルは動作しますが、全ての ERB / CSV を完全にカバーしているわけではありません。
+- 起動時にローカルの GGUF モデルが必須となる箇所があり、モデルが無いと起動に失敗します（CSV フォールバックは別箇所で機能します）。
 
-Pick one and I will proceed.
+## 今後の取り組み候補
+
+優先度の高い改善案：
+
+1. CSV 読み取りとセマンティックコンパイルに対する自動テスト整備
+2. 未対応の ERB / CSV のカバレッジ拡張
+3. 抽出した口上資産を実行時に使いやすい形で正規化／安定化
+4. CLI 以外（デスクトップ UI 等）のフロントエンド追加
+5. 動的生成テキストと静的台詞の協調戦略の改善
+
+## 著作権と原始アセットについて
+
+本リポジトリには原典となる `ERB/`、`CSV/` といった資産が含まれています。リファクタリングの目的は**整理・互換・現代化**であり、原始コンテンツの帰属やライセンスを変更するものではありません。
+
+配布や再利用、改変を行う場合は、元プロジェクトや各素材のライセンス条件に従ってください。
