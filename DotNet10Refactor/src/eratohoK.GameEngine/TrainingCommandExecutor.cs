@@ -97,7 +97,7 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
         // Virginity and First Time checks
         if (action.ActionType == TrainingActionType.Vaginal && target.Talent.IsVirgin)
         {
-            var msg = ReactionSystem.GetFirstTimeReaction("処女喪失");
+            var msg = ReactionSystem.GetFirstTimeReactionAsync(target, "処女喪失").GetAwaiter().GetResult();
             System.Console.WriteLine($"[{target.Name}] {msg}");
             target.Talent = target.Talent with { IsVirgin = false };
             statChanges["処女喪失"] = 1;
@@ -105,7 +105,7 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
 
         if (action.ActionType == TrainingActionType.Anal && target.Talent.IsAnalVirgin)
         {
-            var msg = ReactionSystem.GetFirstTimeReaction("アナル初体験");
+            var msg = ReactionSystem.GetFirstTimeReactionAsync(target, "アナル初体験").GetAwaiter().GetResult();
             System.Console.WriteLine($"[{target.Name}] {msg}");
             target.Talent = target.Talent with { IsAnalVirgin = false };
             statChanges["アナル処女喪失"] = 1;
@@ -113,7 +113,7 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
         
         if (action.ActionType == TrainingActionType.Oral && target.Talent.IsKissInexperienced)
         {
-            var msg = ReactionSystem.GetFirstTimeReaction("初キス");
+            var msg = ReactionSystem.GetFirstTimeReactionAsync(target, "初キス").GetAwaiter().GetResult();
             System.Console.WriteLine($"[{target.Name}] {msg}");
             target.Talent = target.Talent with { IsKissInexperienced = false };
             statChanges["初キス"] = 1;

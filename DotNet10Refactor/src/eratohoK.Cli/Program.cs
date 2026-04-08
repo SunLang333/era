@@ -28,6 +28,7 @@ class Program
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
+        ReactionSystem.TextGenerator = new MockLlmTextGenerator();
         
         if (args.Length > 0 && args[0] == "--extract-koujou")
         {
@@ -404,7 +405,7 @@ class Program
             Console.WriteLine($"  ★【{result.ActionName}】を実行しました。");
 
             // Character reaction
-            string reaction = ReactionSystem.GetTrainingReaction(target, engine.AvailableActions[idx].ActionType);
+            string reaction = ReactionSystem.GetCharacterReactionAsync(target, engine.AvailableActions[idx].ActionType).GetAwaiter().GetResult();
             Console.WriteLine($"  {target.Name}:「{reaction}」");
             Console.WriteLine();
 
@@ -443,7 +444,7 @@ class Program
         Console.WriteLine($"  使用時間: {session.TimeUsed} 分");
 
         // Session-end reaction
-        string endReaction = ReactionSystem.GetSessionEndReaction(target);
+        string endReaction = ReactionSystem.GetSessionEndReactionAsync(target).GetAwaiter().GetResult();
         Console.WriteLine($"  {target.Name}: {endReaction}");
 
         Console.WriteLine();
@@ -461,14 +462,14 @@ class Program
             target.IsInLove = true;
             Console.WriteLine();
             Console.WriteLine($"  ★★ {target.Name} が恋慕状態になった！");
-            Console.WriteLine($"  {target.Name}: {ReactionSystem.GetFirstTimeReaction("恋慕")}");
+            Console.WriteLine($"  {target.Name}: {ReactionSystem.GetFirstTimeReactionAsync(target, "恋慕").GetAwaiter().GetResult()}");
         }
         if (!target.IsLover && target.IsInLove && target.BaseStatus.Obedience >= 600)
         {
             target.IsLover = true;
             Console.WriteLine();
             Console.WriteLine($"  ★★★ {target.Name} が恋人になった！");
-            Console.WriteLine($"  {target.Name}: {ReactionSystem.GetFirstTimeReaction("恋人")}");
+            Console.WriteLine($"  {target.Name}: {ReactionSystem.GetFirstTimeReactionAsync(target, "恋人").GetAwaiter().GetResult()}");
         }
     }
 

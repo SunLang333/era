@@ -1,5 +1,7 @@
 namespace eratohoK.GameEngine;
 
+using System;
+using System.Threading.Tasks;
 using eratohoK.Core;
 
 /// <summary>
@@ -11,8 +13,24 @@ public static class ReactionSystem
 {
     private static readonly Random Rng = Random.Shared;
 
+    public static IDynamicTextGenerator? TextGenerator { get; set; }
+
     /// <summary>
-    /// アクション実行時のターゲットの反応テキストを返す。
+    /// LLM を使用した非同期での動的口上・反応生成。
+    /// 指定された LLM ジェネレータが設定されていない場合は既存の静的テキストにフォールバックする。
+    /// </summary>
+    public static async Task<string> GetTrainingReactionAsync(Character target, TrainingActionType actionType)
+    {
+        if (TextGenerator != null)
+        {
+            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, actionType.ToString(), "玩家执行了本次调教指令");
+            return await TextGenerator.GenerateReactionAsync(prompt);
+        }
+        return GetTrainingReaction(target, actionType);
+    }
+
+    /// <summary>
+    /// アクション実行時のターゲットの反応テキストを返す（旧・同期版）。
     /// </summary>
     public static string GetTrainingReaction(Character target, TrainingActionType actionType)
     {
@@ -133,6 +151,16 @@ public static class ReactionSystem
         return lines[Rng.Next(lines.Length)];
     }
 
+    public static async Task<string> GetCharacterReactionAsync(Character target, TrainingActionType action)
+    {
+        if (TextGenerator != null)
+        {
+            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, action.ToString(), "玩家正在执行本次调教指令...");
+            return await TextGenerator.GenerateReactionAsync(prompt);
+        }
+        return GetCharacterReaction(target, action);
+    }
+
     /// <summary>
     /// キャラクター固有のセリフ付き反応テキストを返す。
     /// キャラクター番号が一致しない場合は汎用テキストにフォールバックする。
@@ -156,6 +184,16 @@ public static class ReactionSystem
         return GetTrainingReaction(target, action);
     }
 
+    public static async Task<string> GetSessionEndReactionAsync(Character target)
+    {
+        if (TextGenerator != null)
+        {
+            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, "本次调教结束", "回顾刚才的一系列行为做结");
+            return await TextGenerator.GenerateReactionAsync(prompt);
+        }
+        return GetSessionEndReaction(target);
+    }
+
     /// <summary>
     /// セッション終了後のターゲットのまとめ反応テキストを返す。
     /// </summary>
@@ -177,6 +215,16 @@ public static class ReactionSystem
         };
 
         static string Pick(params string[] arr) => arr[Rng.Next(arr.Length)];
+    }
+
+    public static async Task<string> GetFirstTimeReactionAsync(Character target, string milestone)
+    {
+        if (TextGenerator != null)
+        {
+            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, $"达成了重要的第一次里程碑：{milestone}", "极度关注这个突破心理或生理防线的首次体验", "注意表现动摇、惊讶、或娇羞的情感的突破");
+            return await TextGenerator.GenerateReactionAsync(prompt);
+        }
+        return GetFirstTimeReaction(milestone);
     }
 
     /// <summary>
