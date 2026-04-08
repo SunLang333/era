@@ -83,7 +83,7 @@ public class LlamaTextGenerator : IDynamicTextGenerator, IDisposable
     {
         ThrowIfDisposed();
 
-        var promptTemplate = $"<|im_start|>system\n你是一个文字游戏口上润色器。\n你可以先在<think>...</think>中进行内部思考，然后在think块之后单独给出最终台词。\n严格规则：\n1. 最终给玩家显示的内容只保留think块之后的正文，所以最终台词必须完整、简短、可直接显示。\n2. 受动角色必须使用第一人称，最多允许补一小句极短动作描写。\n3. 不要把受动角色写成施动者，不要让角色对自己执行当前动作。\n4. 不要长篇第三人称小说式描写。\n5. 除非用户提示明确要求，否则不要直接重复角色姓名。\n6. think内容可以较长，但最终台词不要夹带规则解释、系统说明或分析过程。\n<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n";
+        var promptTemplate = $"<|im_start|>system\n你是一个文字游戏口上润色器。\n允许你在<think>...</think>中进行内部思考，但最终给玩家看的台词请直接写出。\n受动角色必须使用第一人称。\n<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n";
 
         var inferenceParams = new InferenceParams()
         {
@@ -94,7 +94,7 @@ public class LlamaTextGenerator : IDynamicTextGenerator, IDisposable
                 TopP = 0.95f,
                 MinP = 0f
             },
-            MaxTokens = 256,
+            MaxTokens = 4096,
             AntiPrompts = new List<string> { "<|im_end|>" }
         };
 
@@ -106,100 +106,24 @@ public class LlamaTextGenerator : IDynamicTextGenerator, IDisposable
             await _executor.LoadState(_initialState, CancellationToken.None).ConfigureAwait(false);
 
             var sb = new StringBuilder();
+            
+            // Console text color logic to distinguish generation if needed, or just plain Console.Write
+            Console.ForegroundColor = ConsoleColor.DarkGray; // For <think> etc., wait we can just print it
             await foreach (var text in _executor.InferAsync(promptTemplate, inferenceParams, CancellationToken.None).ConfigureAwait(false))
             {
+                Console.Write(text);
                 sb.Append(text);
             }
+            Console.ResetColor();
+            Console.WriteLine();
 
-            return SanitizeModelOutput(sb.ToString());
+            var resultText = sb.ToString().Replace("<|im_end|>", "").Trim();
+            return new LlmGenerationResult(resultText, resultText, string.Empty);
         }
         finally
         {
             _generationLock.Release();
         }
-    }
-
-    private static LlmGenerationResult SanitizeModelOutput(string raw)
-    {
-        string cleanedRaw = raw.Replace("<|im_end|>", string.Empty, StringComparison.Ordinal)
-                               .Replace("<|im_start|>", string.Empty, StringComparison.Ordinal)
-                               .Trim();
-
-        var thoughtMatches = Regex.Matches(cleanedRaw, @"<think>(.*?)</think>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        string thinkingText = string.Join("\n\n", thoughtMatches
-            .Select(match => match.Groups[1].Value.Trim())
-            .Where(text => !string.IsNullOrWhiteSpace(text)));
-
-        string visible = Regex.Replace(cleanedRaw, @"<think>.*?</think>", string.Empty, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        visible = Regex.Replace(visible, @"</?think>", string.Empty, RegexOptions.IgnoreCase);
-        visible = NormalizeVisibleOutput(visible);
-
-        if (string.IsNullOrWhiteSpace(visible))
-        {
-            visible = ExtractVisibleCandidate(cleanedRaw);
-        }
-
-        visible = string.IsNullOrWhiteSpace(visible) ? "……" : visible;
-        return new LlmGenerationResult(cleanedRaw, visible, thinkingText);
-    }
-
-    private static string NormalizeVisibleOutput(string text)
-    {
-        var lines = text
-            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(CleanVisibleLine)
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .Where(line => !LooksLikeMetaLine(line))
-            .ToList();
-
-        return lines.Count == 0 ? string.Empty : string.Join(" ", lines);
-    }
-
-    private static string ExtractVisibleCandidate(string raw)
-    {
-        var candidates = raw
-            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
-            .Select(CleanVisibleLine)
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .Where(line => !LooksLikeMetaLine(line))
-            .ToList();
-
-        string? quoted = candidates.LastOrDefault(line => line.Contains('「') || line.Contains('」'));
-        if (!string.IsNullOrWhiteSpace(quoted))
-        {
-            return quoted;
-        }
-
-        string? shortLine = candidates.LastOrDefault(line => line.Length <= 80);
-        return shortLine ?? string.Empty;
-    }
-
-    private static string CleanVisibleLine(string line)
-    {
-        return line.Trim()
-                   .Replace("assistant", string.Empty, StringComparison.OrdinalIgnoreCase)
-                   .Trim();
-    }
-
-    private static bool LooksLikeMetaLine(string line)
-    {
-        string[] metaMarkers =
-        {
-            "好的",
-            "首先",
-            "接下来",
-            "用户",
-            "规则",
-            "输出规则",
-            "当前情境",
-            "施动者",
-            "受动者",
-            "需要处理",
-            "请不要返回",
-            "/no_think"
-        };
-
-        return metaMarkers.Any(marker => line.Contains(marker, StringComparison.Ordinal));
     }
 
     private static void EnsureNativeLoggingConfigured()

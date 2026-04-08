@@ -21,8 +21,7 @@ public static class SemanticPromptBuilder
             sb.AppendLine($"- 把施动者「{semanticEvent.Subject.Name}」视为对方，不要把「{semanticEvent.Target.Name}」写成主动执行本次动作的人。");
         }
         sb.AppendLine("- 不要输出角色姓名开头的小说式长旁白，不要把角色写成在抚摸自己或对自己施加当前动作。");
-        sb.AppendLine("- 允许先在<think>...</think>里进行内部思考，但最终给玩家显示的台词必须写在think块之后。");
-        sb.AppendLine("- 最终台词不要夹带规则解释、系统说明或长篇分析。");
+        sb.AppendLine("- 允许先在<think>...</think>里进行内部思考。最终台词不要夹带规则解释、系统说明或长篇分析。");
         sb.AppendLine("【当前情境】");
         sb.AppendLine($"- 行动名：{semanticEvent.ActionName}");
         if (isSelfFocusedEvent)
@@ -80,11 +79,10 @@ public static class SemanticPromptBuilder
     {
         var sb = new StringBuilder();
         
-        sb.AppendLine("请不要返回多余的内容，只返回该角色面对当前事件的第一人称台词、或夹杂简短的第三人称动作描写/旁白。保持简短。");
+        sb.AppendLine("请不要返回多余的内容，只返回该角色面对当前事件的第一人称台词、或夹杂简短的第三人称动作描写/旁白。");
         sb.AppendLine("【输出规则】");
         sb.AppendLine($"- 说话者必须是「{character.Name}」，默认使用第一人称。");
-        sb.AppendLine("- 允许先在<think>...</think>里进行内部思考，但最终给玩家显示的台词必须写在think块之后。");
-        sb.AppendLine("- 最终台词不要夹带规则解释、系统说明或长篇分析。");
+        sb.AppendLine("- 允许先在<think>...</think>里进行内部思考。最终台词不要夹带规则解释、系统说明或长篇分析。");
         sb.AppendLine("- 不要写成长篇第三人称旁白，也不要让角色像旁观者一样解说自己。");
         sb.AppendLine("【当前情境】");
         sb.AppendLine($"- 发生的事件：{actionName}");
@@ -180,8 +178,8 @@ public static class SemanticPromptBuilder
     private static void AppendThinkFormatHint(StringBuilder sb)
     {
         sb.AppendLine();
-        sb.AppendLine("【输出格式】");
-        sb.Append("如需思考，请把思考内容放进<think>...</think>；真正给玩家显示的台词请放在think块之后单独输出。");
+        sb.AppendLine(" ");
+        sb.Append(" ");
     }
 
     private static string FormatSigned(int value) => value >= 0 ? $"+{value}" : value.ToString();

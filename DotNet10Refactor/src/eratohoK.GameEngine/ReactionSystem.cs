@@ -257,7 +257,7 @@ public static class ReactionSystem
         {
             var prompt = attempt == 1
                 ? basePrompt
-                : basePrompt + "\n【补充要求】你可以先在<think>...</think>里思考，但最终给玩家看的台词必须放在think块之后单独输出；不要把分析过程混进最终台词。";
+                : basePrompt + "\n【补充要求】你可以先在<think>...</think>里思考；不要把分析过程混进最终台词。";
 
             try
             {
