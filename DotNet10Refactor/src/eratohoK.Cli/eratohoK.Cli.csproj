@@ -15,4 +15,8 @@
     <ProjectReference Include="..\eratohoK.Semantics\eratohoK.Semantics.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="models\*.gguf" />
+  </ItemGroup>
+
 </Project>

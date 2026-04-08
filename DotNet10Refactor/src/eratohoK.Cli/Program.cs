@@ -28,14 +28,24 @@ class Program
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        var modelPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\qwen3-0.6b-abliterated.q4_k_m.gguf"));
-        ReactionSystem.TextGenerator = LlamaTextGenerator.GetOrCreateShared(modelPath);
-        AppDomain.CurrentDomain.ProcessExit += static (_, _) => LlamaTextGenerator.DisposeShared();
-        
+
         if (args.Length > 0 && args[0] == "--extract-koujou")
         {
             var target = args.Length > 1 ? args[1] : "1";
             eratohoK.Cli.ExtractionHelper.RunDiagnostic(target);
+            return;
+        }
+
+        try
+        {
+            var modelPath = EmbeddedGgufModelLocator.ResolveModelPath();
+            ReactionSystem.TextGenerator = LlamaTextGenerator.GetOrCreateShared(modelPath);
+            AppDomain.CurrentDomain.ProcessExit += static (_, _) => LlamaTextGenerator.DisposeShared();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"GGUF モデルの初期化に失敗しました: {ex.Message}");
+            Environment.ExitCode = 1;
             return;
         }
 
