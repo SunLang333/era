@@ -1037,7 +1037,8 @@ class Program
     {
         Console.WriteLine();
         Console.WriteLine(prompt);
-        int shown = Math.Min(characters.Count, MaxDisplayedChars);
+        // Show all characters (previously limited by MaxDisplayedChars)
+        int shown = characters.Count;
         for (int i = 0; i < shown; i++)
         {
             var c = characters[i];
@@ -1051,7 +1052,6 @@ class Program
             string tagStr = tags.Length > 0 ? $" [{tags}]" : "";
             Console.WriteLine($"  [{i}] {c.Name}{tagStr}");
         }
-        if (characters.Count > shown) Console.WriteLine($"  ...他 {characters.Count - shown} 人");
         Console.Write("> ");
         var input = ReadLine();
         if (!int.TryParse(input, out var idx) || idx < 0 || idx >= shown)
