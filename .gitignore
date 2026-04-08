@@ -63,3 +63,6 @@ DotNet10Refactor/src/eratohoK.Data/eratohoK.Data.csproj.lscache
 DotNet10Refactor/src/eratohoK.GameEngine/eratohoK.GameEngine.csproj.lscache
 DotNet10Refactor/src/eratohoK.Semantics/eratohoK.Semantics.csproj.lscache
 DotNet10Refactor/code.txt
+escaped-output.txt
+llm-singleton-test-output.txt
+llm-think-fold-test-output.txt

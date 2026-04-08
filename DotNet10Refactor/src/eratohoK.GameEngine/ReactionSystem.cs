@@ -19,43 +19,40 @@ public static class ReactionSystem
     /// LLM を使用した非同期での動的口上・反応生成。
     /// 指定された LLM ジェネレータが設定されていない場合は既存の静的テキストにフォールバックする。
     /// </summary>
-    public static async Task<string> GetTrainingReactionAsync(Character target, TrainingActionType actionType)
-    {
-        if (TextGenerator != null)
-        {
-            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, actionType.ToString(), "玩家执行了本次调教指令");
-            return await TextGenerator.GenerateReactionAsync(prompt);
-        }
-        return GetTrainingReaction(target, actionType);
-    }
+    public static Task<string> GetTrainingReactionAsync(Character target, TrainingActionType actionType)
+        => GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(target, actionType.ToString(), "玩家执行了本次调教指令"),
+            () => GetTrainingReaction(target, actionType),
+            target.Name);
+
+    /// <summary>
+    /// 基于结构化语义事件生成训练反应。
+    /// </summary>
+    public static Task<string> GetTrainingReactionAsync(DialogueSemanticEvent semanticEvent)
+        => GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(semanticEvent),
+            () => GetTrainingReaction(semanticEvent.Target.ToCharacter(), semanticEvent.ActionType),
+            semanticEvent.Target.Name);
 
     /// <summary>
     /// アクション実行時のターゲットの反応テキストを返す（旧・同期版）。
     /// </summary>
     public static string GetTrainingReaction(Character target, TrainingActionType actionType)
     {
-        int joy        = target.BaseStatus.Joy;
-        int resistance = target.BaseStatus.Resistance;
-        int obedience  = target.BaseStatus.Obedience;
-        bool isStoic   = target.Talent.IsStoic;
-        bool isShy     = target.Talent.IsShy;
+        int joy         = target.BaseStatus.Joy;
+        int resistance  = target.BaseStatus.Resistance;
+        int obedience   = target.BaseStatus.Obedience;
+        bool isShy      = target.Talent.IsShy;
         bool isTsundere = target.Talent.IsTsundere;
 
-        // 抵抗段階
         bool isHighResist   = resistance > 400;
-        bool isMidResist    = resistance is > 150 and <= 400;
         bool isLowResist    = resistance <= 150;
-
-        // 服従段階
         bool isHighObedient = obedience > 400;
-
-        // 快感段階
-        bool isHighJoy = joy > 400;
-        bool isMidJoy  = joy is > 150 and <= 400;
+        bool isHighJoy      = joy > 400;
+        bool isMidJoy       = joy is > 150 and <= 400;
 
         string[] lines = (actionType, isHighResist, isHighObedient, isHighJoy) switch
         {
-            // ── 精神調教 (Mental) ──────────────────────────────────────
             (TrainingActionType.Mental, true, _, _) =>
             [
                 "黙れ！こんなこと...", "触るな！気持ち悪い！", "あなたなんか大嫌い！",
@@ -72,7 +69,6 @@ public static class ReactionSystem
                 "...それが望みなの?"
             ],
 
-            // ── 制裁 (Punishment) ─────────────────────────────────────
             (TrainingActionType.Punishment, true, _, _) =>
             [
                 "いたっ!! 何するの!", "やめろ!! 許さない!", "鬼！悪魔！",
@@ -88,7 +84,6 @@ public static class ReactionSystem
                 "っ..くっ...", "...痛い...", "...", "んっ...くっ...", "...うぅ..."
             ],
 
-            // ── 褒美 (Reward) ─────────────────────────────────────────
             (TrainingActionType.Reward, _, true, _) =>
             [
                 "ありがとう...ご主人様...", "嬉しい...幸せ...", "もっと...もっとください...",
@@ -100,27 +95,23 @@ public static class ReactionSystem
                 "...なんか照れる...", "...ふん、感謝はしないけど"
             ],
 
-            // ── 日常 (Daily) ──────────────────────────────────────────
             (TrainingActionType.Daily, _, _, _) =>
             [
                 "...ふーん", "...まあいいか", "...そう?", "...うん", "...どういたしまして"
             ],
 
-            // ── 愛撫・肉体系（高快感） ────────────────────────────────
             (_, _, _, true) =>
             [
                 "あっ..あっ..!", "んっ..だめ..もっと..!", "はぁ..はぁ..止まらない..!",
                 "あああ..っ!", "やぁ..もっと..そこ..!"
             ],
 
-            // ── 愛撫（中快感・羞恥） ──────────────────────────────────
             (_, false, _, _) when isMidJoy && isShy =>
             [
                 "んっ..はずかし..い...", "見ないで..っ...", "あ..そこは..だめ...",
                 "や...変な声..でちゃう...", "..恥ずかしい...!"
             ],
 
-            // ── 愛撫（高抵抗） ────────────────────────────────────────
             (_, true, _, _) when actionType is
                 TrainingActionType.Caress or TrainingActionType.Oral or
                 TrainingActionType.Vaginal or TrainingActionType.Anal or
@@ -129,7 +120,6 @@ public static class ReactionSystem
                 "やめろ！", "触るな！", "嫌..っ!", "こんなこと..!", "放せ!"
             ],
 
-            // ── デフォルト（低抵抗） ──────────────────────────────────
             _ when isLowResist && isTsundere =>
             [
                 "べ、別に気持ちよくなんかないけど...", "んっ..感じてないし...",
@@ -151,15 +141,17 @@ public static class ReactionSystem
         return lines[Rng.Next(lines.Length)];
     }
 
-    public static async Task<string> GetCharacterReactionAsync(Character target, TrainingActionType action)
-    {
-        if (TextGenerator != null)
-        {
-            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, action.ToString(), "玩家正在执行本次调教指令...");
-            return await TextGenerator.GenerateReactionAsync(prompt);
-        }
-        return GetCharacterReaction(target, action);
-    }
+    public static Task<string> GetCharacterReactionAsync(Character target, TrainingActionType action)
+        => GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(target, action.ToString(), "玩家正在执行本次调教指令..."),
+            () => GetCharacterReaction(target, action),
+            target.Name);
+
+    public static Task<string> GetCharacterReactionAsync(DialogueSemanticEvent semanticEvent)
+        => GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(semanticEvent),
+            () => GetCharacterReaction(semanticEvent.Target.ToCharacter(), semanticEvent.ActionType),
+            semanticEvent.Target.Name);
 
     /// <summary>
     /// キャラクター固有のセリフ付き反応テキストを返す。
@@ -167,31 +159,36 @@ public static class ReactionSystem
     /// </summary>
     public static string GetCharacterReaction(Character target, TrainingActionType action)
     {
-        var lines = (target.No, action) switch {
-            (1, TrainingActionType.Caress)  => new[]{"「…ちょっと、何するのよ」"},
-            (1, TrainingActionType.Oral)    => new[]{"「やっ、そんな…」"},
-            (1, TrainingActionType.Vaginal) => new[]{"「あっ、あっ…♥」"},
-            (2, TrainingActionType.Caress)  => new[]{"「な、なんだよ急に」"},
-            (2, TrainingActionType.Oral)    => new[]{"「う、うわっ…」"},
-            (2, TrainingActionType.Vaginal) => new[]{"「くっ、気持ちいいじゃないか」"},
-            (9, TrainingActionType.Caress)  => new[]{"「お嬢様の許可を…んっ」"},
-            (9, TrainingActionType.Oral)    => new[]{"「…私には似合わない、でも…」"},
-            (10, TrainingActionType.Caress) => new[]{"「吸血鬼に触れるとは無礼よ…でも悪くはない」"},
-            (8, TrainingActionType.Caress)  => new[]{"「本を読んでいたのに…もう」"},
+        string[]? lines = (target.No, action) switch
+        {
+            (1, TrainingActionType.Caress)  => new[] { "「…ちょっと、何するのよ」" },
+            (1, TrainingActionType.Oral)    => new[] { "「やっ、そんな…」" },
+            (1, TrainingActionType.Vaginal) => new[] { "「あっ、あっ…♥」" },
+            (2, TrainingActionType.Caress)  => new[] { "「な、なんだよ急に」" },
+            (2, TrainingActionType.Oral)    => new[] { "「う、うわっ…」" },
+            (2, TrainingActionType.Vaginal) => new[] { "「くっ、気持ちいいじゃないか」" },
+            (9, TrainingActionType.Caress)  => new[] { "「お嬢様の許可を…んっ」" },
+            (9, TrainingActionType.Oral)    => new[] { "「…私には似合わない、でも…」" },
+            (10, TrainingActionType.Caress) => new[] { "「吸血鬼に触れるとは無礼よ…でも悪くはない」" },
+            (8, TrainingActionType.Caress)  => new[] { "「本を読んでいたのに…もう」" },
             _ => null
         };
-        if (lines != null) return lines[Rng.Next(lines.Length)];
+
+        if (lines != null)
+        {
+            return lines[Rng.Next(lines.Length)];
+        }
+
         return GetTrainingReaction(target, action);
     }
 
-    public static async Task<string> GetSessionEndReactionAsync(Character target)
+    public static Task<string> GetSessionEndReactionAsync(Character target)
     {
-        if (TextGenerator != null)
-        {
-            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, "本次调教结束", "回顾刚才的一系列行为做结");
-            return await TextGenerator.GenerateReactionAsync(prompt);
-        }
-        return GetSessionEndReaction(target);
+        var semanticEvent = ReactionSemanticEventFactory.CreateSessionEndEvent(target);
+        return GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(semanticEvent),
+            () => GetSessionEndReaction(target),
+            target.Name);
     }
 
     /// <summary>
@@ -217,14 +214,13 @@ public static class ReactionSystem
         static string Pick(params string[] arr) => arr[Rng.Next(arr.Length)];
     }
 
-    public static async Task<string> GetFirstTimeReactionAsync(Character target, string milestone)
+    public static Task<string> GetFirstTimeReactionAsync(Character target, string milestone)
     {
-        if (TextGenerator != null)
-        {
-            var prompt = SemanticPromptBuilder.BuildReactionPrompt(target, $"达成了重要的第一次里程碑：{milestone}", "极度关注这个突破心理或生理防线的首次体验", "注意表现动摇、惊讶、或娇羞的情感的突破");
-            return await TextGenerator.GenerateReactionAsync(prompt);
-        }
-        return GetFirstTimeReaction(milestone);
+        var semanticEvent = ReactionSemanticEventFactory.CreateMilestoneEvent(target, milestone);
+        return GenerateWithFallbackAsync(
+            () => SemanticPromptBuilder.BuildReactionPrompt(semanticEvent),
+            () => GetFirstTimeReaction(milestone),
+            target.Name);
     }
 
     /// <summary>
@@ -234,14 +230,51 @@ public static class ReactionSystem
     {
         return milestone switch
         {
-            "初キス"     => Pick("「...これが..キス..?」", "(唇をそっと触れる)", "(顔が真っ赤になる)"),
-            "処女喪失"   => Pick("(静かに泣いている)", "「..なんか..変な感じ..」", "(震えている)"),
+            "初キス"       => Pick("「...これが..キス..?」", "(唇をそっと触れる)", "(顔が真っ赤になる)"),
+            "処女喪失"     => Pick("(静かに泣いている)", "「..なんか..変な感じ..」", "(震えている)"),
             "アナル初体験" => Pick("「..ひっ..!こんなの..」", "(目を見開く)", "(体が震える)"),
-            "恋慕"       => Pick("(あなたをそっと見つめる)", "「..好きって..何?」", "(胸が高鳴っている)"),
-            "恋人"       => Pick("「...私の...そばにいて」", "(恥ずかしそうに微笑む)", "「ずっと..一緒にいてほしい」"),
-            _            => "(何か特別なことが起きた)"
+            "恋慕"         => Pick("(あなたをそっと見つめる)", "「..好きって..何?」", "(胸が高鳴っている)"),
+            "恋人"         => Pick("「...私の...そばにいて」", "(恥ずかしそうに微笑む)", "「ずっと..一緒にいてほしい」"),
+            _              => "(何か特別なことが起きた)"
         };
 
         static string Pick(params string[] arr) => arr[Rng.Next(arr.Length)];
+    }
+
+    private static async Task<string> GenerateWithFallbackAsync(
+        Func<string> promptFactory,
+        Func<string> fallbackFactory,
+        string targetName)
+    {
+        if (TextGenerator == null)
+        {
+            return fallbackFactory();
+        }
+
+        var basePrompt = promptFactory();
+
+        for (int attempt = 1; attempt <= 2; attempt++)
+        {
+            var prompt = attempt == 1
+                ? basePrompt
+                : basePrompt + "\n【补充要求】你可以先在<think>...</think>里思考，但最终给玩家看的台词必须放在think块之后单独输出；不要把分析过程混进最终台词。";
+
+            try
+            {
+                var generated = await TextGenerator.GenerateReactionAsync(prompt);
+                if (generated.HasVisibleText && generated.VisibleText != "……")
+                {
+                    return generated.VisibleText;
+                }
+
+                LlmBadOutputLogger.Log(targetName, attempt, "empty-visible-output", prompt, generated.RawText);
+            }
+            catch (Exception ex)
+            {
+                LlmBadOutputLogger.Log(targetName, attempt, $"generator-exception:{ex.GetType().Name}:{ex.Message}", prompt, ex.ToString());
+            }
+        }
+
+        return "……";
     }
 }

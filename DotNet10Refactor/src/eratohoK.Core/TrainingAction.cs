@@ -96,5 +96,7 @@ public record TrainingActionResult(
     string Message,
     IDictionary<string, int>? StatChanges = null,
     /// <summary>このアクションが生成した SOURCE デルタ値</summary>
-    SourceValues? SourceDelta = null
+    SourceValues? SourceDelta = null,
+    /// <summary>LLM 用に構造化された口上セマンティクス</summary>
+    DialogueSemanticEvent? SemanticEvent = null
 );

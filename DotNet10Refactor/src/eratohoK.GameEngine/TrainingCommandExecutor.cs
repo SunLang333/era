@@ -32,6 +32,9 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
         var target  = context.Target;
         var action  = context.Action;
         var config  = context.Config;
+        var beforeStatus = target.BaseStatus;
+        var beforeTalent = target.Talent;
+        var beforeExperience = target.Experience;
 
         // ── 1. ベース効果値をアクションタイプから算出 ──────────────────
         var (pleasureBase, obedienceBase, resistanceDelta, corruptionBase, sourceValues)
@@ -147,11 +150,21 @@ public sealed class TrainingCommandExecutor : ICommandExecutor
         // ── 9. セッション時間更新 ──────────────────────────────────
         context.Session.TimeUsed += action.TimeRequired;
 
+        var semanticEvent = ActionSemanticDecomposer.Decompose(
+            trainer,
+            target,
+            action,
+            beforeStatus,
+            beforeTalent,
+            beforeExperience,
+            statChanges);
+
         var result = new TrainingActionResult(
             action.Id, action.Name, true,
             $"{action.Name}を実行しました。",
             statChanges,
-            sourceDelta);
+            sourceDelta,
+            semanticEvent);
 
         context.Session.Actions.Add(result);
         return result;

@@ -13,4 +13,9 @@
     <ProjectReference Include="..\eratohoK.Semantics\eratohoK.Semantics.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LLamaSharp" Version="0.26.0" />
+    <PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.26.0" />
+  </ItemGroup>
+
 </Project>

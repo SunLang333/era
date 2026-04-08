@@ -28,7 +28,9 @@ class Program
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        ReactionSystem.TextGenerator = new MockLlmTextGenerator();
+        var modelPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\qwen3-0.6b-abliterated.q4_k_m.gguf"));
+        ReactionSystem.TextGenerator = LlamaTextGenerator.GetOrCreateShared(modelPath);
+        AppDomain.CurrentDomain.ProcessExit += static (_, _) => LlamaTextGenerator.DisposeShared();
         
         if (args.Length > 0 && args[0] == "--extract-koujou")
         {
@@ -405,7 +407,10 @@ class Program
             Console.WriteLine($"  ★【{result.ActionName}】を実行しました。");
 
             // Character reaction
-            string reaction = ReactionSystem.GetCharacterReactionAsync(target, engine.AvailableActions[idx].ActionType).GetAwaiter().GetResult();
+            string reaction = result.SemanticEvent is not null
+                ? ReactionSystem.GetCharacterReactionAsync(result.SemanticEvent).GetAwaiter().GetResult()
+                : ReactionSystem.GetCharacterReactionAsync(target, engine.AvailableActions[idx].ActionType).GetAwaiter().GetResult();
+            reaction = TrimDialogueBrackets(reaction);
             Console.WriteLine($"  {target.Name}:「{reaction}」");
             Console.WriteLine();
 
@@ -1047,6 +1052,16 @@ class Program
     }
 
     static string ReadLine() => Console.ReadLine() ?? "";
+
+    static string TrimDialogueBrackets(string text)
+    {
+        if (text.StartsWith('「') && text.EndsWith('」') && text.Length >= 2)
+        {
+            return text[1..^1];
+        }
+
+        return text;
+    }
 
     // ══════════════════════════════════════════════════════════════
     //  Game state builder
